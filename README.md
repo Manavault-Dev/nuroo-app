@@ -42,16 +42,18 @@ Nuroo empowers parents by:
 
 ## 📁 Folder Structure (Planned)
 
-   nuroo-app/
-├── assets/ # Icons, images, sounds
-├── components/ # Shared UI components
-├── screens/ # App screens (Home, Profile, Tasks, etc.)
-├── services/ # Firebase, API wrappers
-├── utils/ # Helpers, constants
-├── hooks/ # Custom React hooks
-├── navigation/ # Navigation config
-├── i18n/ # Internationalization
-└── App.tsx # App root
+| Path          | Description                   |
+|---------------|-------------------------------|
+| assets/       | Icons, images, sounds          |
+| app/          | App root                      |
+| components/   | Shared UI components           |
+| screens/      | App screens                    |
+| services/     | Firebase, API wrappers         |
+| utils/        | Helpers, constants             |
+| hooks/        | Custom React hooks             |
+| navigation/   | Navigation config              |
+| i18n/         | Internationalization           |
+
 
 
 ---
@@ -87,3 +89,9 @@ Nuroo is committed to user privacy and safe data handling. Sensitive data is nev
 
 We're still early in development, but we welcome contributions and feedback from educators, designers, developers, and parents.
 To join the team or collaborate - please email me at tilek.dzenisev@gmail.com.
+
+## License
+
+© 2025 Manavolt. All rights reserved.
+
+This repository is licensed under the **MIT License**. See the [LICENSE](./LICENSE) file for details.
