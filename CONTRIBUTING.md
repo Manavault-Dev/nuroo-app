@@ -123,7 +123,7 @@ We are committed to providing a welcoming and inclusive environment for everyone
 We’re always excited to collaborate with **mission-driven builders**!  
 If you’d like to volunteer or contribute regularly, feel free to reach out:
 
-- **Email:** [tilek.dzenisev@gmail.com]
+- **Email:** tilek.dzenisev@gmail.com
 - [**LinkedIn**](https://www.linkedin.com/in/tilek-dzhenishev/)
 - [**X (Twitter)**](https://x.com/tilek_04)
 
