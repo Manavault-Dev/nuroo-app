@@ -6,59 +6,57 @@ Built with ❤️ by [Manavolt](https://github.com/manavolt-dev) — a studio de
 
 ---
 
-##  Overview
+## Overview
 
 Nuroo empowers parents by:
 
-- Delivering personalized educational tasks powered by AI  
-- Tracking emotional and cognitive progress  
-- Supporting accessible, friendly design for families  
-- Making learning collaborative between child, parent, and technology  
+- Delivering personalized educational tasks powered by AI
+- Tracking emotional and cognitive progress
+- Supporting accessible, friendly design for families
+- Making learning collaborative between child, parent, and technology
 
 ---
 
-##  Key Features
+## Key Features
 
-- ✨ AI-Generated Activities tailored to your child’s learning needs  
-- 📊 Progress Dashboard to visualize growth over time  
-- 🧩 Adaptive UX for children with sensory needs  
-- 🔒 Secure authentication & synced cloud storage  
-- 🌐 Multilingual (initially English + Russian)  
+- ✨ AI-Generated Activities tailored to your child’s learning needs
+- 📊 Progress Dashboard to visualize growth over time
+- 🧩 Adaptive UX for children with sensory needs
+- 🔒 Secure authentication & synced cloud storage
+- 🌐 Multilingual (initially English + Russian)
 
 ---
 
-##  Tech Stack
+## Tech Stack
 
-| Layer      | Tech                              |
-|------------|----------------------------------|
-| Frontend   | React Native (Expo)               |
+| Layer      | Tech                                |
+| ---------- | ----------------------------------- |
+| Frontend   | React Native (Expo)                 |
 | Backend    | Firebase (Auth, Firestore, Storage) |
 | AI         | OpenAI API (for generating content) |
-| Auth       | Firebase Auth       |
-| Analytics  | Firebase Analytics / PostHog (TBD) |
-| Deployment | Expo / EAS                       |
+| Auth       | Firebase Auth                       |
+| Analytics  | Firebase Analytics / PostHog (TBD)  |
+| Deployment | Expo / EAS                          |
 
 ---
 
 ## 📁 Folder Structure (Planned)
 
-| Path          | Description                   |
-|---------------|-------------------------------|
-| assets/       | Icons, images, sounds          |
-| app/          | App root                      |
-| components/   | Shared UI components           |
-| screens/      | App screens                    |
-| services/     | Firebase, API wrappers         |
-| utils/        | Helpers, constants             |
-| hooks/        | Custom React hooks             |
-| navigation/   | Navigation config              |
-| i18n/         | Internationalization           |
-
-
+| Path        | Description            |
+| ----------- | ---------------------- |
+| assets/     | Icons, images, sounds  |
+| app/        | App root               |
+| components/ | Shared UI components   |
+| screens/    | App screens            |
+| services/   | Firebase, API wrappers |
+| utils/      | Helpers, constants     |
+| hooks/      | Custom React hooks     |
+| navigation/ | Navigation config      |
+| i18n/       | Internationalization   |
 
 ---
 
-##  Getting Started
+## Getting Started
 
 > **Note:** This is still under active development.
 
@@ -69,7 +67,6 @@ git clone https://github.com/manavolt-dev/nuroo-app.git
 cd nuroo-app
 ```
 
-
 ### 2. Install dependencies
 
 ```bash
@@ -77,6 +74,7 @@ npm install
 ```
 
 ### 3. Start development server
+
 ```bash
 npx expo start
 ```
