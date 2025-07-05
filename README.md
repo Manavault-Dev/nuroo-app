@@ -88,6 +88,8 @@ Nuroo is committed to user privacy and safe data handling. Sensitive data is nev
 We're still early in development, but we welcome contributions and feedback from educators, designers, developers, and parents.
 To join the team or collaborate - please email me at tilek.dzenisev@gmail.com.
 
+[![Contribute](https://img.shields.io/badge/contributions-welcome-blue.svg)](./CONTRIBUTING.md)
+
 ## License
 
 © 2025 Manavolt. All rights reserved.
