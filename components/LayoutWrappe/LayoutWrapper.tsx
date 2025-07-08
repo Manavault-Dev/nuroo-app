@@ -1,16 +1,22 @@
-// components/LayoutWrapper.tsx
 import React, { ReactNode } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ViewStyle } from 'react-native';
 
 import designTokens from '@/lib/design/tokens';
 
 interface LayoutWrapperProps {
   children: ReactNode;
   backgroundColor?: string;
+  noPadding?: boolean;
+  style?: ViewStyle;
 }
 
-const LayoutWrapper = ({ children, backgroundColor }: LayoutWrapperProps) => {
+const LayoutWrapper = ({
+  children,
+  backgroundColor,
+  noPadding,
+  style,
+}: LayoutWrapperProps) => {
   return (
     <SafeAreaView
       style={[
@@ -18,7 +24,9 @@ const LayoutWrapper = ({ children, backgroundColor }: LayoutWrapperProps) => {
         { backgroundColor: backgroundColor || designTokens.colors.background },
       ]}
     >
-      <View style={styles.container}>{children}</View>
+      <View style={[styles.container, noPadding && { padding: 0 }, style]}>
+        {children}
+      </View>
     </SafeAreaView>
   );
 };
