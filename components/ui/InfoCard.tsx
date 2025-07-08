@@ -8,7 +8,7 @@ interface InfoCardProps {
 }
 
 export default function InfoCard({ children, style }: InfoCardProps) {
-  return <View style={[styles.card, tw`p-4`, style]}>{children}</View>;
+  return <View style={[styles.card, tw`p-6`, style]}>{children}</View>;
 }
 
 const styles = StyleSheet.create({
