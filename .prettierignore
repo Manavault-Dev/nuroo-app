@@ -2,3 +2,5 @@ node_modules/
 .vscode/
 .expo/
 eslint.config.js
+functions/tsconfig.json
+functions/tsconfig.dev.json
