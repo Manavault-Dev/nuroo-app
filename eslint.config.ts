@@ -8,7 +8,7 @@ module.exports = defineConfig([
     settings: {
       'import/resolver': {
         alias: {
-          map: [['@env', './env.d.ts']], // если ты используешь alias @env
+          map: [['@env', './env.d.ts']],
           extensions: ['.ts', '.tsx', '.js', '.jsx'],
         },
       },
