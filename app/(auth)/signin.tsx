@@ -1,9 +1,10 @@
+import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import { View, Text } from 'react-native';
 
 export default function SignInScreen() {
   return (
-    <View>
+    <LayoutWrapper>
       <Text>Sign In Screen</Text>
-    </View>
+    </LayoutWrapper>
   );
 }
