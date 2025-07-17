@@ -14,7 +14,8 @@ export const Input: React.FC<InputProps> = ({
   ...props
 }) => {
   const baseStyles =
-    'rounded-md px-3 py-2 text-base bg-white text-text border border-transparent';
+    'rounded-xl px-4 py-4 h-14 text-lg bg-white text-text border border-transparent';
+
   const variants = {
     default: 'border-transparent',
     outlined: 'border border-neutral-300',
