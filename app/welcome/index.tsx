@@ -4,6 +4,7 @@ import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import tw from '@/lib/design/tw';
 import { Button } from '@/components/ui/Button';
 import InfoCard from '@/components/ui/InfoCard';
+import { router } from 'expo-router';
 
 export default function WelcomeScreen() {
   return (
@@ -42,9 +43,7 @@ export default function WelcomeScreen() {
           variant="teal"
           style={tw`w-full py-4 rounded-xl`}
           textStyle={tw`text-xl`}
-          onPress={() => {
-            /* navigate */
-          }}
+          onPress={() => router.push('/signin')}
         />
         <Text style={tw`text-sm mt-6 text-center text-gray-500`}>
           Join thousands of parents supporting their child’s growth
