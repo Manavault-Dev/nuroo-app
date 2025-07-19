@@ -3,15 +3,8 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "babel.config.js",
-    "eslint.config.ts"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "babel.config.js", "eslint.config.ts"]
 }
