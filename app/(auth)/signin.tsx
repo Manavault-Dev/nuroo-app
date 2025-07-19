@@ -1,5 +1,14 @@
 import { useState } from 'react';
-import { View, Text, Alert, Image, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  Alert,
+  Image,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -27,65 +36,75 @@ export default function SignInScreen() {
   };
 
   return (
-    <LayoutWrapper style={tw`p-6 justify-center`}>
-      <View style={tw`items-center`}>
-        <Image
-          source={require('@/assets/images/sign-in.png')}
-          style={tw`w-68 h-48 mb-6`}
-          resizeMode="contain"
-        />
-        <Text style={tw`text-3xl font-bold mb-4 text-primary text-center`}>
-          Welcome Back
-        </Text>
-        <Text style={tw`text-lg text-center text-gray-700`}>
-          Sign in to your account
-        </Text>
-      </View>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView
+        contentContainerStyle={tw`flex-grow`}
+        keyboardShouldPersistTaps="handled"
+      >
+        <LayoutWrapper style={tw`p-6 justify-center flex-1`}>
+          <View style={tw`items-center`}>
+            <Image
+              source={require('@/assets/images/sign-in.png')}
+              style={tw`w-68 h-48 mb-6`}
+              resizeMode="contain"
+            />
+            <Text style={tw`text-3xl font-bold mb-4 text-primary text-center`}>
+              Welcome Back
+            </Text>
+            <Text style={tw`text-lg text-center text-gray-700`}>
+              Sign in to your account
+            </Text>
+          </View>
 
-      <View style={tw`mt-5 mb-4`}>
-        <Text style={tw`text-base mb-2 text-[#1E266D] font-semibold`}>
-          Email
-        </Text>
-        <Input
-          variant="outlined"
-          placeholder="your@email.com"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-      </View>
+          <View style={tw`mt-5 mb-4`}>
+            <Text style={tw`text-base mb-2 text-[#1E266D] font-semibold`}>
+              Email
+            </Text>
+            <Input
+              variant="outlined"
+              placeholder="your@email.com"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
 
-      <View style={tw`mb-8`}>
-        <Text style={tw`text-base mb-2 text-[#1E266D] font-semibold`}>
-          Password
-        </Text>
-        <Input
-          variant="outlined"
-          placeholder="Enter your password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-      </View>
+          <View style={tw`mb-8`}>
+            <Text style={tw`text-base mb-2 text-[#1E266D] font-semibold`}>
+              Password
+            </Text>
+            <Input
+              variant="outlined"
+              placeholder="Enter your password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
 
-      <Button
-        title={loading ? 'Signing in...' : 'Sign In'}
-        variant="teal"
-        onPress={handleSignIn}
-        disabled={loading}
-        style={tw`w-full py-4 rounded-xl`}
-        textStyle={tw`text-xl`}
-      />
+          <Button
+            title={loading ? 'Signing in...' : 'Sign In'}
+            variant="teal"
+            onPress={handleSignIn}
+            disabled={loading}
+            style={tw`w-full py-4 rounded-xl`}
+            textStyle={tw`text-xl`}
+          />
 
-      <TouchableOpacity onPress={() => router.push('/signup')}>
-        <Text style={tw`text-center text-teal-500 mt-6 text-base`}>
-          Don’t have an account? <Text style={tw`underline`}>Sign up</Text>
-        </Text>
-      </TouchableOpacity>
-    </LayoutWrapper>
+          <TouchableOpacity onPress={() => router.push('/signup')}>
+            <Text style={tw`text-center text-teal-500 mt-6 text-base`}>
+              Don’t have an account? <Text style={tw`underline`}>Sign up</Text>
+            </Text>
+          </TouchableOpacity>
+        </LayoutWrapper>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
