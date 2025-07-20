@@ -1,12 +1,15 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Image, Text, View, Dimensions } from 'react-native';
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import tw from '@/lib/design/tw';
 import { Button } from '@/components/ui/Button';
 import InfoCard from '@/components/ui/InfoCard';
 import { router } from 'expo-router';
+import i18n from 'i18next';
 
 export default function WelcomeScreen() {
+  const { t, i18n } = useTranslation();
   return (
     <LayoutWrapper style={tw`flex-1 px-6 justify-between`}>
       <View style={tw`items-center mt-10`}>
