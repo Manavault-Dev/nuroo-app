@@ -1,17 +1,28 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Image, Text, View, Dimensions } from 'react-native';
+import { Image, Text, View, Dimensions, TouchableOpacity } from 'react-native';
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import tw from '@/lib/design/tw';
 import { Button } from '@/components/ui/Button';
 import InfoCard from '@/components/ui/InfoCard';
 import { router } from 'expo-router';
-import i18n from 'i18next';
 
 export default function WelcomeScreen() {
   const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'en' ? 'ru' : 'en';
+    i18n.changeLanguage(newLang);
+  };
   return (
     <LayoutWrapper style={tw`flex-1 px-6 justify-between`}>
+      <View style={tw`absolute top-10 right-6 z-10`}>
+        <TouchableOpacity onPress={toggleLanguage} style={tw`p-2`}>
+          <Text style={tw`text-xl`}>
+            {i18n.language === 'en' ? '🇺🇸' : '🇷🇺'}
+          </Text>
+        </TouchableOpacity>
+      </View>
       <View style={tw`items-center mt-10`}>
         <Image
           source={require('@/assets/images/logo.png')}
@@ -19,37 +30,32 @@ export default function WelcomeScreen() {
           resizeMode="contain"
         />
         <Text style={tw`text-3xl font-bold mb-4 text-primary text-center`}>
-          Welcome to Nuroo
+          {t('welcome_title')}
         </Text>
+
         <Text style={tw`text-lg text-center text-gray-700`}>
-          Support your child’s development with personalized AI-driven plans
+          {t('welcome_subtitle')}
         </Text>
       </View>
 
       <View style={tw`w-full max-w-md items-center`}>
         <InfoCard>
-          <Text style={tw`text-lg mb-2 text-gray-700`}>
-            • Daily personalized exercises
-          </Text>
-          <Text style={tw`text-lg mb-2 text-gray-700`}>
-            • Track your child’s progress
-          </Text>
-          <Text style={tw`text-lg text-gray-700`}>
-            • Expert resources and support
-          </Text>
+          <Text style={tw`text-lg mb-2 text-gray-700`}>{t('feature_1')}</Text>
+          <Text style={tw`text-lg mb-2 text-gray-700`}>{t('feature_2')}</Text>
+          <Text style={tw`text-lg text-gray-700`}>{t('feature_3')}</Text>
         </InfoCard>
       </View>
 
       <View style={tw`w-full max-w-md items-center mb-10`}>
         <Button
-          title="Get Started"
+          title={t('get_started')}
           variant="teal"
           style={tw`w-full py-4 rounded-xl`}
           textStyle={tw`text-xl`}
           onPress={() => router.push('/signin')}
         />
         <Text style={tw`text-sm mt-6 text-center text-gray-500`}>
-          Join thousands of parents supporting their child’s growth
+          {t('footer_note')}
         </Text>
       </View>
     </LayoutWrapper>
