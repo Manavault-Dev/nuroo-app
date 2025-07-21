@@ -1,28 +1,48 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Image, Text, View, Dimensions, TouchableOpacity } from 'react-native';
+import {
+  Image,
+  Text,
+  View,
+  TouchableOpacity,
+  Pressable,
+  Keyboard,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import tw from '@/lib/design/tw';
 import { Button } from '@/components/ui/Button';
 import InfoCard from '@/components/ui/InfoCard';
 import { router } from 'expo-router';
+import { Globe } from 'lucide-react-native';
+
+const LANGUAGES = [
+  { code: 'en', label: 'English', flag: '🇺🇸' },
+  { code: 'ru', label: 'Русский', flag: '🇷🇺' },
+];
 
 export default function WelcomeScreen() {
   const { t, i18n } = useTranslation();
+  const [selectedLang, setSelectedLang] = useState(i18n.language);
+  const [showDropdown, setShowDropdown] = useState(false);
 
-  const toggleLanguage = () => {
-    const newLang = i18n.language === 'en' ? 'ru' : 'en';
-    i18n.changeLanguage(newLang);
+  const handleLanguageChange = (lang: string) => {
+    i18n.changeLanguage(lang);
+    setSelectedLang(lang);
+    setShowDropdown(false);
   };
+
+  const currentLang = LANGUAGES.find((l) => l.code === selectedLang);
+
   return (
     <LayoutWrapper style={tw`flex-1 px-6 justify-between`}>
-      <View style={tw`absolute top-10 right-6 z-10`}>
-        <TouchableOpacity onPress={toggleLanguage} style={tw`p-2`}>
-          <Text style={tw`text-xl`}>
-            {i18n.language === 'en' ? '🇺🇸' : '🇷🇺'}
-          </Text>
-        </TouchableOpacity>
-      </View>
+      {showDropdown && (
+        <Pressable
+          onPress={() => setShowDropdown(false)}
+          style={tw`absolute inset-0 z-40`}
+        />
+      )}
+
       <View style={tw`items-center mt-10`}>
         <Image
           source={require('@/assets/images/logo.png')}
@@ -32,7 +52,6 @@ export default function WelcomeScreen() {
         <Text style={tw`text-3xl font-bold mb-4 text-primary text-center`}>
           {t('welcome_title')}
         </Text>
-
         <Text style={tw`text-lg text-center text-gray-700`}>
           {t('welcome_subtitle')}
         </Text>
@@ -44,6 +63,44 @@ export default function WelcomeScreen() {
           <Text style={tw`text-lg mb-2 text-gray-700`}>{t('feature_2')}</Text>
           <Text style={tw`text-lg text-gray-700`}>{t('feature_3')}</Text>
         </InfoCard>
+      </View>
+
+      <View style={tw`items-center mt-10`}>
+        <Text style={tw`text-base font-semibold text-primary mb-2`}>
+          {t('choose_language')}
+        </Text>
+
+        <View style={tw`relative z-50`}>
+          <TouchableOpacity
+            onPress={() => setShowDropdown(!showDropdown)}
+            style={tw`flex-row items-center px-4 py-2 border border-gray-300 rounded-lg bg-white`}
+          >
+            <Globe size={20} color="#1D2B64" style={tw`mr-2`} />
+            <Text style={tw`text-base text-gray-800`}>
+              {currentLang?.label}
+            </Text>
+          </TouchableOpacity>
+
+          {showDropdown && (
+            <View
+              style={tw`absolute top-12 left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg`}
+            >
+              {LANGUAGES.map((lang) => (
+                <Pressable
+                  key={lang.code}
+                  onPress={() => handleLanguageChange(lang.code)}
+                  style={({ pressed }) =>
+                    tw`px-4 py-2 ${pressed ? 'bg-gray-100' : ''}`
+                  }
+                >
+                  <Text style={tw`text-base text-gray-800`}>
+                    {lang.flag} {lang.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
+        </View>
       </View>
 
       <View style={tw`w-full max-w-md items-center mb-10`}>
