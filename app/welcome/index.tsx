@@ -43,13 +43,13 @@ export default function WelcomeScreen() {
         />
       )}
 
-      <View style={tw`items-center mt-10`}>
+      <View style={tw`items-center mt-2 mb-4`}>
         <Image
           source={require('@/assets/images/logo.png')}
-          style={tw`w-68 h-48 mb-6`}
+          style={tw`w-68 h-48 mb-2`}
           resizeMode="contain"
         />
-        <Text style={tw`text-3xl font-bold mb-4 text-primary text-center`}>
+        <Text style={tw`text-3xl font-bold mb-2 text-primary text-center`}>
           {t('welcome_title')}
         </Text>
         <Text style={tw`text-lg text-center text-gray-700`}>
@@ -57,7 +57,7 @@ export default function WelcomeScreen() {
         </Text>
       </View>
 
-      <View style={tw`w-full max-w-md items-center`}>
+      <View style={tw`w-full max-w-md mt-4 mb-4 items-center`}>
         <InfoCard>
           <Text style={tw`text-lg mb-2 text-gray-700`}>{t('feature_1')}</Text>
           <Text style={tw`text-lg mb-2 text-gray-700`}>{t('feature_2')}</Text>
@@ -65,32 +65,34 @@ export default function WelcomeScreen() {
         </InfoCard>
       </View>
 
-      <View style={tw`items-center mt-10`}>
+      <View style={tw`w-full mb-6 mt-4`}>
         <Text style={tw`text-base font-semibold text-primary mb-2`}>
           {t('choose_language')}
         </Text>
 
-        <View style={tw`relative z-50`}>
+        <View style={tw`relative`}>
           <TouchableOpacity
             onPress={() => setShowDropdown(!showDropdown)}
-            style={tw`flex-row items-center px-4 py-2 border border-gray-300 rounded-lg bg-white`}
+            style={tw`flex-row items-center justify-between w-full px-4 py-3 border border-gray-300 rounded-xl bg-white shadow-sm`}
           >
-            <Globe size={20} color="#1D2B64" style={tw`mr-2`} />
-            <Text style={tw`text-base text-gray-800`}>
-              {currentLang?.label}
-            </Text>
+            <View style={tw`flex-row items-center`}>
+              <Globe size={20} color="#1D2B64" style={tw`mr-2`} />
+              <Text style={tw`text-base text-gray-800`}>
+                {currentLang?.label}
+              </Text>
+            </View>
           </TouchableOpacity>
 
           {showDropdown && (
             <View
-              style={tw`absolute top-12 left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg`}
+              style={tw`absolute top-16 left-0 right-0 bg-white border border-gray-300 rounded-xl shadow-md z-50`}
             >
               {LANGUAGES.map((lang) => (
                 <Pressable
                   key={lang.code}
                   onPress={() => handleLanguageChange(lang.code)}
                   style={({ pressed }) =>
-                    tw`px-4 py-2 ${pressed ? 'bg-gray-100' : ''}`
+                    tw`px-4 py-3 ${pressed ? 'bg-gray-100' : ''}`
                   }
                 >
                   <Text style={tw`text-base text-gray-800`}>
