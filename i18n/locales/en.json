@@ -1,11 +1,10 @@
 {
-    "welcome_title": "Welcome to Nuroo",
-    "welcome_subtitle": "Support your child’s development with personalized AI-driven plans",
-    "feature_1": "• Daily personalized exercises",
-    "feature_2": "• Track your child’s progress",
-    "feature_3": "• Expert resources and support",
-    "get_started": "Get Started",
-    "footer_note": "Join thousands of parents supporting their child’s growth",
-    "choose_language": "Choose Language"
-  }
-  
+  "welcome_title": "Welcome to Nuroo",
+  "welcome_subtitle": "Support your child’s development with personalized AI-driven plans",
+  "feature_1": "• Daily personalized exercises",
+  "feature_2": "• Track your child’s progress",
+  "feature_3": "• Expert resources and support",
+  "get_started": "Get Started",
+  "footer_note": "Join thousands of parents supporting their child’s growth",
+  "choose_language": "Choose Language"
+}
