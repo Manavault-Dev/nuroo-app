@@ -1,10 +1,39 @@
 {
-  "welcome_title": "Welcome to Nuroo",
-  "welcome_subtitle": "Support your child’s development with personalized AI-driven plans",
-  "feature_1": "• Daily personalized exercises",
-  "feature_2": "• Track your child’s progress",
-  "feature_3": "• Expert resources and support",
-  "get_started": "Get Started",
-  "footer_note": "Join thousands of parents supporting their child’s growth",
-  "choose_language": "Choose Language"
+  "welcome": {
+    "welcome_title": "Welcome to Nuroo",
+    "welcome_subtitle": "Support your child’s development with personalized AI-driven plans",
+    "feature_1": "• Daily personalized exercises",
+    "feature_2": "• Track your child’s progress",
+    "feature_3": "• Expert resources and support",
+    "get_started": "Get Started",
+    "footer_note": "Join thousands of parents supporting their child’s growth",
+    "choose_language": "Choose Language"
+  },
+  "onboarding": {
+    "title": "Tell us about your child",
+    "subtitle": "This will help us build the perfect plan",
+    "child_name_label": "Child's Name",
+    "child_name_placeholder": "Enter your child's name",
+    "child_age_label": "Age",
+    "child_age_placeholder": "Select age",
+    "diagnosis_label": "Diagnosis (optional)",
+    "diagnosis_placeholder": "Select if applicable",
+    "development_areas": "Areas of Development",
+    "area_speech": "🗣️ Speech & Language",
+    "area_social": "👥 Social Skills",
+    "area_motor": "🏃 Motor Skills",
+    "area_cognitive": "🧠 Cognitive Development",
+    "area_sensory": "👂 Sensory Processing",
+    "area_behavior": "✨ Behavior Management",
+    "create_profile": "Create Profile",
+    "diagnosis_options": {
+  "adhd": "ADHD",
+  "down_syndrome": "Down syndrome",
+  "prefer_not_to_say": "Prefer not to say",
+  "other": "Other",
+  "autism": "Autism Spectrum Disorder",
+  "speech_delay": "Speech Delay"
+}
+
+  }
 }

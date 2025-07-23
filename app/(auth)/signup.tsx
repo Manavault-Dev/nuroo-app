@@ -32,7 +32,7 @@ export default function SignUpScreen() {
     setLoading(true);
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      router.replace('/');
+      router.replace('/onboarding');
     } catch (error: any) {
       console.error('Sign up error', error);
       Alert.alert('Sign up failed', error.message);

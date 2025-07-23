@@ -26,7 +26,7 @@ export default function SignInScreen() {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.replace('/');
+      router.replace('/onboarding');
     } catch (error: any) {
       console.error('Login error', error);
       Alert.alert('Login failed', error.message);
