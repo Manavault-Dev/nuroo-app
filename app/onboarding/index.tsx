@@ -8,12 +8,12 @@ import {
   Pressable,
   FlatList,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import tw from '@/lib/design/tw';
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import { Button } from '@/components/ui/Button';
-import { ChevronDown } from 'lucide-react-native';
 
 export default function OnboardingScreen() {
   const { t } = useTranslation();
@@ -23,6 +23,7 @@ export default function OnboardingScreen() {
   const [diagnosis, setDiagnosis] = useState('');
   const [ageModalVisible, setAgeModalVisible] = useState(false);
   const [diagnosisModalVisible, setDiagnosisModalVisible] = useState(false);
+  const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
 
   const diagnosisOptions = [
     { label: t('onboarding.diagnosis_options.adhd'), value: 'ADHD' },
@@ -46,6 +47,12 @@ export default function OnboardingScreen() {
     label: `${i + 1}`,
     value: `${i + 1}`,
   }));
+
+  const toggleArea = (area: string) => {
+    setSelectedAreas((prev) =>
+      prev.includes(area) ? prev.filter((a) => a !== area) : [...prev, area],
+    );
+  };
 
   const renderModal = (
     visible: boolean,
@@ -81,7 +88,15 @@ export default function OnboardingScreen() {
 
   return (
     <LayoutWrapper>
-      <ScrollView contentContainerStyle={tw`p-4`}>
+      <ScrollView contentContainerStyle={tw`p-0`}>
+        <View style={tw`w-full items-center  mb-2`}>
+          <Image
+            source={require('@/assets/images/onboard.png')}
+            style={tw`w-48 h-48`}
+            resizeMode="contain"
+          />
+        </View>
+
         <Text style={tw`text-2xl text-center font-bold text-primary mb-2`}>
           {t('onboarding.title')}
         </Text>
@@ -96,7 +111,7 @@ export default function OnboardingScreen() {
           value={childName}
           onChangeText={setChildName}
           placeholder={t('onboarding.child_name_placeholder')}
-          style={tw`border border-gray-300 rounded-xl px-4 py-4 mb-4 bg-white`}
+          style={tw`border border-gray-300 rounded-xl text-md px-4 py-4 mb-4 bg-white`}
         />
 
         <Text style={tw`text-primary font-medium mb-1`}>
@@ -106,7 +121,7 @@ export default function OnboardingScreen() {
           onPress={() => setAgeModalVisible(true)}
           style={tw`border border-gray-300 rounded-xl px-4 py-4 bg-white mb-4 flex-row justify-between items-center`}
         >
-          <Text style={tw`text-primary text-gray-700`}>
+          <Text style={tw`text-primary text-md text-gray-700`}>
             {childAge || t('onboarding.child_age_placeholder')}
           </Text>
         </Pressable>
@@ -134,6 +149,44 @@ export default function OnboardingScreen() {
           diagnosisOptions,
           setDiagnosis,
         )}
+
+        <Text style={tw`text-base font-medium mb-2`}>
+          {t('onboarding.development_areas')}
+        </Text>
+
+        <View style={tw`flex flex-wrap flex-row gap-2 mb-6 item-center`}>
+          {[
+            { label: t('onboarding.area_speech'), value: 'speech' },
+            { label: t('onboarding.area_social'), value: 'social' },
+            { label: t('onboarding.area_motor'), value: 'motor' },
+            { label: t('onboarding.area_cognitive'), value: 'cognitive' },
+            { label: t('onboarding.area_sensory'), value: 'sensory' },
+            { label: t('onboarding.area_behavior'), value: 'behavior' },
+          ].map(({ label, value }) => {
+            const selected = selectedAreas.includes(value);
+            return (
+              <Pressable
+                key={value}
+                onPress={() => toggleArea(value)}
+                style={tw.style(
+                  `px-4 py-2 rounded-full border`,
+                  selected
+                    ? 'bg-green-200 border-teal-600'
+                    : 'bg-white border-gray-300',
+                )}
+              >
+                <Text
+                  style={tw.style(
+                    `text-md`,
+                    selected ? 'text-primary' : 'text-gray-800',
+                  )}
+                >
+                  {label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
 
         <Button
           title={t('onboarding.create_profile')}
