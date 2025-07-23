@@ -50,24 +50,30 @@ export default function WelcomeScreen() {
           resizeMode="contain"
         />
         <Text style={tw`text-3xl font-bold mb-2 text-primary text-center`}>
-          {t('welcome_title')}
+          {t('welcome.welcome_title')}
         </Text>
         <Text style={tw`text-lg text-center text-gray-700`}>
-          {t('welcome_subtitle')}
+          {t('welcome.welcome_subtitle')}
         </Text>
       </View>
 
       <View style={tw`w-full max-w-md mt-4 mb-4 items-center`}>
         <InfoCard>
-          <Text style={tw`text-lg mb-2 text-gray-700`}>{t('feature_1')}</Text>
-          <Text style={tw`text-lg mb-2 text-gray-700`}>{t('feature_2')}</Text>
-          <Text style={tw`text-lg text-gray-700`}>{t('feature_3')}</Text>
+          <Text style={tw`text-lg mb-2 text-gray-700`}>
+            {t('welcome.feature_1')}
+          </Text>
+          <Text style={tw`text-lg mb-2 text-gray-700`}>
+            {t('welcome.feature_2')}
+          </Text>
+          <Text style={tw`text-lg text-gray-700`}>
+            {t('welcome.feature_3')}
+          </Text>
         </InfoCard>
       </View>
 
       <View style={tw`w-full mb-6 mt-4`}>
         <Text style={tw`text-base font-semibold text-primary mb-2`}>
-          {t('choose_language')}
+          {t('welcome.choose_language')}
         </Text>
 
         <View style={tw`relative`}>
@@ -107,14 +113,14 @@ export default function WelcomeScreen() {
 
       <View style={tw`w-full max-w-md items-center mb-10`}>
         <Button
-          title={t('get_started')}
+          title={t('welcome.get_started')}
           variant="teal"
           style={tw`w-full py-4 rounded-xl`}
           textStyle={tw`text-xl`}
           onPress={() => router.push('/signin')}
         />
         <Text style={tw`text-sm mt-6 text-center text-gray-500`}>
-          {t('footer_note')}
+          {t('welcome.footer_note')}
         </Text>
       </View>
     </LayoutWrapper>
