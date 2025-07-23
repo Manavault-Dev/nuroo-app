@@ -27,13 +27,12 @@
     "area_behavior": "✨ Behavior Management",
     "create_profile": "Create Profile",
     "diagnosis_options": {
-  "adhd": "ADHD",
-  "down_syndrome": "Down syndrome",
-  "prefer_not_to_say": "Prefer not to say",
-  "other": "Other",
-  "autism": "Autism Spectrum Disorder",
-  "speech_delay": "Speech Delay"
-}
-
+      "adhd": "ADHD",
+      "down_syndrome": "Down syndrome",
+      "prefer_not_to_say": "Prefer not to say",
+      "other": "Other",
+      "autism": "Autism Spectrum Disorder",
+      "speech_delay": "Speech Delay"
+    }
   }
 }
