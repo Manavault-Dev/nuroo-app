@@ -9,6 +9,20 @@
     "footer_note": "Присоединяйтесь к тысячам родителей, поддерживающих своих детей",
     "choose_language": "Выберите язык"
   },
+  "auth": {
+  "welcome_back": "С возвращением",
+  "sign_in_to_account": "Войдите в свой аккаунт",
+  "email_label": "Электронная почта",
+  "email_placeholder": "ваш@email.com",
+  "password_label": "Пароль",
+  "password_placeholder": "Введите ваш пароль",
+  "sign_in_button": "Войти",
+  "signing_in": "Вход...",
+  "no_account": "Нет аккаунта?",
+  "sign_up_link": "Зарегистрироваться",
+  "login_failed": "Ошибка входа"
+},
+
   "onboarding": {
     "title": "Расскажите о вашем ребёнке",
     "subtitle": "Это поможет нам создать идеальный план",

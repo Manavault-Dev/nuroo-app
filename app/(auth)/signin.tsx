@@ -16,8 +16,10 @@ import tw from '@/lib/design/tw';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase/firebase';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
 export default function SignInScreen() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,7 +31,7 @@ export default function SignInScreen() {
       router.replace('/onboarding');
     } catch (error: any) {
       console.error('Login error', error);
-      Alert.alert('Login failed', error.message);
+      Alert.alert(t('auth.login_failed'), error.message);
     } finally {
       setLoading(false);
     }
@@ -52,20 +54,20 @@ export default function SignInScreen() {
               resizeMode="contain"
             />
             <Text style={tw`text-3xl font-bold mb-4 text-primary text-center`}>
-              Welcome Back
+              {t('auth.welcome_back')}
             </Text>
             <Text style={tw`text-lg text-center text-gray-700`}>
-              Sign in to your account
+              {t('auth.sign_in_to_account')}
             </Text>
           </View>
 
           <View style={tw`mt-5 mb-4`}>
             <Text style={tw`text-base mb-2 text-[#1E266D] font-semibold`}>
-              Email
+              {t('auth.email_label')}
             </Text>
             <Input
               variant="outlined"
-              placeholder="your@email.com"
+              placeholder={t('auth.email_placeholder')}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -76,11 +78,11 @@ export default function SignInScreen() {
 
           <View style={tw`mb-8`}>
             <Text style={tw`text-base mb-2 text-[#1E266D] font-semibold`}>
-              Password
+              {t('auth.password_label')}
             </Text>
             <Input
               variant="outlined"
-              placeholder="Enter your password"
+              placeholder={t('auth.password_placeholder')}
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -90,7 +92,7 @@ export default function SignInScreen() {
           </View>
 
           <Button
-            title={loading ? 'Signing in...' : 'Sign In'}
+            title={loading ? t('auth.signing_in') : t('auth.sign_in_button')}
             variant="teal"
             onPress={handleSignIn}
             disabled={loading}
@@ -100,7 +102,8 @@ export default function SignInScreen() {
 
           <TouchableOpacity onPress={() => router.push('/signup')}>
             <Text style={tw`text-center text-teal-500 mt-6 text-base`}>
-              Don’t have an account? <Text style={tw`underline`}>Sign up</Text>
+              {t('auth.no_account')}{' '}
+              <Text style={tw`underline`}>{t('auth.sign_up_link')}</Text>
             </Text>
           </TouchableOpacity>
         </LayoutWrapper>
