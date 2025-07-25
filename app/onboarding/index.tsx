@@ -12,6 +12,7 @@ import tw from '@/lib/design/tw';
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import { Button } from '@/components/ui/Button';
 import { diagnosisOptions } from './onboarding.types';
+import { useRouter } from 'expo-router';
 
 import AreaSelector from '@/components/OnboardingScreen/AreaSelector/AreaSelector';
 
@@ -20,6 +21,7 @@ import ModalPicker from '@/components/ModalPicker/ModalPicker';
 
 export default function OnboardingScreen() {
   const { t } = useTranslation();
+  const router = useRouter();
 
   const [childName, setChildName] = useState('');
   const [childAge, setChildAge] = useState('');
@@ -146,6 +148,7 @@ export default function OnboardingScreen() {
               diagnosis,
               selectedAreas,
             });
+            router.replace('/(tabs)/home');
           }}
         />
       </ScrollView>

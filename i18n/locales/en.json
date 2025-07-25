@@ -34,5 +34,11 @@
       "autism": "Autism Spectrum Disorder",
       "speech_delay": "Speech Delay"
     }
+  },
+  "tabs": {
+    "home": "Home",
+    "ask_nuroo": "Ask Nuroo",
+    "progress": "Progress",
+    "profile": "Profile"
   }
 }
