@@ -9,6 +9,7 @@ import {
   Platform,
   Image,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -18,6 +19,7 @@ import { auth } from '@/lib/firebase/firebase';
 import { router } from 'expo-router';
 
 export default function SignUpScreen() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -25,7 +27,7 @@ export default function SignUpScreen() {
 
   const handleSignUp = async () => {
     if (password !== confirmPassword) {
-      Alert.alert('Passwords do not match');
+      Alert.alert(t('signup.passwords_do_not_match'));
       return;
     }
 
@@ -35,7 +37,7 @@ export default function SignUpScreen() {
       router.replace('/onboarding');
     } catch (error: any) {
       console.error('Sign up error', error);
-      Alert.alert('Sign up failed', error.message);
+      Alert.alert(t('signup.signup_failed'), error.message);
     } finally {
       setLoading(false);
     }
@@ -58,20 +60,20 @@ export default function SignUpScreen() {
               resizeMode="contain"
             />
             <Text style={tw`text-3xl font-bold mb-2 text-primary text-center`}>
-              Create Account
+              {t('signup.create_account')}
             </Text>
             <Text style={tw`text-lg text-center text-gray-700`}>
-              Sign up to get started
+              {t('signup.sign_up_to_get_started')}
             </Text>
           </View>
 
           <View style={tw`mb-4`}>
             <Text style={tw`text-base mb-2 text-[#1E266D] font-semibold`}>
-              Email
+              {t('signup.email_label')}
             </Text>
             <Input
               variant="outlined"
-              placeholder="your@email.com"
+              placeholder={t('signup.email_placeholder')}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -82,11 +84,11 @@ export default function SignUpScreen() {
 
           <View style={tw`mb-4`}>
             <Text style={tw`text-base mb-2 text-[#1E266D] font-semibold`}>
-              Password
+              {t('signup.password_label')}
             </Text>
             <Input
               variant="outlined"
-              placeholder="Enter your password"
+              placeholder={t('signup.password_placeholder')}
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -97,11 +99,11 @@ export default function SignUpScreen() {
 
           <View style={tw`mb-8`}>
             <Text style={tw`text-base mb-2 text-[#1E266D] font-semibold`}>
-              Confirm Password
+              {t('signup.confirm_password_label')}
             </Text>
             <Input
               variant="outlined"
-              placeholder="Confirm your password"
+              placeholder={t('signup.confirm_password_placeholder')}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry
@@ -111,7 +113,9 @@ export default function SignUpScreen() {
           </View>
 
           <Button
-            title={loading ? 'Signing up...' : 'Sign Up'}
+            title={
+              loading ? t('signup.signing_up') : t('signup.sign_up_button')
+            }
             variant="teal"
             onPress={handleSignUp}
             disabled={loading}
@@ -121,8 +125,8 @@ export default function SignUpScreen() {
 
           <TouchableOpacity onPress={() => router.replace('/signin')}>
             <Text style={tw`text-center text-teal-500 mt-6 text-base`}>
-              Already have an account?{' '}
-              <Text style={tw`underline`}>Sign in</Text>
+              {t('signup.already_have_account')}{' '}
+              <Text style={tw`underline`}>{t('signup.sign_in_link')}</Text>
             </Text>
           </TouchableOpacity>
         </LayoutWrapper>

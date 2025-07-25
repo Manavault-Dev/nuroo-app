@@ -10,18 +10,35 @@
     "choose_language": "Выберите язык"
   },
   "auth": {
-  "welcome_back": "С возвращением",
-  "sign_in_to_account": "Войдите в свой аккаунт",
-  "email_label": "Электронная почта",
-  "email_placeholder": "ваш@email.com",
-  "password_label": "Пароль",
-  "password_placeholder": "Введите ваш пароль",
-  "sign_in_button": "Войти",
-  "signing_in": "Вход...",
-  "no_account": "Нет аккаунта?",
-  "sign_up_link": "Зарегистрироваться",
-  "login_failed": "Ошибка входа"
-},
+    "welcome_back": "С возвращением",
+    "sign_in_to_account": "Войдите в свой аккаунт",
+    "email_label": "Электронная почта",
+    "email_placeholder": "ваш@email.com",
+    "password_label": "Пароль",
+    "password_placeholder": "Введите ваш пароль",
+    "sign_in_button": "Войти",
+    "signing_in": "Вход...",
+    "no_account": "Нет аккаунта?",
+    "sign_up_link": "Зарегистрироваться",
+    "login_failed": "Ошибка входа"
+  },
+
+  "signup": {
+    "create_account": "Создать аккаунт",
+    "sign_up_to_get_started": "Зарегистрируйтесь, чтобы начать",
+    "email_label": "Электронная почта",
+    "email_placeholder": "ваш@email.com",
+    "password_label": "Пароль",
+    "password_placeholder": "Введите пароль",
+    "confirm_password_label": "Подтвердите пароль",
+    "confirm_password_placeholder": "Повторите пароль",
+    "sign_up_button": "Зарегистрироваться",
+    "signing_up": "Регистрация...",
+    "already_have_account": "Уже есть аккаунт?",
+    "sign_in_link": "Войти",
+    "signup_failed": "Ошибка регистрации",
+    "passwords_do_not_match": "Пароли не совпадают"
+  },
 
   "onboarding": {
     "title": "Расскажите о вашем ребёнке",

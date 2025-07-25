@@ -11,18 +11,35 @@
   },
 
   "auth": {
-  "welcome_back": "Welcome Back",
-  "sign_in_to_account": "Sign in to your account",
-  "email_label": "Email",
-  "email_placeholder": "your@email.com",
-  "password_label": "Password",
-  "password_placeholder": "Enter your password",
-  "sign_in_button": "Sign In",
-  "signing_in": "Signing in...",
-  "no_account": "Don’t have an account?",
-  "sign_up_link": "Sign up",
-  "login_failed": "Login failed"
-},
+    "welcome_back": "Welcome Back",
+    "sign_in_to_account": "Sign in to your account",
+    "email_label": "Email",
+    "email_placeholder": "your@email.com",
+    "password_label": "Password",
+    "password_placeholder": "Enter your password",
+    "sign_in_button": "Sign In",
+    "signing_in": "Signing in...",
+    "no_account": "Don’t have an account?",
+    "sign_up_link": "Sign up",
+    "login_failed": "Login failed"
+  },
+
+  "signup": {
+    "create_account": "Create Account",
+    "sign_up_to_get_started": "Sign up to get started",
+    "email_label": "Email",
+    "email_placeholder": "your@email.com",
+    "password_label": "Password",
+    "password_placeholder": "Enter your password",
+    "confirm_password_label": "Confirm Password",
+    "confirm_password_placeholder": "Confirm your password",
+    "sign_up_button": "Sign Up",
+    "signing_up": "Signing up...",
+    "already_have_account": "Already have an account?",
+    "sign_in_link": "Sign in",
+    "signup_failed": "Sign up failed",
+    "passwords_do_not_match": "Passwords do not match"
+  },
 
   "onboarding": {
     "title": "Tell us about your child",
