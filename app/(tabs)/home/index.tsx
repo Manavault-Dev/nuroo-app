@@ -38,7 +38,6 @@ const today = new Date().toLocaleDateString('en-US', {
 export default function HomeScreen() {
   return (
     <View style={tw`flex-1 bg-white px-4 pt-14`}>
-      {/* Header */}
       <View style={tw`mb-6`}>
         <View style={tw`flex-row items-center justify-between mb-2`}>
           <View style={tw`flex-row items-center`}>
