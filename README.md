@@ -2,7 +2,7 @@
 
 **Nuroo** is a mobile companion app designed to support parents of neurodivergent children by offering personalized, AI-driven learning experiences and progress tracking.
 
-Built with ❤️ by [Manavolt](https://github.com/manavolt-dev) — a studio dedicated to building meaningful tech for impactful communities.
+Built with ❤️ by [Manavault](https://github.com/manavault-dev) — a studio dedicated to building meaningful tech for impactful communities.
 
 ---
 
@@ -63,7 +63,7 @@ Nuroo empowers parents by:
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/manavolt-dev/nuroo-app.git
+git clone https://github.com/manavault-dev/nuroo-app.git
 cd nuroo-app
 ```
 
