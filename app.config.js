@@ -7,6 +7,11 @@ export default {
     scheme: 'nuroo',
     version: '1.0.0',
     extra: {
+      //OPEN AI
+      OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+      OPENAI_PROJECT_ID: process.env.OPENAI_PROJECT_ID,
+
+      //FIREBASE
       EXPO_PUBLIC_FIREBASE_API_KEY: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
       EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN:
         process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,

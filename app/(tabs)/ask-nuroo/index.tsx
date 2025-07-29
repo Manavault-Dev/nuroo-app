@@ -10,6 +10,7 @@ import {
 import { useState, useRef, useEffect } from 'react';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import tw from '@/lib/design/tw';
+import { askNuroo } from '@/lib/api/openai';
 
 export default function AskNurooScreen() {
   const tabBarHeight = useBottomTabBarHeight();
@@ -18,19 +19,28 @@ export default function AskNurooScreen() {
   >([]);
   const [input, setInput] = useState('');
   const flatListRef = useRef<FlatList>(null);
+  const [loading, setLoading] = useState(false);
 
-  const sendMessage = () => {
-    if (!input.trim()) return;
+  const sendMessage = async () => {
+    if (!input.trim() || loading) return;
 
-    setMessages((prev) => [...prev, { from: 'user', text: input }]);
+    setLoading(true);
+
+    const userMessage = input;
+    setMessages((prev) => [...prev, { from: 'user', text: userMessage }]);
     setInput('');
 
-    setTimeout(() => {
+    try {
+      const reply = await askNuroo(userMessage);
+      setMessages((prev) => [...prev, { from: 'nuroo', text: reply }]);
+    } catch (e) {
       setMessages((prev) => [
         ...prev,
-        { from: 'nuroo', text: 'This is a mock response from Nuroo 🤖' },
+        { from: 'nuroo', text: 'Sorry, an error occurred.' },
       ]);
-    }, 800);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -62,11 +72,11 @@ export default function AskNurooScreen() {
             <View
               style={[
                 tw`mb-2 max-w-[80%] p-3 rounded-xl`,
-                item.from === 'user' ? tw`bg-blue-100` : tw`bg-gray-100`,
+                item.from === 'user' ? tw`bg-red-100` : tw`bg-gray-100`,
                 { alignSelf: item.from === 'user' ? 'flex-end' : 'flex-start' },
               ]}
             >
-              <Text style={tw`text-gray-800`}>{item.text}</Text>
+              <Text style={tw`text-gray-800 text-4`}>{item.text}</Text>
             </View>
           )}
         />
