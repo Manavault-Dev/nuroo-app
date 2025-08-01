@@ -27,6 +27,10 @@ Nuroo empowers parents by:
 
 ---
 
+## System Architecture
+
+![Nuroo Architecture](./assets/images/NurooArc.png)
+
 ## Tech Stack
 
 | Layer      | Tech                                |
