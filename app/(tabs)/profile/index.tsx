@@ -25,7 +25,6 @@ const ProfileScreen = () => {
         Manage your account and preferences
       </Text>
 
-      {/* Profile Card */}
       <View
         style={tw`bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6`}
       >
