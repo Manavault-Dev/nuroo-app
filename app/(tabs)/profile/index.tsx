@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import tw from '@/lib/design/tw';
+import { auth, db } from '@/lib/firebase/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const ProfileScreen = () => {
+  const [profile, setProfile] = useState<any>(null);
+
   const user = {
     name: 'Sarah Johnson',
     email: 'sarah.johnson@email.com',
@@ -14,6 +18,20 @@ const ProfileScreen = () => {
       diagnosis: 'Autism Spectrum Disorder',
     },
   };
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (userDoc.exists()) {
+        setProfile(userDoc.data());
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   return (
     <ScrollView
@@ -54,11 +72,9 @@ const ProfileScreen = () => {
             Child&apos;s Profile
           </Text>
 
-          <Text style={tw`text-gray-600`}>Name: {user.child.name}</Text>
-          <Text style={tw`text-gray-600`}>Age: {user.child.age}</Text>
-          <Text style={tw`text-gray-600`}>
-            Diagnosis: {user.child.diagnosis}
-          </Text>
+          <Text style={tw`text-gray-600`}>Name: {profile?.name}</Text>
+          <Text style={tw`text-gray-600`}>Age: {profile?.age}</Text>
+          <Text style={tw`text-gray-600`}>Diagnosis: {profile?.diagnosis}</Text>
         </View>
       </View>
 
