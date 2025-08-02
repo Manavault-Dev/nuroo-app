@@ -13,11 +13,13 @@ import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import { Button } from '@/components/ui/Button';
 import { diagnosisOptions } from './onboarding.types';
 import { useRouter } from 'expo-router';
+import { doc, setDoc } from 'firebase/firestore';
 
 import AreaSelector from '@/components/OnboardingScreen/AreaSelector/AreaSelector';
 
 import { useModalPicker } from '@/hooks/useModalPicker';
 import ModalPicker from '@/components/ModalPicker/ModalPicker';
+import { auth, db } from '@/lib/firebase/firebase';
 
 export default function OnboardingScreen() {
   const { t } = useTranslation();
@@ -141,14 +143,23 @@ export default function OnboardingScreen() {
           variant="teal"
           style={tw`w-full mt-6 py-4 rounded-xl`}
           textStyle={tw`text-xl`}
-          onPress={() => {
-            console.log({
-              name: childName,
-              age: childAge,
-              diagnosis,
-              selectedAreas,
-            });
-            router.replace('/(tabs)/home');
+          onPress={async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            try {
+              await setDoc(doc(db, 'users', user.uid), {
+                name: childName,
+                age: childAge,
+                diagnosis,
+                selectedAreas,
+                createdAt: new Date(),
+              });
+
+              router.replace('/(tabs)/home');
+            } catch (err) {
+              console.error('Failed to save profile:', err);
+            }
           }}
         />
       </ScrollView>
