@@ -96,6 +96,6 @@ To join the team or collaborate - please email me at tilek.dzenisev@gmail.com.
 
 ## License
 
-© 2025 Manavolt. All rights reserved.
+© 2025 Manavault. All rights reserved.
 
 This repository is licensed under the **MIT License**. See the [LICENSE](./LICENSE) file for details.
