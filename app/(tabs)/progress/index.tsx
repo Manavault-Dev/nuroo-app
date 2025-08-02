@@ -1,13 +1,3 @@
-// import { View, Text } from 'react-native';
-// import React from 'react';
-
-// export default function index() {
-//   return (
-//     <View>
-//       <Text>Progress</Text>
-//     </View>
-//   );
-// }
 import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import tw from '@/lib/design/tw';
