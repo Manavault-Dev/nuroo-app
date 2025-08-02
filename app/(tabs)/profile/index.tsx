@@ -1,12 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, ScrollView, Image } from 'react-native';
+import {
+  View,
+  Text,
+  Pressable,
+  ScrollView,
+  Image,
+  TextInput,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import tw from '@/lib/design/tw';
 import { auth, db } from '@/lib/firebase/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { Button } from '@/components/ui/Button';
 
 const ProfileScreen = () => {
   const [profile, setProfile] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [name, setName] = useState<string>('');
+  const [age, setAge] = useState<string>('');
+  const [diagnosis, setDiagnosis] = useState<string>('');
 
   const user = {
     name: 'Sarah Johnson',
@@ -27,6 +39,18 @@ const ProfileScreen = () => {
 
     fetchProfile();
   }, []);
+
+  const handleSave = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const profileData = { name, age, diagnosis };
+
+    await setDoc(doc(db, 'users', user.uid), profileData, { merge: true });
+
+    setProfile(profileData);
+    setIsEditing(false);
+  };
 
   return (
     <ScrollView
@@ -57,8 +81,20 @@ const ProfileScreen = () => {
               <Text style={tw`text-gray-500`}>{user.email}</Text>
             </View>
           </View>
-          <Pressable style={tw`p-2`}>
-            <Ionicons name="create-outline" size={20} color="#1D3557" />
+          <Pressable
+            onPress={() => {
+              if (isEditing) {
+                handleSave();
+              } else {
+                setIsEditing(true);
+              }
+            }}
+          >
+            <Ionicons
+              name={isEditing ? 'checkmark-outline' : 'create-outline'}
+              size={20}
+              color="#1D3557"
+            />
           </Pressable>
         </View>
 
@@ -67,9 +103,36 @@ const ProfileScreen = () => {
             Child&apos;s Profile
           </Text>
 
-          <Text style={tw`text-gray-600`}>Name: {profile?.name}</Text>
-          <Text style={tw`text-gray-600`}>Age: {profile?.age}</Text>
-          <Text style={tw`text-gray-600`}>Diagnosis: {profile?.diagnosis}</Text>
+          {isEditing ? (
+            <>
+              <TextInput
+                style={tw`border rounded-lg p-2 mb-2`}
+                placeholder="Name"
+                value={name}
+                onChangeText={setName}
+              />
+              <TextInput
+                style={tw`border rounded-lg p-2 mb-2`}
+                placeholder="Age"
+                value={age}
+                onChangeText={setAge}
+              />
+              <TextInput
+                style={tw`border rounded-lg p-2 mb-2`}
+                placeholderTextColor="#A0AEC0"
+                placeholder="Diagnosis"
+                value={diagnosis}
+                onChangeText={setDiagnosis}
+              />
+              <Button title="Save" onPress={handleSave} />
+            </>
+          ) : (
+            <>
+              <Text>Name: {profile?.name}</Text>
+              <Text>Age: {profile?.age}</Text>
+              <Text>Diagnosis: {profile?.diagnosis}</Text>
+            </>
+          )}
         </View>
       </View>
 
