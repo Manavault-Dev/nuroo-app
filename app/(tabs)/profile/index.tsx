@@ -16,47 +16,70 @@ import { Button } from '@/components/ui/Button';
 const ProfileScreen = () => {
   const [profile, setProfile] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState<string>('');
+  const [childName, setChildName] = useState<string>('');
   const [age, setAge] = useState<string>('');
   const [diagnosis, setDiagnosis] = useState<string>('');
 
-  const user = {
-    name: 'Sarah Johnson',
-    email: 'sarah.johnson@email.com',
-    initials: 'SJ',
-  };
-
   useEffect(() => {
     const fetchProfile = async () => {
-      const user = auth.currentUser;
-      if (!user) return;
+      const currentUser = auth.currentUser;
+      if (!currentUser) return;
 
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
       if (userDoc.exists()) {
-        setProfile(userDoc.data());
+        const userData = userDoc.data();
+
+        const fullName = userData.fullName || '';
+        const initials = fullName
+          .split(' ')
+          .map((n: string) => n[0])
+          .join('')
+          .toUpperCase();
+
+        setProfile({
+          ...userData,
+          email: currentUser.email,
+          fullName,
+          initials,
+        });
       }
     };
 
     fetchProfile();
   }, []);
 
+  useEffect(() => {
+    if (profile) {
+      setChildName(profile.name || '');
+      setAge(profile.age || '');
+      setDiagnosis(profile.diagnosis || '');
+    }
+  }, [profile]);
+
   const handleSave = async () => {
-    const user = auth.currentUser;
-    if (!user) return;
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
 
-    const profileData = { name, age, diagnosis };
+    const profileData = {
+      name: childName,
+      age,
+      diagnosis,
+    };
 
-    await setDoc(doc(db, 'users', user.uid), profileData, { merge: true });
+    await setDoc(doc(db, 'users', currentUser.uid), profileData, {
+      merge: true,
+    });
 
-    setProfile(profileData);
+    setProfile({
+      ...profile,
+      ...profileData,
+    });
+
     setIsEditing(false);
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={tw`p-4 pt-16 pb-32`}
-      showsVerticalScrollIndicator={false}
-    >
+    <ScrollView contentContainerStyle={tw`p-4 pt-16 pb-32`}>
       <Text style={tw`text-2xl font-bold text-primary mb-1`}>Settings</Text>
       <Text style={tw`text-gray-500 mb-4`}>
         Manage your account and preferences
@@ -71,24 +94,20 @@ const ProfileScreen = () => {
               style={tw`bg-primary rounded-xl w-12 h-12 items-center justify-center mr-4`}
             >
               <Text style={tw`text-white text-lg font-bold`}>
-                {user.initials}
+                {profile?.initials || 'U'}
               </Text>
             </View>
             <View>
               <Text style={tw`text-primary font-semibold text-lg`}>
-                {user.name}
+                {profile?.fullName || 'Unknown User'}
               </Text>
-              <Text style={tw`text-gray-500`}>{user.email}</Text>
+              <Text style={tw`text-gray-500`}>
+                {profile?.email || 'no-email@example.com'}
+              </Text>
             </View>
           </View>
           <Pressable
-            onPress={() => {
-              if (isEditing) {
-                handleSave();
-              } else {
-                setIsEditing(true);
-              }
-            }}
+            onPress={() => (isEditing ? handleSave() : setIsEditing(true))}
           >
             <Ionicons
               name={isEditing ? 'checkmark-outline' : 'create-outline'}
@@ -107,12 +126,14 @@ const ProfileScreen = () => {
             <>
               <TextInput
                 style={tw`border rounded-lg p-2 mb-2`}
-                placeholder="Name"
-                value={name}
-                onChangeText={setName}
+                placeholder="Child's Name"
+                placeholderTextColor="#A0AEC0"
+                value={childName}
+                onChangeText={setChildName}
               />
               <TextInput
                 style={tw`border rounded-lg p-2 mb-2`}
+                placeholderTextColor="#A0AEC0"
                 placeholder="Age"
                 value={age}
                 onChangeText={setAge}
@@ -128,9 +149,9 @@ const ProfileScreen = () => {
             </>
           ) : (
             <>
-              <Text>Name: {profile?.name}</Text>
-              <Text>Age: {profile?.age}</Text>
-              <Text>Diagnosis: {profile?.diagnosis}</Text>
+              <Text>Name: {profile?.name || '—'}</Text>
+              <Text>Age: {profile?.age || '—'}</Text>
+              <Text>Diagnosis: {profile?.diagnosis || '—'}</Text>
             </>
           )}
         </View>
@@ -165,12 +186,10 @@ const ProfileScreen = () => {
             Nuroo
           </Text>
           <Text style={tw`text-gray-500 text-center mb-2`}>Version 1.0.0</Text>
-
           <Text style={tw`text-gray-500 text-center mb-4`}>
             Helping families support children with special needs through
             personalized development plans.
           </Text>
-
           <View style={tw`flex-row justify-center gap-4`}>
             <Pressable style={tw`border border-primary rounded-full px-4 py-2`}>
               <Text style={tw`text-primary font-medium`}>Rate App</Text>

@@ -28,6 +28,8 @@
     "create_account": "Create Account",
     "sign_up_to_get_started": "Sign up to get started",
     "email_label": "Email",
+  "full_name_label": "Full Name",
+  "full_name_placeholder": "Enter your full name",
     "email_placeholder": "your@email.com",
     "password_label": "Password",
     "password_placeholder": "Enter your password",

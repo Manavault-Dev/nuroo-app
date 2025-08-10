@@ -28,6 +28,8 @@
     "sign_up_to_get_started": "Зарегистрируйтесь, чтобы начать",
     "email_label": "Электронная почта",
     "email_placeholder": "ваш@email.com",
+  "full_name_label": "Полное имя",
+  "full_name_placeholder": "Введите полное имя",
     "password_label": "Пароль",
     "password_placeholder": "Введите пароль",
     "confirm_password_label": "Подтвердите пароль",

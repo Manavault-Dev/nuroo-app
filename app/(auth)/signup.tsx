@@ -15,25 +15,39 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import tw from '@/lib/design/tw';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase/firebase';
+import { auth, db } from '@/lib/firebase/firebase';
 import { router } from 'expo-router';
+import { setDoc, doc } from 'firebase/firestore';
 
 export default function SignUpScreen() {
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(false);
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
-    if (password !== confirmPassword) {
-      Alert.alert(t('signup.passwords_do_not_match'));
+    if (!fullName.trim()) {
+      Alert.alert('Please enter your full name.');
       return;
     }
 
     setLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      const user = userCredential.user;
+
+      // Сохраняем fullName в Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        fullName,
+        email: user.email,
+        createdAt: new Date(),
+      });
+
       router.replace('/onboarding');
     } catch (error: any) {
       console.error('Sign up error', error);
@@ -66,6 +80,19 @@ export default function SignUpScreen() {
               {t('signup.sign_up_to_get_started')}
             </Text>
           </View>
+          <View style={tw`mb-4`}>
+            <Text style={tw`text-base mb-2 text-[#1E266D] font-semibold`}>
+              {t('signup.full_name_label') || 'Full Name'}
+            </Text>
+            <Input
+              variant="outlined"
+              placeholder={
+                t('signup.full_name_placeholder') || 'Enter your full name'
+              }
+              value={fullName}
+              onChangeText={setFullName}
+            />
+          </View>
 
           <View style={tw`mb-4`}>
             <Text style={tw`text-base mb-2 text-[#1E266D] font-semibold`}>
@@ -91,21 +118,6 @@ export default function SignUpScreen() {
               placeholder={t('signup.password_placeholder')}
               value={password}
               onChangeText={setPassword}
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
-
-          <View style={tw`mb-8`}>
-            <Text style={tw`text-base mb-2 text-[#1E266D] font-semibold`}>
-              {t('signup.confirm_password_label')}
-            </Text>
-            <Input
-              variant="outlined"
-              placeholder={t('signup.confirm_password_placeholder')}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
               secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
