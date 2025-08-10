@@ -1,25 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  ScrollView,
-  Image,
-  TextInput,
-  Linking,
-} from 'react-native';
+import { View, Text, Pressable, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import tw from '@/lib/design/tw';
 import { auth, db } from '@/lib/firebase/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { Button } from '@/components/ui/Button';
+import { useLinks } from '@/hooks/useLinks';
+import ChildProfileForm from '@/components/ChildProfileForm/ChildProfileForm';
+import Option from '@/components/ui/Option';
+
+interface ProfileData {
+  fullName: string;
+  initials: string;
+  email: string | null;
+  name?: string;
+  age?: string;
+  diagnosis?: string;
+}
 
 const ProfileScreen = () => {
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [childName, setChildName] = useState<string>('');
-  const [age, setAge] = useState<string>('');
-  const [diagnosis, setDiagnosis] = useState<string>('');
+  const [childName, setChildName] = useState('');
+  const [age, setAge] = useState('');
+  const [diagnosis, setDiagnosis] = useState('');
+
+  const { rateApp, shareFeedback, openPrivacy, openHelp } = useLinks();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -28,12 +33,12 @@ const ProfileScreen = () => {
 
       const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
       if (userDoc.exists()) {
-        const userData = userDoc.data();
+        const userData = userDoc.data() as ProfileData;
 
         const fullName = userData.fullName || '';
         const initials = fullName
           .split(' ')
-          .map((n: string) => n[0])
+          .map((n) => n[0])
           .join('')
           .toUpperCase();
 
@@ -72,37 +77,11 @@ const ProfileScreen = () => {
     });
 
     setProfile({
-      ...profile,
+      ...profile!,
       ...profileData,
     });
 
     setIsEditing(false);
-  };
-
-  const handleRateApp = () => {
-    const url = 'https://play.google.com/store/apps/details?id=nuroo.app.id';
-    Linking.openURL(url).catch((err) => {
-      console.error('Failed to open rate app link:', err);
-    });
-  };
-
-  const handleShareFeedback = () => {
-    const email = 'tilek.dzenisev@gmail.com';
-    const subject = 'App Feedback';
-    const body = 'Hello, I want to share some feedback...';
-    const mailtoUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-    Linking.openURL(mailtoUrl).catch((err) => {
-      console.error('Failed to open mail client:', err);
-    });
-  };
-
-  const openPrivacy = () => {
-    Linking.openURL('https://nurooapp.com/privacy').catch(console.error);
-  };
-
-  const openHelp = () => {
-    Linking.openURL('https://nurooapp.com/help').catch(console.error);
   };
 
   return (
@@ -150,30 +129,15 @@ const ProfileScreen = () => {
           </Text>
 
           {isEditing ? (
-            <>
-              <TextInput
-                style={tw`border rounded-lg p-2 mb-2`}
-                placeholder="Child's Name"
-                placeholderTextColor="#A0AEC0"
-                value={childName}
-                onChangeText={setChildName}
-              />
-              <TextInput
-                style={tw`border rounded-lg p-2 mb-2`}
-                placeholderTextColor="#A0AEC0"
-                placeholder="Age"
-                value={age}
-                onChangeText={setAge}
-              />
-              <TextInput
-                style={tw`border rounded-lg p-2 mb-2`}
-                placeholderTextColor="#A0AEC0"
-                placeholder="Diagnosis"
-                value={diagnosis}
-                onChangeText={setDiagnosis}
-              />
-              <Button title="Save" onPress={handleSave} />
-            </>
+            <ChildProfileForm
+              childName={childName}
+              setChildName={setChildName}
+              age={age}
+              setAge={setAge}
+              diagnosis={diagnosis}
+              setDiagnosis={setDiagnosis}
+              onSave={handleSave}
+            />
           ) : (
             <>
               <Text>Name: {profile?.name || '—'}</Text>
@@ -212,13 +176,13 @@ const ProfileScreen = () => {
           <View style={tw`flex-row justify-center gap-4`}>
             <Pressable
               style={tw`border border-primary rounded-full px-4 py-2`}
-              onPress={handleRateApp}
+              onPress={rateApp}
             >
               <Text style={tw`text-primary font-medium`}>Rate App</Text>
             </Pressable>
             <Pressable
               style={tw`border border-primary rounded-full px-4 py-2`}
-              onPress={handleShareFeedback}
+              onPress={shareFeedback}
             >
               <Text style={tw`text-primary font-medium`}>Share Feedback</Text>
             </Pressable>
@@ -228,21 +192,5 @@ const ProfileScreen = () => {
     </ScrollView>
   );
 };
-
-const Option = ({
-  label,
-  onPress,
-}: {
-  label: string;
-  onPress?: () => void;
-}) => (
-  <Pressable
-    onPress={onPress}
-    style={tw`flex-row justify-between items-center py-3 border-b border-gray-100`}
-  >
-    <Text style={tw`text-primary`}>{label}</Text>
-    <Ionicons name="chevron-forward" size={20} color="#A0AEC0" />
-  </Pressable>
-);
 
 export default ProfileScreen;
