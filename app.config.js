@@ -24,6 +24,12 @@ export default {
       EXPO_PUBLIC_FIREBASE_APP_ID: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
       EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID:
         process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
+
+      // Custom URLs and email for ProfileScreen
+      APP_STORE_URL: process.env.APP_STORE_URL,
+      FEEDBACK_EMAIL: process.env.FEEDBACK_EMAIL,
+      PRIVACY_URL: process.env.PRIVACY_URL,
+      HELP_URL: process.env.HELP_URL,
     },
   },
 };
