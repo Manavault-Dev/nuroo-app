@@ -6,6 +6,7 @@ import {
   ScrollView,
   Image,
   TextInput,
+  Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import tw from '@/lib/design/tw';
@@ -76,6 +77,32 @@ const ProfileScreen = () => {
     });
 
     setIsEditing(false);
+  };
+
+  const handleRateApp = () => {
+    const url = 'https://play.google.com/store/apps/details?id=nuroo.app.id';
+    Linking.openURL(url).catch((err) => {
+      console.error('Failed to open rate app link:', err);
+    });
+  };
+
+  const handleShareFeedback = () => {
+    const email = 'tilek.dzenisev@gmail.com';
+    const subject = 'App Feedback';
+    const body = 'Hello, I want to share some feedback...';
+    const mailtoUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    Linking.openURL(mailtoUrl).catch((err) => {
+      console.error('Failed to open mail client:', err);
+    });
+  };
+
+  const openPrivacy = () => {
+    Linking.openURL('https://nurooapp.com/privacy').catch(console.error);
+  };
+
+  const openHelp = () => {
+    Linking.openURL('https://nurooapp.com/help').catch(console.error);
   };
 
   return (
@@ -161,8 +188,8 @@ const ProfileScreen = () => {
         style={tw`bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-4`}
       >
         <Text style={tw`text-lg font-bold mb-4`}>Account Settings</Text>
-        <Option label="Privacy & Security" />
-        <Option label="Help & Support" />
+        <Option label="Privacy & Security" onPress={openPrivacy} />
+        <Option label="Help & Support" onPress={openHelp} />
       </View>
 
       <View
@@ -183,10 +210,16 @@ const ProfileScreen = () => {
             personalized development plans.
           </Text>
           <View style={tw`flex-row justify-center gap-4`}>
-            <Pressable style={tw`border border-primary rounded-full px-4 py-2`}>
+            <Pressable
+              style={tw`border border-primary rounded-full px-4 py-2`}
+              onPress={handleRateApp}
+            >
               <Text style={tw`text-primary font-medium`}>Rate App</Text>
             </Pressable>
-            <Pressable style={tw`border border-primary rounded-full px-4 py-2`}>
+            <Pressable
+              style={tw`border border-primary rounded-full px-4 py-2`}
+              onPress={handleShareFeedback}
+            >
               <Text style={tw`text-primary font-medium`}>Share Feedback</Text>
             </Pressable>
           </View>
@@ -196,8 +229,15 @@ const ProfileScreen = () => {
   );
 };
 
-const Option = ({ label }: { label: string }) => (
+const Option = ({
+  label,
+  onPress,
+}: {
+  label: string;
+  onPress?: () => void;
+}) => (
   <Pressable
+    onPress={onPress}
     style={tw`flex-row justify-between items-center py-3 border-b border-gray-100`}
   >
     <Text style={tw`text-primary`}>{label}</Text>
