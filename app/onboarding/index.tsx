@@ -2,11 +2,13 @@ import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import { Button } from '@/components/ui/Button';
 import tw from '@/lib/design/tw';
 import { Image } from 'expo-image';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
+import { auth, db } from '@/lib/firebase/firebase';
 import { useRouter } from 'expo-router';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 import AreaSelector from '@/components/OnboardingScreen/AreaSelector/AreaSelector';
 
@@ -22,6 +24,8 @@ export default function OnboardingScreen() {
   const [childAge, setChildAge] = useState('');
   const [diagnosis, setDiagnosis] = useState('');
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const ageOptions = Array.from({ length: 18 }, (_, i) => ({
     label: `${i + 1}`,
@@ -44,6 +48,45 @@ export default function OnboardingScreen() {
     select: selectDiagnosis,
   } = useModalPicker(setDiagnosis);
 
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      try {
+        const currentUser = auth.currentUser;
+        if (!currentUser) {
+          setLoading(false);
+          return;
+        }
+
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+
+          if (
+            userData.name &&
+            userData.age &&
+            userData.diagnosis &&
+            userData.developmentAreas
+          ) {
+            router.replace('/(tabs)/home');
+            return;
+          }
+
+          if (userData.name) setChildName(userData.name);
+          if (userData.age) setChildAge(userData.age);
+          if (userData.diagnosis) setDiagnosis(userData.diagnosis);
+          if (userData.developmentAreas)
+            setSelectedAreas(userData.developmentAreas);
+        }
+      } catch (error) {
+        console.error('Error checking onboarding status:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkOnboardingStatus();
+  }, [router]);
+
   const handleOpenAgeModal = () => openAgeModal(ageOptions);
 
   const diagnosisOptionsTranslated = diagnosisOptions.map((opt) => ({
@@ -55,10 +98,88 @@ export default function OnboardingScreen() {
     openDiagnosisModal(diagnosisOptionsTranslated);
 
   const toggleArea = (area: string) => {
-    setSelectedAreas((prev) =>
-      prev.includes(area) ? prev.filter((a) => a !== area) : [...prev, area],
-    );
+    console.log('Toggling area:', area);
+    console.log('Current selectedAreas:', selectedAreas);
+
+    setSelectedAreas((prev) => {
+      const newAreas = prev.includes(area)
+        ? prev.filter((a) => a !== area)
+        : [...prev, area];
+
+      console.log('New selectedAreas:', newAreas);
+      return newAreas;
+    });
   };
+
+  const handleCompleteOnboarding = async () => {
+    console.log('Completing onboarding with data:', {
+      childName,
+      childAge,
+      diagnosis,
+      selectedAreas,
+    });
+
+    const errors: string[] = [];
+
+    if (!childName.trim()) {
+      errors.push('Child name is required');
+    }
+    if (!childAge) {
+      errors.push('Child age is required');
+    }
+    if (!diagnosis) {
+      errors.push('Diagnosis is required');
+    }
+    if (selectedAreas.length === 0) {
+      errors.push('Please select at least one development area');
+    }
+
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    setValidationErrors([]);
+    setLoading(true);
+
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) return;
+
+      const userData = {
+        name: childName.trim(),
+        age: childAge,
+        diagnosis,
+        developmentAreas: selectedAreas,
+        onboardingCompleted: true,
+        onboardingCompletedAt: new Date(),
+      };
+
+      console.log('Saving to Firebase:', userData);
+
+      await setDoc(doc(db, 'users', currentUser.uid), userData, {
+        merge: true,
+      });
+
+      console.log('Successfully saved to Firebase, navigating to home');
+      router.replace('/(tabs)/home');
+    } catch (error) {
+      console.error('Error saving onboarding data:', error);
+      setValidationErrors(['Failed to save data. Please try again.']);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <LayoutWrapper>
+        <View style={tw`flex-1 justify-center items-center`}>
+          <Text style={tw`text-lg text-gray-600`}>Loading...</Text>
+        </View>
+      </LayoutWrapper>
+    );
+  }
 
   return (
     <LayoutWrapper>
@@ -78,6 +199,19 @@ export default function OnboardingScreen() {
         <Text style={tw`text-primary text-center text-gray-600 mb-6`}>
           {t('onboarding.subtitle')}
         </Text>
+
+        {/* Validation Errors */}
+        {validationErrors.length > 0 && (
+          <View
+            style={tw`mx-6 mb-4 p-3 bg-red-50 border border-red-200 rounded-lg`}
+          >
+            {validationErrors.map((error, index) => (
+              <Text key={index} style={tw`text-red-600 text-sm`}>
+                • {error}
+              </Text>
+            ))}
+          </View>
+        )}
 
         <Text style={tw`text-primary font-medium mb-1`}>
           {t('onboarding.child_name_label')}
@@ -133,19 +267,12 @@ export default function OnboardingScreen() {
         <AreaSelector selectedAreas={selectedAreas} toggleArea={toggleArea} />
 
         <Button
-          title={t('onboarding.create_profile')}
+          title={loading ? 'Saving...' : t('onboarding.create_profile')}
           variant="teal"
           style={tw`w-full mt-6 py-4 rounded-xl`}
           textStyle={tw`text-xl`}
-          onPress={() => {
-            console.log({
-              name: childName,
-              age: childAge,
-              diagnosis,
-              selectedAreas,
-            });
-            router.replace('/(tabs)/home');
-          }}
+          onPress={handleCompleteOnboarding}
+          disabled={loading}
         />
       </ScrollView>
     </LayoutWrapper>

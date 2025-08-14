@@ -2,10 +2,11 @@ import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import tw from '@/lib/design/tw';
-import { auth } from '@/lib/firebase/firebase';
+import { auth, db } from '@/lib/firebase/firebase';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -27,8 +28,42 @@ export default function SignInScreen() {
   const handleSignIn = async () => {
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.replace('/onboarding');
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      const user = userCredential.user;
+
+      // Check if user has completed onboarding
+      try {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+
+          // Check if user has completed onboarding
+          if (
+            userData.onboardingCompleted &&
+            userData.name &&
+            userData.age &&
+            userData.diagnosis &&
+            userData.developmentAreas
+          ) {
+            // User has completed onboarding, redirect to homepage
+            router.replace('/(tabs)/home');
+          } else {
+            // User hasn't completed onboarding, redirect to onboarding
+            router.replace('/onboarding');
+          }
+        } else {
+          // New user, redirect to onboarding
+          router.replace('/onboarding');
+        }
+      } catch (error) {
+        console.error('Error checking user data:', error);
+        // Fallback to onboarding
+        router.replace('/onboarding');
+      }
     } catch (error: any) {
       console.error('Login error', error);
       Alert.alert(t('auth.login_failed'), error.message);

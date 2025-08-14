@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, ScrollView, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import tw from '@/lib/design/tw';
-import { auth, db } from '@/lib/firebase/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { useLinks } from '@/hooks/useLinks';
 import ChildProfileForm from '@/components/ChildProfileForm/ChildProfileForm';
 import Option from '@/components/ui/Option';
+import { useLinks } from '@/hooks/useLinks';
+import tw from '@/lib/design/tw';
+import { auth, db } from '@/lib/firebase/firebase';
+import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
 interface ProfileData {
   fullName: string;
@@ -15,6 +16,7 @@ interface ProfileData {
   name?: string;
   age?: string;
   diagnosis?: string;
+  developmentAreas?: string[];
 }
 
 const ProfileScreen = () => {
@@ -28,26 +30,32 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const currentUser = auth.currentUser;
-      if (!currentUser) return;
+      try {
+        const currentUser = auth.currentUser;
+        if (!currentUser) return;
 
-      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-      if (userDoc.exists()) {
-        const userData = userDoc.data() as ProfileData;
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data() as ProfileData;
 
-        const fullName = userData.fullName || '';
-        const initials = fullName
-          .split(' ')
-          .map((n) => n[0])
-          .join('')
-          .toUpperCase();
+          console.log('Profile data fetched:', userData);
 
-        setProfile({
-          ...userData,
-          email: currentUser.email,
-          fullName,
-          initials,
-        });
+          const fullName = userData.fullName || '';
+          const initials = fullName
+            .split(' ')
+            .map((n) => n[0])
+            .join('')
+            .toUpperCase();
+
+          setProfile({
+            ...userData,
+            email: currentUser.email,
+            fullName,
+            initials,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
       }
     };
 
@@ -140,9 +148,19 @@ const ProfileScreen = () => {
             />
           ) : (
             <>
-              <Text>Name: {profile?.name || '—'}</Text>
-              <Text>Age: {profile?.age || '—'}</Text>
-              <Text>Diagnosis: {profile?.diagnosis || '—'}</Text>
+              <Text style={tw`text-gray-700 mb-1`}>
+                Name: {profile?.name || '—'}
+              </Text>
+              <Text style={tw`text-gray-700 mb-1`}>
+                Age: {profile?.age || '—'}
+              </Text>
+              <Text style={tw`text-gray-700 mb-1`}>
+                Diagnosis: {profile?.diagnosis || '—'}
+              </Text>
+              <Text style={tw`text-gray-700 mb-1`}>
+                Development Areas:{' '}
+                {profile?.developmentAreas?.join(', ') || '—'}
+              </Text>
             </>
           )}
         </View>
@@ -163,7 +181,8 @@ const ProfileScreen = () => {
           <Image
             source={require('@/assets/images/logo.png')}
             style={tw`w-42 h-22 mb-2`}
-            resizeMode="contain"
+            contentFit="contain"
+            transition={200}
           />
           <Text style={tw`text-primary text-lg font-bold text-center`}>
             Nuroo
