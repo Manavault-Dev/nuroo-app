@@ -1,20 +1,13 @@
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import {
-  Image,
-  Text,
-  View,
-  TouchableOpacity,
-  Pressable,
-  Keyboard,
-  TouchableWithoutFeedback,
-} from 'react-native';
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
-import tw from '@/lib/design/tw';
 import { Button } from '@/components/ui/Button';
 import InfoCard from '@/components/ui/InfoCard';
+import tw from '@/lib/design/tw';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Globe } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 
 const LANGUAGES = [
   { code: 'en', label: 'English', flag: '🇺🇸' },
@@ -47,7 +40,8 @@ export default function WelcomeScreen() {
         <Image
           source={require('@/assets/images/logo.png')}
           style={tw`w-68 h-48 mb-2`}
-          resizeMode="contain"
+          contentFit="contain"
+          transition={200}
         />
         <Text style={tw`text-3xl font-bold mb-2 text-primary text-center`}>
           {t('welcome.welcome_title')}

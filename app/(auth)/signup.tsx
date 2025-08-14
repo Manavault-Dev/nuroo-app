@@ -1,23 +1,23 @@
-import { useState } from 'react';
-import {
-  View,
-  Text,
-  Alert,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  ScrollView,
-  Platform,
-  Image,
-} from 'react-native';
-import { useTranslation } from 'react-i18next';
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
-import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import tw from '@/lib/design/tw';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase/firebase';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { setDoc, doc } from 'firebase/firestore';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export default function SignUpScreen() {
   const { t } = useTranslation();
@@ -41,7 +41,6 @@ export default function SignUpScreen() {
       );
       const user = userCredential.user;
 
-      // Сохраняем fullName в Firestore
       await setDoc(doc(db, 'users', user.uid), {
         fullName,
         email: user.email,
@@ -71,7 +70,8 @@ export default function SignUpScreen() {
             <Image
               source={require('@/assets/images/sign-up.png')}
               style={tw`w-68 h-48 mb-3`}
-              resizeMode="contain"
+              contentFit="contain"
+              transition={200}
             />
             <Text style={tw`text-3xl font-bold mb-2 text-primary text-center`}>
               {t('signup.create_account')}

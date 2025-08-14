@@ -1,25 +1,17 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  ScrollView,
-  Pressable,
-  Image,
-} from 'react-native';
-import { useTranslation } from 'react-i18next';
-import tw from '@/lib/design/tw';
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import { Button } from '@/components/ui/Button';
+import tw from '@/lib/design/tw';
+import { Image } from 'expo-image';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 import { useRouter } from 'expo-router';
-import { doc, setDoc } from 'firebase/firestore';
 
 import AreaSelector from '@/components/OnboardingScreen/AreaSelector/AreaSelector';
 
-import { useModalPicker } from '@/hooks/useModalPicker';
 import ModalPicker from '@/components/ModalPicker/ModalPicker';
-import { auth, db } from '@/lib/firebase/firebase';
+import { useModalPicker } from '@/hooks/useModalPicker';
 import { diagnosisOptions } from '@/lib/types/onboarding/onboarding.types';
 
 export default function OnboardingScreen() {
@@ -75,7 +67,8 @@ export default function OnboardingScreen() {
           <Image
             source={require('@/assets/images/onboard.png')}
             style={tw`w-48 h-48`}
-            resizeMode="contain"
+            contentFit="contain"
+            transition={200}
           />
         </View>
 

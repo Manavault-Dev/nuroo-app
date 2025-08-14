@@ -1,22 +1,22 @@
+import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import tw from '@/lib/design/tw';
+import { auth } from '@/lib/firebase/firebase';
+import { Image } from 'expo-image';
+import { router } from 'expo-router';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-  View,
-  Text,
   Alert,
-  Image,
-  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
-import tw from '@/lib/design/tw';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase/firebase';
-import { router } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 
 export default function SignInScreen() {
   const { t } = useTranslation();
@@ -51,7 +51,8 @@ export default function SignInScreen() {
             <Image
               source={require('@/assets/images/sign-in.png')}
               style={tw`w-68 h-48 mb-6`}
-              resizeMode="contain"
+              contentFit="contain"
+              transition={200}
             />
             <Text style={tw`text-3xl font-bold mb-4 text-primary text-center`}>
               {t('auth.welcome_back')}
