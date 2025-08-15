@@ -1,4 +1,4 @@
-import { askNuroo, generateDevelopmentTask } from '@/lib/api/openai';
+import { askNuroo } from '@/lib/api/openai';
 import tw from '@/lib/design/tw';
 import { auth, db } from '@/lib/firebase/firebase';
 import { doc, getDoc } from 'firebase/firestore';
@@ -30,7 +30,6 @@ export default function AskNurooScreen() {
   const [childData, setChildData] = useState<ChildData | null>(null);
   const flatListRef = useRef<FlatList>(null);
 
-  // Fetch child data on component mount
   useEffect(() => {
     const fetchChildData = async () => {
       try {
@@ -74,47 +73,12 @@ export default function AskNurooScreen() {
         ...prev,
         { from: 'nuroo', text: reply, timestamp: new Date() },
       ]);
-    } catch (_) {
+    } catch {
       setMessages((prev) => [
         ...prev,
         {
           from: 'nuroo',
           text: 'Sorry, an error occurred. Please try again.',
-          timestamp: new Date(),
-        },
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const generateTask = async (area: string) => {
-    if (loading) return;
-
-    setLoading(true);
-    const timestamp = new Date();
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        from: 'user',
-        text: `Generate a ${area} development task for my child`,
-        timestamp,
-      },
-    ]);
-
-    try {
-      const task = await generateDevelopmentTask(area, childData || undefined);
-      setMessages((prev) => [
-        ...prev,
-        { from: 'nuroo', text: task, timestamp: new Date() },
-      ]);
-    } catch (_) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          from: 'nuroo',
-          text: "Sorry, I couldn't generate a task right now.",
           timestamp: new Date(),
         },
       ]);
@@ -150,29 +114,6 @@ export default function AskNurooScreen() {
           </Text>
         )}
       </View>
-
-      {/* Quick Task Generation Buttons */}
-      {childData?.developmentAreas && childData.developmentAreas.length > 0 && (
-        <View style={tw`px-4 py-3 border-b border-gray-100`}>
-          <Text style={tw`text-sm font-medium text-gray-700 mb-2`}>
-            Quick Tasks:
-          </Text>
-          <View style={tw`flex-row flex-wrap gap-2`}>
-            {childData.developmentAreas.map((area) => (
-              <Pressable
-                key={area}
-                style={tw`px-3 py-2 bg-blue-100 rounded-full`}
-                onPress={() => generateTask(area)}
-                disabled={loading}
-              >
-                <Text style={tw`text-blue-700 text-sm font-medium`}>
-                  {area.charAt(0).toUpperCase() + area.slice(1)} Task
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        </View>
-      )}
 
       {/* Welcome Message for New Users */}
       {messages.length === 0 && (
