@@ -10,7 +10,17 @@ const createSystemPrompt = (childData?: {
   developmentAreas?: string[];
 }) => {
   let prompt = `You are Nuroo, a specialized AI assistant for parents of neurodivergent children. 
-Your role is to provide supportive, practical advice and create personalized activities.\n\nGuidelines:\n- Always be encouraging and positive\n- Provide specific, actionable suggestions\n- Consider the child's unique needs\n- Suggest activities that are fun and engaging\n- Keep responses concise but helpful\n- Use simple language that parents can understand\n\n`;
+Your role is to provide supportive, practical advice and create personalized activities.
+
+Guidelines:
+- Always be encouraging and positive
+- Provide specific, actionable suggestions
+- Consider the child's unique needs
+- Suggest activities that are fun and engaging
+- Keep responses concise but helpful
+- Use simple language that parents can understand
+
+`;
 
   if (childData?.name && childData?.age) {
     prompt += `Child: ${childData.name}, Age: ${childData.age}\n`;
@@ -52,52 +62,45 @@ export const askNuroo = async (
   console.log('👶 Child Data:', childData);
 
   const systemPrompt = createSystemPrompt(childData);
+  const model = 'gpt-4o-mini';
 
-  const models = ['gpt-4o-mini', 'gpt-4', 'gpt-3.5-turbo'];
-  let lastError: any = null;
-
-  for (const model of models) {
-    try {
-      console.log(`🔄 Trying model: ${model}`);
-      const response = await axios.post(
-        API_URL,
-        {
-          model,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: message },
-          ],
-          max_tokens: 500,
-          temperature: 0.7,
+  try {
+    console.log(`🔄 Using model: ${model}`);
+    const response = await axios.post(
+      API_URL,
+      {
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: message },
+        ],
+        max_tokens: 500,
+        temperature: 0.7,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+          ...(projectId && { 'OpenAI-Project': projectId }),
         },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${apiKey}`,
-            ...(projectId && { 'OpenAI-Project': projectId }),
-          },
-          timeout: 30000,
-        },
-      );
+        timeout: 30000,
+      },
+    );
 
-      const reply = response.data.choices[0]?.message?.content?.trim();
-      console.log(`✅ Success with model: ${model}`);
-      return reply || "Sorry, I couldn't generate a response.";
-    } catch (err: any) {
-      lastError = err;
-      console.log(
-        `❌ Model ${model} failed:`,
-        err.response?.data?.error?.message || err.message,
-      );
-      continue;
-    }
+    const reply = response.data.choices[0]?.message?.content?.trim();
+    console.log(`✅ Success with model: ${model}`);
+    return reply || "Sorry, I couldn't generate a response.";
+  } catch (err: any) {
+    console.error(
+      `❌ Model ${model} failed:`,
+      err.response?.data?.error?.message || err.message,
+    );
+    throw new Error(
+      err.response?.data?.error?.message ||
+        err.message ||
+        'OpenAI API failed. Please check your API access and billing.',
+    );
   }
-
-  throw new Error(
-    lastError?.response?.data?.error?.message ||
-      lastError?.message ||
-      'All OpenAI models failed. Please check your API access and billing.',
-  );
 };
 
 export const generateDevelopmentTask = async (

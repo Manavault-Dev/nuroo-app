@@ -73,12 +73,13 @@ export default function AskNurooScreen() {
         ...prev,
         { from: 'nuroo', text: reply, timestamp: new Date() },
       ]);
-    } catch {
+    } catch (error: any) {
+      console.error('Error in Ask Nuroo:', error);
       setMessages((prev) => [
         ...prev,
         {
           from: 'nuroo',
-          text: 'Sorry, an error occurred. Please try again.',
+          text: `Sorry, an error occurred: ${error.message || 'Unknown error'}. Please check your OpenAI API key and try again.`,
           timestamp: new Date(),
         },
       ]);
@@ -115,7 +116,6 @@ export default function AskNurooScreen() {
         )}
       </View>
 
-      {/* Welcome Message for New Users */}
       {messages.length === 0 && (
         <View style={tw`flex-1 justify-center items-center px-8`}>
           <Text style={tw`text-2xl font-bold text-primary text-center mb-4`}>

@@ -84,7 +84,6 @@ export default function TaskPage() {
     } catch (error) {
       console.error('Error updating task:', error);
       Alert.alert('Error', 'Failed to update task status');
-
       setTask(task);
     } finally {
       setUpdating(false);
