@@ -15,6 +15,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Pressable,
   RefreshControl,
@@ -255,19 +256,75 @@ export default function HomeScreen() {
       const currentUser = auth.currentUser;
       if (!currentUser) return;
 
+      // Find the current task to get the correct completion state
+      const currentTask = tasks.find((t) => t.id === taskId);
+      if (!currentTask) return;
+
+      const newCompletedState = !currentTask.completed;
+
+      // Update local state first
       const updatedTasks = tasks.map((task) =>
-        task.id === taskId ? { ...task, completed: !task.completed } : task,
+        task.id === taskId ? { ...task, completed: newCompletedState } : task,
       );
       setTasks(updatedTasks);
 
+      // Update in Firebase
       const taskRef = doc(db, 'tasks', taskId);
-      await setDoc(
-        taskRef,
-        { completed: !tasks.find((t) => t.id === taskId)?.completed },
-        { merge: true },
-      );
+      await setDoc(taskRef, { completed: newCompletedState }, { merge: true });
     } catch (error) {
       console.error('Error updating task:', error);
+      // Revert local state if Firebase update failed
+      Alert.alert('Error', 'Failed to update task. Please try again.');
+    }
+  };
+
+  // Temporary mock mode for testing without OpenAI API
+  const generateMockTasks = async () => {
+    if (
+      !childData?.developmentAreas ||
+      childData.developmentAreas.length === 0
+    ) {
+      Alert.alert(
+        'No Development Areas',
+        'Please complete onboarding first to set development areas.',
+      );
+      return;
+    }
+
+    setGenerating(true);
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) return;
+
+      const newTasks: Task[] = [];
+      const areas = childData.developmentAreas;
+
+      // Generate 1 mock task per development area (max 6 tasks)
+      for (let i = 0; i < Math.min(areas.length, 6); i++) {
+        const area = areas[i];
+        const mockTask = createFallbackTask(area, i + 1);
+        newTasks.push(mockTask);
+
+        // Save to Firebase
+        const taskRef = doc(collection(db, 'tasks'));
+        await setDoc(taskRef, {
+          ...mockTask,
+          id: taskRef.id,
+          userId: currentUser.uid,
+          createdAt: new Date(),
+        });
+      }
+
+      setTasks(newTasks);
+      Alert.alert(
+        'Success',
+        `Generated ${newTasks.length} mock tasks for testing!`,
+      );
+    } catch (error) {
+      console.error('Error generating mock tasks:', error);
+      Alert.alert('Error', 'Failed to generate mock tasks. Please try again.');
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -332,25 +389,92 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        {/* Generate New Tasks Button */}
         {totalTasks === 0 && (
-          <Pressable
-            style={tw`mt-4 bg-primary py-3 px-6 rounded-xl self-start`}
-            onPress={generateDailyTasks}
-            disabled={generating}
-          >
-            {generating ? (
-              <View style={tw`flex-row items-center`}>
-                <ActivityIndicator size="small" color="white" />
-                <Text style={tw`text-white font-bold ml-2`}>
-                  Generating Tasks...
+          <View style={tw`mt-4 space-y-3`}>
+            <Pressable
+              style={tw`bg-blue-500 py-3 px-6 rounded-xl self-start`}
+              onPress={generateMockTasks}
+              disabled={generating}
+            >
+              {generating ? (
+                <View style={tw`flex-row items-center`}>
+                  <ActivityIndicator size="small" color="white" />
+                  <Text style={tw`text-white font-bold ml-2`}>
+                    Generating Mock Tasks...
+                  </Text>
+                </View>
+              ) : (
+                <Text style={tw`text-white font-bold`}>
+                  🎯 Generate Mock Tasks (Test Mode)
                 </Text>
-              </View>
-            ) : (
+              )}
+            </Pressable>
+
+            <Pressable
+              style={tw`bg-primary py-3 px-6 rounded-xl self-start opacity-50`}
+              onPress={() =>
+                Alert.alert(
+                  'OpenAI API Required',
+                  'Please add your OpenAI API key to .env file to generate AI-powered tasks.\n\nFor now, use Mock Tasks to test the app functionality.',
+                )
+              }
+              disabled={true}
+            >
               <Text style={tw`text-white font-bold`}>
-                Generate Today&apos;s Tasks
+                🤖 Generate AI Tasks (Coming Soon)
               </Text>
+            </Pressable>
+
+            <Text style={tw`text-xs text-gray-500 mt-2`}>
+              💡 Mock tasks let you test the app without OpenAI API. Add your
+              API key to unlock AI-generated personalized tasks!
+            </Text>
+          </View>
+        )}
+        {/* Debug Info (remove in production) */}
+        {__DEV__ && (
+          <View style={tw`mt-4 p-3 bg-gray-100 rounded-lg`}>
+            <Text style={tw`text-xs font-mono text-gray-600 mb-2`}>
+              🔍 Debug Info:
+            </Text>
+            <Text style={tw`text-xs text-gray-600`}>
+              Child: {childData?.name || 'None'} ({childData?.age || 'N/A'})
+            </Text>
+            <Text style={tw`text-xs text-gray-600`}>
+              Areas: {childData?.developmentAreas?.join(', ') || 'None'}
+            </Text>
+            <Text style={tw`text-xs text-gray-600`}>
+              Tasks: {totalTasks} (Completed: {completedTasks})
+            </Text>
+            <Text style={tw`text-xs text-gray-600`}>
+              User ID: {auth.currentUser?.uid?.substring(0, 8) || 'None'}...
+            </Text>
+
+            {totalTasks > 0 && (
+              <Pressable
+                onPress={() => {
+                  Alert.alert(
+                    'Clear All Tasks',
+                    'This will remove all tasks for testing. Continue?',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      {
+                        text: 'Clear',
+                        style: 'destructive',
+                        onPress: () => setTasks([]),
+                      },
+                    ],
+                  );
+                }}
+                style={tw`mt-2 bg-red-100 px-3 py-1 rounded self-start`}
+              >
+                <Text style={tw`text-red-600 text-xs`}>
+                  🗑️ Clear Tasks (Test)
+                </Text>
+              </Pressable>
             )}
-          </Pressable>
+          </View>
         )}
       </View>
 
