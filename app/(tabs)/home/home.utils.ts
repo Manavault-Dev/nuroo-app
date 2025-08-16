@@ -26,6 +26,7 @@ export const parseTaskFromAI = (
     completed: false,
     createdAt: new Date(),
     developmentArea: area,
+    dailyId: new Date().toDateString(),
   };
 };
 
