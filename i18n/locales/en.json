@@ -1,12 +1,12 @@
 {
   "welcome": {
     "welcome_title": "Welcome to Nuroo",
-    "welcome_subtitle": "Support your child’s development with personalized AI-driven plans",
+    "welcome_subtitle": "Support your child's development with personalized AI-driven plans",
     "feature_1": "• Daily personalized exercises",
-    "feature_2": "• Track your child’s progress",
+    "feature_2": "• Track your child's progress",
     "feature_3": "• Expert resources and support",
     "get_started": "Get Started",
-    "footer_note": "Join thousands of parents supporting their child’s growth",
+    "footer_note": "Join thousands of parents supporting their child's growth",
     "choose_language": "Choose Language"
   },
 
@@ -19,7 +19,7 @@
     "password_placeholder": "Enter your password",
     "sign_in_button": "Sign In",
     "signing_in": "Signing in...",
-    "no_account": "Don’t have an account?",
+    "no_account": "Don't have an account?",
     "sign_up_link": "Sign up",
     "login_failed": "Login failed"
   },
@@ -69,10 +69,86 @@
       "speech_delay": "Speech Delay"
     }
   },
+
   "tabs": {
     "home": "Home",
     "ask_nuroo": "Ask Nuroo",
     "progress": "Progress",
     "profile": "Profile"
+  },
+
+  "home": {
+    "title": "Today's Plan",
+    "subtitle": "Your daily AI-powered activities",
+    "progress": "Progress",
+    "no_tasks_title": "No tasks for today yet. Generate your daily AI-powered activities!",
+    "generate_button": "🤖 Generate Today's Tasks",
+    "generating": "🤖 Generating AI Tasks...",
+    "help_text": "💡 Tasks are generated once per day and saved for the entire day",
+    "loading": "Loading today's plan..."
+  },
+
+  "ask_nuroo": {
+    "title": "Ask Nuroo 🤖",
+    "subtitle": "Your personal child development assistant",
+    "welcome_title": "👋 Welcome to Nuroo AI!",
+    "welcome_message": "I'm here to help you support your child's development. Ask me anything about:",
+    "welcome_tip_1": "• Daily activities and exercises",
+    "welcome_tip_2": "• Behavioral strategies",
+    "welcome_tip_3": "• Learning techniques",
+    "welcome_tip_4": "• Progress tracking ideas",
+    "get_started_button": "Get Started",
+    "placeholder": "Ask Nuroo anything...",
+    "send_button": "Send",
+    "error_message": "Sorry, an error occurred: {error}. Please check your OpenAI API key and try again."
+  },
+
+  "profile": {
+    "title": "Profile",
+    "edit_profile": "Edit Profile",
+    "save_changes": "Save Changes",
+    "cancel_edit": "Cancel",
+    "name_label": "Name:",
+    "age_label": "Age:",
+    "diagnosis_label": "Diagnosis:",
+    "development_areas_label": "Development Areas:",
+    "loading": "Loading profile...",
+    "error_loading": "Error loading profile",
+    "error_saving": "Error saving profile",
+    "success_saving": "Profile updated successfully"
+  },
+
+  "tasks": {
+    "task_details": "Task Details",
+    "category": "Category",
+    "duration": "Duration",
+    "focus_area": "Focus Area",
+    "mark_complete": "Mark as Complete",
+    "reopen_task": "Reopen Task",
+    "updating": "Updating...",
+    "back_to_tasks": "Back to Tasks",
+    "task_not_found": "Task not found",
+    "go_back": "Go Back",
+    "completed_message": "🎉 Congratulations! You've completed this task today.",
+    "completed_subtitle": "Keep up the great work!",
+    "completed_status": "Completed",
+    "in_progress_status": "In Progress"
+  },
+
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close"
   }
 }

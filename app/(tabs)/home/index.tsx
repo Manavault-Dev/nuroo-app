@@ -1,9 +1,9 @@
 import tw from '@/lib/design/tw';
 import { auth } from '@/lib/firebase/firebase';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Pressable,
   RefreshControl,
@@ -20,6 +20,7 @@ import { homeStyles } from './home.styles';
 import { formatProgressPercentage } from './home.utils';
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
   const [refreshing, setRefreshing] = useState(false);
   const { childData, fetchChildData } = useChildData();
   const {
@@ -66,7 +67,7 @@ export default function HomeScreen() {
     return (
       <View style={homeStyles.loadingContainer}>
         <ActivityIndicator size="large" color="#1D3557" />
-        <Text style={homeStyles.loadingText}>Loading today&apos;s plan...</Text>
+        <Text style={homeStyles.loadingText}>{t('home.loading')}</Text>
       </View>
     );
   }
@@ -78,20 +79,20 @@ export default function HomeScreen() {
     <View style={homeStyles.container}>
       <View style={homeStyles.header}>
         <View style={homeStyles.headerRow}>
-          <View style={homeStyles.headerRow}>
-            <Text style={homeStyles.headerTitle}>Nuroo</Text>
+          <View style={tw`flex-row items-center`}>
+            <Text style={tw`text-primary font-bold text-lg`}>Nuroo</Text>
           </View>
           {childData?.name && (
-            <Text style={homeStyles.debugText}>for {childData.name}</Text>
+            <Text style={tw`text-sm text-gray-600`}>for {childData.name}</Text>
           )}
         </View>
 
-        <Text style={homeStyles.headerTitle}>Today&apos;s Plan</Text>
+        <Text style={homeStyles.headerTitle}>{t('home.title')}</Text>
         <Text style={homeStyles.headerSubtitle}>{today}</Text>
 
         <View style={homeStyles.progressContainer}>
           <Text style={homeStyles.progressText}>
-            Progress{' '}
+            {t('home.progress')}{' '}
             <Text style={tw`text-primary`}>
               {completedTasks}/{totalTasks}
             </Text>
@@ -109,56 +110,29 @@ export default function HomeScreen() {
         {totalTasks === 0 && (
           <View style={tw`mt-4`}>
             <Text style={tw`text-sm text-gray-600 mb-3`}>
-              📅 No tasks for today yet. Generate your daily AI-powered
-              activities!
+              📅 {t('home.no_tasks_title')}
             </Text>
             <Pressable
               style={homeStyles.generateButton}
-              onPress={handleGenerateTasks}
+              onPress={() => generateDailyTasks(setTasks)}
               disabled={generating}
             >
               {generating ? (
                 <View style={tw`flex-row items-center`}>
                   <ActivityIndicator size="small" color="white" />
                   <Text style={homeStyles.generateButtonText}>
-                    🤖 Generating AI Tasks...
+                    {t('home.generating')}
                   </Text>
                 </View>
               ) : (
                 <Text style={homeStyles.generateButtonText}>
-                  🤖 Generate Today&apos;s Tasks
+                  {t('home.generate_button')}
                 </Text>
               )}
             </Pressable>
 
-            <Text style={homeStyles.helpText}>
-              💡 Tasks are generated once per day and saved for the entire day
-            </Text>
+            <Text style={homeStyles.helpText}>💡 {t('home.help_text')}</Text>
           </View>
-        )}
-
-        {totalTasks > 0 && (
-          <Pressable
-            onPress={() => {
-              Alert.alert(
-                'Clear All Tasks',
-                'This will remove all tasks for testing. Continue?',
-                [
-                  { text: 'Cancel', style: 'cancel' },
-                  {
-                    text: 'Clear',
-                    style: 'destructive',
-                    onPress: clearTasks,
-                  },
-                ],
-              );
-            }}
-            style={homeStyles.clearButton}
-          >
-            <Text style={homeStyles.clearButtonText}>
-              🗑️ Clear Tasks (Test)
-            </Text>
-          </Pressable>
         )}
       </View>
 
