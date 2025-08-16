@@ -108,6 +108,10 @@ export default function HomeScreen() {
 
         {totalTasks === 0 && (
           <View style={tw`mt-4`}>
+            <Text style={tw`text-sm text-gray-600 mb-3`}>
+              📅 No tasks for today yet. Generate your daily AI-powered
+              activities!
+            </Text>
             <Pressable
               style={homeStyles.generateButton}
               onPress={handleGenerateTasks}
@@ -122,58 +126,39 @@ export default function HomeScreen() {
                 </View>
               ) : (
                 <Text style={homeStyles.generateButtonText}>
-                  🤖 Generate AI Tasks (GPT-4o-mini)
+                  🤖 Generate Today&apos;s Tasks
                 </Text>
               )}
             </Pressable>
 
             <Text style={homeStyles.helpText}>
-              💡 AI will generate personalized tasks based on your child&apos;s
-              development areas
+              💡 Tasks are generated once per day and saved for the entire day
             </Text>
           </View>
         )}
 
-        {__DEV__ && (
-          <View style={homeStyles.debugContainer}>
-            <Text style={homeStyles.debugTitle}>🔍 Debug Info:</Text>
-            <Text style={homeStyles.debugText}>
-              Child: {childData?.name || 'None'} ({childData?.age || 'N/A'})
+        {totalTasks > 0 && (
+          <Pressable
+            onPress={() => {
+              Alert.alert(
+                'Clear All Tasks',
+                'This will remove all tasks for testing. Continue?',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  {
+                    text: 'Clear',
+                    style: 'destructive',
+                    onPress: clearTasks,
+                  },
+                ],
+              );
+            }}
+            style={homeStyles.clearButton}
+          >
+            <Text style={homeStyles.clearButtonText}>
+              🗑️ Clear Tasks (Test)
             </Text>
-            <Text style={homeStyles.debugText}>
-              Areas: {childData?.developmentAreas?.join(', ') || 'None'}
-            </Text>
-            <Text style={homeStyles.debugText}>
-              Tasks: {totalTasks} (Completed: {completedTasks})
-            </Text>
-            <Text style={homeStyles.debugText}>
-              User ID: {auth.currentUser?.uid?.substring(0, 8) || 'None'}...
-            </Text>
-
-            {totalTasks > 0 && (
-              <Pressable
-                onPress={() => {
-                  Alert.alert(
-                    'Clear All Tasks',
-                    'This will remove all tasks for testing. Continue?',
-                    [
-                      { text: 'Cancel', style: 'cancel' },
-                      {
-                        text: 'Clear',
-                        style: 'destructive',
-                        onPress: clearTasks,
-                      },
-                    ],
-                  );
-                }}
-                style={homeStyles.clearButton}
-              >
-                <Text style={homeStyles.clearButtonText}>
-                  🗑️ Clear Tasks (Test)
-                </Text>
-              </Pressable>
-            )}
-          </View>
+          </Pressable>
         )}
       </View>
 

@@ -62,7 +62,7 @@ export const askNuroo = async (
   console.log('👶 Child Data:', childData);
 
   const systemPrompt = createSystemPrompt(childData);
-  const model = 'gpt-4o-mini';
+  const model = 'gpt-4.1-mini';
 
   try {
     console.log(`🔄 Using model: ${model}`);

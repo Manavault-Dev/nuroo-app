@@ -20,11 +20,10 @@ export const TaskItem = ({ task, onToggleComplete }: TaskItemProps) => (
             ? task.description.substring(0, 100) + '...'
             : task.description}
         </Text>
+        <Text style={homeStyles.taskCategory}>
+          {task.category} · {task.time}
+        </Text>
         <View style={homeStyles.taskMeta}>
-          <Text style={homeStyles.taskCategory}>
-            {task.category} · {task.time}
-          </Text>
-
           <View style={homeStyles.taskActions}>
             <Pressable
               style={homeStyles.completeButton(task.completed)}

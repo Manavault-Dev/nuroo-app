@@ -8,6 +8,7 @@ export interface Task {
   completed: boolean;
   createdAt: Date;
   developmentArea: string;
+  dailyId: string;
 }
 
 export interface ChildData {

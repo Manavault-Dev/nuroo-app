@@ -5,7 +5,6 @@ import {
   doc,
   getDoc,
   getDocs,
-  orderBy,
   query,
   setDoc,
   where,
@@ -13,7 +12,7 @@ import {
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 import { ChildData, Task } from './home.types';
-import { filterTodaysTasks, parseTaskFromAI } from './home.utils';
+import { parseTaskFromAI } from './home.utils';
 
 export const useChildData = () => {
   const [childData, setChildData] = useState<ChildData | null>(null);
@@ -76,6 +75,7 @@ export const useTaskGeneration = (childData: ChildData | null) => {
               id: taskRef.id,
               userId: currentUser.uid,
               createdAt: new Date(),
+              dailyId: new Date().toDateString(),
             });
           } catch (error: any) {
             console.error(`Error generating task for ${area}:`, error);
@@ -114,26 +114,32 @@ export const useTaskManagement = () => {
 
   const fetchTasks = useCallback(async (userId: string) => {
     try {
-      const tasksQuery = query(
+      const today = new Date().toDateString();
+
+      const todayTasksQuery = query(
         collection(db, 'tasks'),
         where('userId', '==', userId),
-        orderBy('createdAt', 'desc'),
+        where('dailyId', '==', today),
       );
 
-      const tasksSnapshot = await getDocs(tasksQuery);
-      if (!tasksSnapshot.empty) {
-        const existingTasks = tasksSnapshot.docs.map((doc) => ({
+      const todayTasksSnapshot = await getDocs(todayTasksQuery);
+
+      if (!todayTasksSnapshot.empty) {
+        const existingTasks = todayTasksSnapshot.docs.map((doc) => ({
           ...doc.data(),
           id: doc.id,
           createdAt: doc.data().createdAt?.toDate() || new Date(),
         })) as Task[];
 
-        const todaysTasks = filterTodaysTasks(existingTasks);
-        setTasks(todaysTasks);
+        setTasks(existingTasks);
+        setLoading(false);
+        return;
       }
+
+      setTasks([]);
+      setLoading(false);
     } catch (error: any) {
       console.error('Error fetching tasks:', error);
-    } finally {
       setLoading(false);
     }
   }, []);
