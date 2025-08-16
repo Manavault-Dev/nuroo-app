@@ -3,6 +3,7 @@ import { auth, db } from '@/lib/firebase/firebase';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { doc, getDoc, setDoc, Timestamp } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -26,6 +27,7 @@ interface Task {
 }
 
 export default function TaskPage() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams();
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,14 +51,14 @@ export default function TaskPage() {
         }
       } catch (error) {
         console.error('Error fetching task:', error);
-        Alert.alert('Error', 'Failed to load task details');
+        Alert.alert(t('common.error'), t('tasks.task_not_found'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchTask();
-  }, [id]);
+  }, [id, t]);
 
   const markTaskComplete = async () => {
     if (!task) return;
@@ -76,14 +78,14 @@ export default function TaskPage() {
       );
 
       Alert.alert(
-        updatedTask.completed ? 'Task Completed!' : 'Task Reopened',
+        updatedTask.completed ? t('common.success') : t('common.success'),
         updatedTask.completed
-          ? `Great job! You've completed "${task.title}"`
-          : `You can now work on "${task.title}" again`,
+          ? t('tasks.completed_message')
+          : t('tasks.completed_subtitle'),
       );
     } catch (error) {
       console.error('Error updating task:', error);
-      Alert.alert('Error', 'Failed to update task status');
+      Alert.alert(t('common.error'), t('common.error'));
       setTask(task);
     } finally {
       setUpdating(false);
@@ -94,7 +96,7 @@ export default function TaskPage() {
     return (
       <View style={tw`flex-1 bg-white justify-center items-center`}>
         <ActivityIndicator size="large" color="#1D3557" />
-        <Text style={tw`text-gray-600 mt-4`}>Loading task details...</Text>
+        <Text style={tw`text-gray-600 mt-4`}>{t('common.loading')}</Text>
       </View>
     );
   }
@@ -102,12 +104,14 @@ export default function TaskPage() {
   if (!task) {
     return (
       <View style={tw`flex-1 justify-center items-center px-4`}>
-        <Text style={tw`text-xl font-bold text-red-500`}>Task not found</Text>
+        <Text style={tw`text-xl font-bold text-red-500`}>
+          {t('tasks.task_not_found')}
+        </Text>
         <Pressable
           onPress={() => router.back()}
           style={tw`mt-4 bg-primary py-3 px-6 rounded-xl`}
         >
-          <Text style={tw`text-white font-semibold`}>Go Back</Text>
+          <Text style={tw`text-white font-semibold`}>{t('tasks.go_back')}</Text>
         </Pressable>
       </View>
     );
@@ -143,13 +147,15 @@ export default function TaskPage() {
               : tw`bg-blue-200 text-blue-700`,
           ]}
         >
-          {task.completed ? 'Completed' : 'In Progress'}
+          {task.completed
+            ? t('tasks.completed_status')
+            : t('tasks.in_progress_status')}
         </Text>
       </View>
 
       <View style={tw`mb-6`}>
         <Text style={tw`text-lg font-semibold text-gray-800 mb-3`}>
-          Task Details
+          {t('tasks.task_details')}
         </Text>
 
         <View style={tw`bg-gray-50 p-4 rounded-xl mb-4`}>
@@ -162,19 +168,21 @@ export default function TaskPage() {
           style={tw`flex-row items-center justify-between bg-white p-4 rounded-xl border border-gray-200`}
         >
           <View>
-            <Text style={tw`text-sm text-gray-500`}>Category</Text>
+            <Text style={tw`text-sm text-gray-500`}>{t('tasks.category')}</Text>
             <Text style={tw`text-base font-medium text-primary`}>
               {task.category}
             </Text>
           </View>
           <View>
-            <Text style={tw`text-sm text-gray-500`}>Duration</Text>
+            <Text style={tw`text-sm text-gray-500`}>{t('tasks.duration')}</Text>
             <Text style={tw`text-base font-medium text-gray-800`}>
               {task.time}
             </Text>
           </View>
           <View>
-            <Text style={tw`text-sm text-gray-500`}>Focus Area</Text>
+            <Text style={tw`text-sm text-gray-500`}>
+              {t('tasks.focus_area')}
+            </Text>
             <Text style={tw`text-base font-medium text-gray-800 capitalize`}>
               {task.developmentArea}
             </Text>
@@ -194,11 +202,15 @@ export default function TaskPage() {
           {updating ? (
             <View style={tw`flex-row items-center justify-center`}>
               <ActivityIndicator size="small" color="white" />
-              <Text style={tw`text-white font-semibold ml-2`}>Updating...</Text>
+              <Text style={tw`text-white font-semibold ml-2`}>
+                {t('tasks.updating')}
+              </Text>
             </View>
           ) : (
             <Text style={tw`text-white font-semibold text-center text-lg`}>
-              {task.completed ? 'Reopen Task' : 'Mark as Complete'}
+              {task.completed
+                ? t('tasks.reopen_task')
+                : t('tasks.mark_complete')}
             </Text>
           )}
         </Pressable>
@@ -208,7 +220,7 @@ export default function TaskPage() {
           style={tw`py-3 px-6 rounded-xl border border-gray-300`}
         >
           <Text style={tw`text-gray-700 font-medium text-center`}>
-            Back to Tasks
+            {t('tasks.back_to_tasks')}
           </Text>
         </Pressable>
       </View>
@@ -218,10 +230,10 @@ export default function TaskPage() {
           style={tw`mt-6 p-4 bg-green-50 rounded-xl border border-green-200`}
         >
           <Text style={tw`text-green-700 text-center font-medium`}>
-            🎉 Congratulations! You&apos;ve completed this task today.
+            {t('tasks.completed_message')}
           </Text>
           <Text style={tw`text-green-600 text-center text-sm mt-1`}>
-            Keep up the great work!
+            {t('tasks.completed_subtitle')}
           </Text>
         </View>
       )}

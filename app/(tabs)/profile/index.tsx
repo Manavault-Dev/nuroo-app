@@ -6,7 +6,9 @@ import { auth, db } from '@/lib/firebase/firebase';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { Globe } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 interface ProfileData {
@@ -19,12 +21,19 @@ interface ProfileData {
   developmentAreas?: string[];
 }
 
+const LANGUAGES = [
+  { code: 'en', label: 'English', flag: '🇺🇸' },
+  { code: 'ru', label: 'Русский', flag: '🇷🇺' },
+];
+
 const ProfileScreen = () => {
+  const { t, i18n } = useTranslation();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [childName, setChildName] = useState('');
   const [age, setAge] = useState('');
   const [diagnosis, setDiagnosis] = useState('');
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
 
   const { rateApp, shareFeedback, openPrivacy, openHelp } = useLinks();
 
@@ -70,6 +79,11 @@ const ProfileScreen = () => {
     }
   }, [profile]);
 
+  const handleLanguageChange = (lang: string) => {
+    i18n.changeLanguage(lang);
+    setShowLanguageDropdown(false);
+  };
+
   const handleSave = async () => {
     const currentUser = auth.currentUser;
     if (!currentUser) return;
@@ -92,12 +106,47 @@ const ProfileScreen = () => {
     setIsEditing(false);
   };
 
+  const currentLang = LANGUAGES.find((l) => l.code === i18n.language);
+
   return (
     <ScrollView contentContainerStyle={tw`p-4 pt-16 pb-32`}>
-      <Text style={tw`text-2xl font-bold text-primary mb-1`}>Settings</Text>
-      <Text style={tw`text-gray-500 mb-4`}>
-        Manage your account and preferences
-      </Text>
+      <View style={tw`flex-row items-center justify-between mb-4`}>
+        <View>
+          <Text style={tw`text-2xl font-bold text-primary mb-1`}>Settings</Text>
+          <Text style={tw`text-gray-500`}>
+            Manage your account and preferences
+          </Text>
+        </View>
+
+        {/* Language Switcher */}
+        <View style={tw`relative`}>
+          <Pressable
+            onPress={() => setShowLanguageDropdown(!showLanguageDropdown)}
+            style={tw`flex-row items-center px-3 py-2 border border-gray-300 rounded-lg bg-gray-50`}
+          >
+            <Globe size={16} color="#1D2B64" style={tw`mr-2`} />
+            <Text style={tw`text-sm text-gray-700`}>{currentLang?.flag}</Text>
+          </Pressable>
+
+          {showLanguageDropdown && (
+            <View
+              style={tw`absolute top-12 right-0 bg-white border border-gray-300 rounded-lg shadow-md z-50 min-w-32`}
+            >
+              {LANGUAGES.map((lang) => (
+                <Pressable
+                  key={lang.code}
+                  onPress={() => handleLanguageChange(lang.code)}
+                  style={tw`px-3 py-2 border-b border-gray-100 last:border-b-0`}
+                >
+                  <Text style={tw`text-sm text-gray-800`}>
+                    {lang.flag} {lang.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
+        </View>
+      </View>
 
       <View
         style={tw`bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6`}

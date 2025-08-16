@@ -3,6 +3,7 @@ import tw from '@/lib/design/tw';
 import { auth, db } from '@/lib/firebase/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
@@ -14,6 +15,12 @@ import {
   View,
 } from 'react-native';
 
+interface Message {
+  from: 'user' | 'nuroo';
+  text: string;
+  timestamp: Date;
+}
+
 interface ChildData {
   name?: string;
   age?: string;
@@ -22,9 +29,8 @@ interface ChildData {
 }
 
 export default function AskNurooScreen() {
-  const [messages, setMessages] = useState<
-    { from: 'user' | 'nuroo'; text: string; timestamp: Date }[]
-  >([]);
+  const { t } = useTranslation();
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [childData, setChildData] = useState<ChildData | null>(null);
@@ -32,30 +38,23 @@ export default function AskNurooScreen() {
 
   useEffect(() => {
     const fetchChildData = async () => {
-      try {
-        const currentUser = auth.currentUser;
-        if (!currentUser) return;
-
+      const currentUser = auth.currentUser;
+      if (currentUser) {
         const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
         if (userDoc.exists()) {
-          const userData = userDoc.data();
-          setChildData({
-            name: userData.name,
-            age: userData.age,
-            diagnosis: userData.diagnosis,
-            developmentAreas: userData.developmentAreas,
-          });
+          setChildData(userDoc.data() as ChildData);
         }
-      } catch (error) {
-        console.error('Error fetching child data:', error);
       }
     };
-
     fetchChildData();
   }, []);
 
+  useEffect(() => {
+    flatListRef.current?.scrollToEnd({ animated: true });
+  }, [messages]);
+
   const sendMessage = async () => {
-    if (!input.trim() || loading) return;
+    if (input.trim() === '' || loading) return;
 
     setLoading(true);
     const userMessage = input.trim();
@@ -79,7 +78,9 @@ export default function AskNurooScreen() {
         ...prev,
         {
           from: 'nuroo',
-          text: `Sorry, an error occurred: ${error.message || 'Unknown error'}. Please check your OpenAI API key and try again.`,
+          text: t('ask_nuroo.error_message', {
+            error: error.message || 'Unknown error',
+          }),
           timestamp: new Date(),
         },
       ]);
@@ -87,10 +88,6 @@ export default function AskNurooScreen() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    flatListRef.current?.scrollToEnd({ animated: true });
-  }, [messages]);
 
   const formatTime = (timestamp: Date) => {
     return timestamp.toLocaleTimeString([], {
@@ -105,38 +102,34 @@ export default function AskNurooScreen() {
       style={tw`flex-1 max-h-[90%] bg-white`}
     >
       <View style={tw`pt-14 pb-4 px-4 border-b border-gray-200`}>
-        <Text style={tw`text-2xl font-bold text-primary`}>Ask Nuroo 🤖</Text>
-        <Text style={tw`text-gray-500 text-sm mt-1`}>
-          Your personal child development assistant
+        <Text style={tw`text-2xl font-bold text-primary`}>
+          {t('ask_nuroo.title')}
         </Text>
-        {childData?.name && (
-          <Text style={tw`text-sm text-primary mt-1`}>
-            Helping {childData.name} (Age: {childData.age})
-          </Text>
-        )}
+        <Text style={tw`text-gray-500 text-sm mt-1`}>
+          {t('ask_nuroo.subtitle')}
+        </Text>
       </View>
 
       {messages.length === 0 && (
         <View style={tw`flex-1 justify-center items-center px-8`}>
           <Text style={tw`text-2xl font-bold text-primary text-center mb-4`}>
-            👋 Welcome to Nuroo AI!
+            {t('ask_nuroo.welcome_title')}
           </Text>
           <Text style={tw`text-gray-600 text-center mb-6 leading-6`}>
-            I&apos;m here to help you support your child&apos;s development. Ask
-            me anything about:
+            {t('ask_nuroo.welcome_message')}
           </Text>
           <View style={tw`space-y-2 mb-6`}>
             <Text style={tw`text-gray-700 text-center`}>
-              • Daily activities and exercises
+              {t('ask_nuroo.welcome_tip_1')}
             </Text>
             <Text style={tw`text-gray-700 text-center`}>
-              • Behavioral strategies
+              {t('ask_nuroo.welcome_tip_2')}
             </Text>
             <Text style={tw`text-gray-700 text-center`}>
-              • Learning techniques
+              {t('ask_nuroo.welcome_tip_3')}
             </Text>
             <Text style={tw`text-gray-700 text-center`}>
-              • Progress tracking ideas
+              {t('ask_nuroo.welcome_tip_4')}
             </Text>
           </View>
           <Pressable
@@ -148,7 +141,7 @@ export default function AskNurooScreen() {
             }}
           >
             <Text style={tw`text-white font-bold text-center`}>
-              Get Started
+              {t('ask_nuroo.get_started_button')}
             </Text>
           </Pressable>
         </View>
@@ -183,12 +176,11 @@ export default function AskNurooScreen() {
         <View style={[tw`px-4 pt-2 pb-4 border-t border-gray-100 bg-white`]}>
           <View style={tw`flex-row items-center`}>
             <TextInput
-              style={tw`flex-1 bg-gray-100 p-3 rounded-full text-base`}
-              placeholder="Ask Nuroo something..."
+              style={tw`flex-1 border border-gray-300 rounded-full px-4 py-3 mr-2`}
+              placeholder={t('ask_nuroo.placeholder')}
               value={input}
               onChangeText={setInput}
               onSubmitEditing={sendMessage}
-              returnKeyType="send"
               editable={!loading}
             />
             <Pressable
@@ -202,7 +194,9 @@ export default function AskNurooScreen() {
               {loading ? (
                 <ActivityIndicator size="small" color="white" />
               ) : (
-                <Text style={tw`text-white font-bold`}>Send</Text>
+                <Text style={tw`text-white font-bold`}>
+                  {t('ask_nuroo.send_button')}
+                </Text>
               )}
             </Pressable>
           </View>
