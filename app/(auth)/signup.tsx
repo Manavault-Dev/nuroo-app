@@ -25,10 +25,16 @@ export default function SignUpScreen() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleSignUp = async () => {
-    if (!fullName.trim()) {
-      Alert.alert('Please enter your full name.');
+    if (!fullName.trim() || !email.trim() || !password.trim()) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert('Error', t('signup.passwords_do_not_match'));
       return;
     }
 
@@ -47,6 +53,7 @@ export default function SignUpScreen() {
         createdAt: new Date(),
       });
 
+      // Redirect to onboarding after successful signup
       router.replace('/onboarding');
     } catch (error: any) {
       console.error('Sign up error', error);

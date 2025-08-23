@@ -149,6 +149,8 @@
     "back": "Back",
     "next": "Next",
     "previous": "Previous",
-    "close": "Close"
+    "close": "Close",
+    "logout": "Logout",
+    "logout_confirm": "Are you sure you want to logout?"
   }
 }
