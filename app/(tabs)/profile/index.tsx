@@ -1,15 +1,17 @@
 import ChildProfileForm from '@/components/ChildProfileForm/ChildProfileForm';
 import Option from '@/components/ui/Option';
+import { useAuth } from '@/context/AuthContext';
 import { useLinks } from '@/hooks/useLinks';
 import tw from '@/lib/design/tw';
 import { auth, db } from '@/lib/firebase/firebase';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Globe } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 
 interface ProfileData {
   fullName: string;
@@ -28,6 +30,8 @@ const LANGUAGES = [
 
 const ProfileScreen = () => {
   const { t, i18n } = useTranslation();
+  const { logout } = useAuth();
+  const router = useRouter();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [childName, setChildName] = useState('');
@@ -84,6 +88,28 @@ const ProfileScreen = () => {
     setShowLanguageDropdown(false);
   };
 
+  const handleLogout = async () => {
+    Alert.alert(t('common.logout'), t('common.logout_confirm'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('common.logout'),
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await logout();
+            console.log('Logout completed, navigating to welcome...');
+
+            setTimeout(() => {
+              router.replace('/welcome');
+            }, 100);
+          } catch (error) {
+            console.error(' Error during logout:', error);
+          }
+        },
+      },
+    ]);
+  };
+
   const handleSave = async () => {
     const currentUser = auth.currentUser;
     if (!currentUser) return;
@@ -118,7 +144,6 @@ const ProfileScreen = () => {
           </Text>
         </View>
 
-        {/* Language Switcher */}
         <View style={tw`relative`}>
           <Pressable
             onPress={() => setShowLanguageDropdown(!showLanguageDropdown)}
@@ -221,6 +246,11 @@ const ProfileScreen = () => {
         <Text style={tw`text-lg font-bold mb-4`}>Account Settings</Text>
         <Option label="Privacy & Security" onPress={openPrivacy} />
         <Option label="Help & Support" onPress={openHelp} />
+        <Option
+          label={t('common.logout')}
+          onPress={handleLogout}
+          textStyle={tw`text-red-600`}
+        />
       </View>
 
       <View

@@ -61,16 +61,7 @@ export default function OnboardingScreen() {
         if (userDoc.exists()) {
           const userData = userDoc.data();
 
-          if (
-            userData.name &&
-            userData.age &&
-            userData.diagnosis &&
-            userData.developmentAreas
-          ) {
-            router.replace('/(tabs)/home');
-            return;
-          }
-
+          // Pre-populate form with existing data if available
           if (userData.name) setChildName(userData.name);
           if (userData.age) setChildAge(userData.age);
           if (userData.diagnosis) setDiagnosis(userData.diagnosis);
@@ -85,7 +76,7 @@ export default function OnboardingScreen() {
     };
 
     checkOnboardingStatus();
-  }, [router]);
+  }, []);
 
   const handleOpenAgeModal = () => openAgeModal(ageOptions);
 
@@ -98,27 +89,16 @@ export default function OnboardingScreen() {
     openDiagnosisModal(diagnosisOptionsTranslated);
 
   const toggleArea = (area: string) => {
-    console.log('Toggling area:', area);
-    console.log('Current selectedAreas:', selectedAreas);
-
     setSelectedAreas((prev) => {
-      const newAreas = prev.includes(area)
-        ? prev.filter((a) => a !== area)
-        : [...prev, area];
-
-      console.log('New selectedAreas:', newAreas);
-      return newAreas;
+      if (prev.includes(area)) {
+        return prev.filter((a) => a !== area);
+      } else {
+        return [...prev, area];
+      }
     });
   };
 
   const handleCompleteOnboarding = async () => {
-    console.log('Completing onboarding with data:', {
-      childName,
-      childAge,
-      diagnosis,
-      selectedAreas,
-    });
-
     const errors: string[] = [];
 
     if (!childName.trim()) {

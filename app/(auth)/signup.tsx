@@ -27,8 +27,8 @@ export default function SignUpScreen() {
   const [password, setPassword] = useState('');
 
   const handleSignUp = async () => {
-    if (!fullName.trim()) {
-      Alert.alert('Please enter your full name.');
+    if (!fullName.trim() || !email.trim() || !password.trim()) {
+      Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
@@ -47,6 +47,7 @@ export default function SignUpScreen() {
         createdAt: new Date(),
       });
 
+      // Redirect to onboarding after successful signup
       router.replace('/onboarding');
     } catch (error: any) {
       console.error('Sign up error', error);
