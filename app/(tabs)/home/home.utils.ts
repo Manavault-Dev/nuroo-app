@@ -16,17 +16,22 @@ export const parseTaskFromAI = (
     title = title.substring(0, 47) + '...';
   }
 
+  // Use consistent ISO date format
+  const dailyId = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
   return {
     id: `task-${Date.now()}-${taskNumber}`,
     title,
     description: aiResponse,
-    category: area.charAt(0).toUpperCase() + area.slice(1) + ' Development',
+    category: `${area.charAt(0).toUpperCase() + area.slice(1)} Development`,
     time: '10-15 min',
     emoji,
     completed: false,
     createdAt: new Date(),
     developmentArea: area,
-    dailyId: new Date().toDateString(),
+    dailyId, // Use consistent format
+    difficulty: 'intermediate',
+    estimatedDuration: 15,
   };
 };
 

@@ -14,6 +14,7 @@ import AreaSelector from '@/components/OnboardingScreen/AreaSelector/AreaSelecto
 
 import ModalPicker from '@/components/ModalPicker/ModalPicker';
 import { useModalPicker } from '@/hooks/useModalPicker';
+import { ProgressService } from '@/lib/services/progressService';
 import { diagnosisOptions } from '@/lib/types/onboarding/onboarding.types';
 
 export default function OnboardingScreen() {
@@ -140,6 +141,10 @@ export default function OnboardingScreen() {
       await setDoc(doc(db, 'users', currentUser.uid), userData, {
         merge: true,
       });
+
+      // Initialize user progress
+      console.log('Initializing user progress...');
+      await ProgressService.initializeProgress(currentUser.uid);
 
       console.log('Successfully saved to Firebase, navigating to home');
       router.replace('/(tabs)/home');

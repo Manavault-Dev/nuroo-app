@@ -238,6 +238,8 @@ const ProfileScreen = () => {
             </>
           )}
         </View>
+
+        {/* Account Settings */}
       </View>
 
       <View
