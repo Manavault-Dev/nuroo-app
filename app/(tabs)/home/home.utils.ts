@@ -16,17 +16,21 @@ export const parseTaskFromAI = (
     title = title.substring(0, 47) + '...';
   }
 
+  const dailyId = new Date().toISOString().split('T')[0];
+
   return {
     id: `task-${Date.now()}-${taskNumber}`,
     title,
     description: aiResponse,
-    category: area.charAt(0).toUpperCase() + area.slice(1) + ' Development',
+    category: `${area.charAt(0).toUpperCase() + area.slice(1)} Development`,
     time: '10-15 min',
     emoji,
     completed: false,
     createdAt: new Date(),
     developmentArea: area,
-    dailyId: new Date().toDateString(),
+    dailyId,
+    difficulty: 'intermediate',
+    estimatedDuration: 15,
   };
 };
 
