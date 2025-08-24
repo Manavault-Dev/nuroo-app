@@ -1,6 +1,9 @@
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import { useAuth } from '@/context/AuthContext';
 import { useAutoTaskGeneration } from '@/hooks/homeHooks/useAutoTaskGeneration';
+import { useChildData } from '@/hooks/homeHooks/useChildData';
+import { useTaskGeneration } from '@/hooks/homeHooks/useTaskGeneration';
+import { useTaskManagement } from '@/hooks/homeHooks/useTaskManagement';
 import tw from '@/lib/design/tw';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -14,11 +17,6 @@ import {
 } from 'react-native';
 import { HomeSkeleton } from './components/HomeSkeleton';
 import { TaskItem } from './components/TaskItem';
-import {
-  useChildData,
-  useTaskGeneration,
-  useTaskManagement,
-} from './home.hooks';
 import { homeStyles } from './home.styles';
 import { Task } from './home.types';
 import { formatProgressPercentage } from './home.utils';

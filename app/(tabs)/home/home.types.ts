@@ -10,7 +10,7 @@ export interface Task {
   developmentArea: string;
   dailyId: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
-  estimatedDuration: number; // in minutes
+  estimatedDuration: number;
 }
 
 export interface ChildData {
@@ -25,12 +25,12 @@ export interface ChildData {
 }
 
 export interface UserProgress {
-  communication: number; // 0-100
-  motor_skills: number; // 0-100
-  social: number; // 0-100
-  cognitive: number; // 0-100
-  sensory: number; // 0-100
-  behavior: number; // 0-100
+  communication: number;
+  motor_skills: number;
+  social: number;
+  cognitive: number;
+  sensory: number;
+  behavior: number;
 }
 
 export interface TaskGenerationResult {
@@ -42,7 +42,7 @@ export interface TaskGenerationResult {
 export interface DailyTaskSet {
   id: string;
   userId: string;
-  date: string; // ISO date string
+  date: string;
   tasks: Task[];
   generatedAt: Date;
   progressSnapshot: UserProgress;

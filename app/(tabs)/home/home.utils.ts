@@ -16,8 +16,7 @@ export const parseTaskFromAI = (
     title = title.substring(0, 47) + '...';
   }
 
-  // Use consistent ISO date format
-  const dailyId = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const dailyId = new Date().toISOString().split('T')[0];
 
   return {
     id: `task-${Date.now()}-${taskNumber}`,
@@ -29,7 +28,7 @@ export const parseTaskFromAI = (
     completed: false,
     createdAt: new Date(),
     developmentArea: area,
-    dailyId, // Use consistent format
+    dailyId,
     difficulty: 'intermediate',
     estimatedDuration: 15,
   };
