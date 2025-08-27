@@ -217,7 +217,7 @@ export default function TaskPage() {
 
         <Pressable
           onPress={() => router.back()}
-          style={tw`py-3 px-6 rounded-xl border border-gray-300`}
+          style={tw`py-3 px-6 mt-4 rounded-xl border border-gray-300`}
         >
           <Text style={tw`text-gray-700 font-medium text-center`}>
             {t('tasks.back_to_tasks')}

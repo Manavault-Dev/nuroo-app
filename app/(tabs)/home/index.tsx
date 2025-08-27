@@ -38,6 +38,13 @@ export default function HomeScreen() {
     setLoadingState,
   );
 
+  const [firebaseError, setFirebaseError] = useState<string | null>(null);
+
+  // Debug: Log when the hook is recreated
+  useEffect(() => {
+    console.log('🔄 useTaskManagement hook recreated');
+  }, [fetchTasks, toggleTaskCompletion, setLoadingState]);
+
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -58,7 +65,13 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (user?.uid && childData) {
-      fetchTasks(user.uid);
+      fetchTasks(user.uid).catch((error: any) => {
+        if (error.message && error.message.includes('requires an index')) {
+          setFirebaseError(
+            'Database index configuration issue. Tasks may not display correctly.',
+          );
+        }
+      });
     }
   }, [user?.uid, childData, fetchTasks]);
 
@@ -79,8 +92,17 @@ export default function HomeScreen() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
+    setFirebaseError(null); // Clear previous errors
     if (user?.uid) {
-      await fetchTasks(user.uid);
+      try {
+        await fetchTasks(user.uid);
+      } catch (error: any) {
+        if (error.message && error.message.includes('requires an index')) {
+          setFirebaseError(
+            'Database index configuration issue. Tasks may not display correctly.',
+          );
+        }
+      }
     }
     setRefreshing(false);
   };
@@ -100,6 +122,16 @@ export default function HomeScreen() {
         <View style={tw`p-4`}>
           <Text style={tw`text-center text-gray-600 mb-4`}>
             Debug: Loading state is stuck. Tasks count: {tasks.length}
+          </Text>
+
+          <Text style={tw`text-center text-gray-600 mb-4`}>
+            Completed tasks: {tasks.filter((t) => t.completed).length} /{' '}
+            {tasks.length}
+          </Text>
+
+          <Text style={tw`text-center text-gray-600 mb-4`}>
+            Task IDs:{' '}
+            {tasks.map((t) => `${t.id}(${t.completed ? '✓' : '○'})`).join(', ')}
           </Text>
 
           <Pressable
@@ -141,6 +173,23 @@ export default function HomeScreen() {
               Force Generate Tasks
             </Text>
           </Pressable>
+
+          <Pressable
+            style={tw`bg-purple-500 py-3 px-6 rounded-lg mt-2`}
+            onPress={() => {
+              console.log('🔍 Debug: Current tasks state');
+              console.log('Tasks:', tasks);
+              console.log('Tasks length:', tasks.length);
+              console.log(
+                'Completed tasks:',
+                tasks.filter((t) => t.completed),
+              );
+            }}
+          >
+            <Text style={tw`text-white font-semibold text-center`}>
+              Debug Tasks State
+            </Text>
+          </Pressable>
         </View>
       </View>
     );
@@ -156,6 +205,21 @@ export default function HomeScreen() {
         }
       >
         <View style={tw`p-4`}>
+          {/* Firebase Error Banner */}
+          {firebaseError && (
+            <View
+              style={tw`mb-4 p-3 bg-red-50 border border-red-200 rounded-lg`}
+            >
+              <Text style={tw`text-red-700 text-sm font-medium mb-1`}>
+                ⚠️ Database Configuration Issue
+              </Text>
+              <Text style={tw`text-red-600 text-xs`}>{firebaseError}</Text>
+              <Text style={tw`text-red-500 text-xs mt-1`}>
+                Please contact support if this persists.
+              </Text>
+            </View>
+          )}
+
           <View style={tw`mb-6`}>
             <Text style={homeStyles.headerTitle}>{t('home.title')}</Text>
             <Text style={homeStyles.headerSubtitle}>{today}</Text>
@@ -220,7 +284,23 @@ export default function HomeScreen() {
             <TaskItem
               key={task.id}
               task={task}
-              onToggleComplete={toggleTaskCompletion}
+              onToggleComplete={async (taskId) => {
+                console.log(
+                  '🔄 Home screen: Toggling task completion for:',
+                  taskId,
+                );
+                try {
+                  await toggleTaskCompletion(taskId);
+                  console.log(
+                    '✅ Home screen: Task completion toggled successfully',
+                  );
+                } catch (error) {
+                  console.error(
+                    '❌ Home screen: Error toggling task completion:',
+                    error,
+                  );
+                }
+              }}
             />
           ))}
         </View>
