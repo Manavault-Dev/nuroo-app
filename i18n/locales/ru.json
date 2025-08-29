@@ -151,5 +151,85 @@
     "close": "Закрыть",
     "logout": "Выйти",
     "logout_confirm": "Вы уверены, что хотите выйти?"
+  },
+
+  "progress": {
+    "dashboard_title": "Панель прогресса",
+    "dashboard_subtitle": "Отслеживайте развитие вашего ребёнка и празднуйте достижения",
+    "loading_progress": "Загружаю прогресс...",
+    "loading_level_data": "Загружаю данные уровня...",
+    "loading_weekly_progress": "Загружаю недельный прогресс...",
+    "development_areas": "Области развития",
+    "average_progress": "Среднее",
+    "level": "Уровень",
+    "tasks_completed": "задач выполнено",
+    "progress_to_next_level": "Прогресс до уровня",
+    "current_level": "Текущий уровень",
+    "tasks_done": "Выполнено задач",
+    "avg_progress": "Средний прогресс",
+    "current_streak": "Текущая серия",
+    "consecutive_days": "дней подряд",
+    "level_reward": "Награда уровня {level}",
+    "badge": "Значок",
+    "complete_tasks_to_level_up": "Выполните ещё {count} задач для повышения уровня!",
+    "weekly_progress": "Недельный прогресс",
+    "daily_progress": "Ежедневный прогресс",
+    "week_average": "Среднее за неделю",
+    "best_day": "Лучший день",
+    "achievements": "Достижения",
+    "overall_progress": "Общий прогресс",
+    "keep_going": "Продолжайте! Вам осталось {count} достижений до звания мастера развития!",
+    "unlocked": "РАЗБЛОКИРОВАНО",
+    "reward": "Награда",
+    "complete": "Завершено",
+    "adjust_progress_help": "Настройте прогресс в соответствии с развитием вашего ребёнка. Это поможет создавать более персонализированные задачи и отслеживать достижения.",
+    "development_areas_descriptions": {
+      "communication": "Речь, язык и навыки самовыражения",
+      "motor_skills": "Физические движения и координация",
+      "social": "Взаимодействие и построение отношений",
+      "cognitive": "Мышление, обучение и решение проблем",
+      "sensory": "Сенсорная обработка и осознанность",
+      "behavior": "Саморегуляция и адаптивное поведение"
+    },
+    "level_titles": {
+      "beginner": "Начинающий исследователь",
+      "growing": "Растущий ученик",
+      "skillful": "Умелый разработчик",
+      "advanced": "Продвинутый достигатель",
+      "master": "Мастер развития"
+    },
+    "achievement_categories": {
+      "communication": "КОММУНИКАЦИЯ",
+      "motor_skills": "МОТОРНЫЕ НАВЫКИ",
+      "social": "СОЦИАЛЬНЫЕ НАВЫКИ",
+      "cognitive": "КОГНИТИВНОЕ",
+      "sensory": "СЕНСОРНОЕ",
+      "behavior": "ПОВЕДЕНИЕ",
+      "general": "ОБЩЕЕ"
+    },
+    "achievement_descriptions": {
+      "first_words": "Выполните 5 задач по коммуникации",
+      "chat_master": "Достигните 50% в навыках коммуникации",
+      "eloquent_speaker": "Освойте навыки коммуникации (80%+)",
+      "first_steps": "Выполните 5 задач по моторным навыкам",
+      "agile_mover": "Достигните 50% в моторных навыках",
+      "social_butterfly": "Выполните 5 задач по социальным навыкам",
+      "team_player": "Достигните 50% в социальных навыках",
+      "task_champion": "Выполните 20 задач всего",
+      "consistency_king": "Выполняйте задачи 7 дней подряд",
+      "all_rounder": "Достигните 40% во всех областях развития"
+    },
+    "achievement_rewards": {
+      "communication_badge": "Значок коммуникации",
+      "advanced_communication_badge": "Продвинутый значок коммуникации",
+      "master_communicator_badge": "Значок мастера коммуникации",
+      "motor_skills_badge": "Значок моторных навыков",
+      "advanced_motor_skills_badge": "Продвинутый значок моторных навыков",
+      "social_skills_badge": "Значок социальных навыков",
+      "advanced_social_skills_badge": "Продвинутый значок социальных навыков",
+      "champion_badge": "Значок чемпиона",
+      "consistency_badge": "Значок постоянства",
+      "all_rounder_badge": "Значок универсала"
+    }
   }
 }

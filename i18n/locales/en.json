@@ -152,5 +152,85 @@
     "close": "Close",
     "logout": "Logout",
     "logout_confirm": "Are you sure you want to logout?"
+  },
+
+  "progress": {
+    "dashboard_title": "Progress Dashboard",
+    "dashboard_subtitle": "Track your child's development journey and celebrate achievements",
+    "loading_progress": "Loading progress...",
+    "loading_level_data": "Loading level data...",
+    "loading_weekly_progress": "Loading weekly progress...",
+    "development_areas": "Development Areas",
+    "average_progress": "Avg",
+    "level": "Level",
+    "tasks_completed": "tasks completed",
+    "progress_to_next_level": "Progress to Level",
+    "current_level": "Current Level",
+    "tasks_done": "Tasks Done",
+    "avg_progress": "Avg Progress",
+    "current_streak": "Current Streak",
+    "consecutive_days": "consecutive days",
+    "level_reward": "Level {level} Reward",
+    "badge": "Badge",
+    "complete_tasks_to_level_up": "Complete {count} more tasks to level up!",
+    "weekly_progress": "Weekly Progress",
+    "daily_progress": "Daily Progress",
+    "week_average": "Week Average",
+    "best_day": "Best Day",
+    "achievements": "Achievements",
+    "overall_progress": "Overall Progress",
+    "keep_going": "Keep going! You're {count} achievements away from becoming a development master!",
+    "unlocked": "UNLOCKED",
+    "reward": "Reward",
+    "complete": "Complete",
+    "adjust_progress_help": "Adjust progress based on your child's development. This helps generate more personalized tasks and track achievements.",
+    "development_areas_descriptions": {
+      "communication": "Speech, language, and expression skills",
+      "motor_skills": "Physical movement and coordination",
+      "social": "Interaction and relationship building",
+      "cognitive": "Thinking, learning, and problem-solving",
+      "sensory": "Sensory processing and awareness",
+      "behavior": "Self-regulation and adaptive behaviors"
+    },
+    "level_titles": {
+      "beginner": "Beginner Explorer",
+      "growing": "Growing Learner",
+      "skillful": "Skillful Developer",
+      "advanced": "Advanced Achiever",
+      "master": "Master Developer"
+    },
+    "achievement_categories": {
+      "communication": "COMMUNICATION",
+      "motor_skills": "MOTOR SKILLS",
+      "social": "SOCIAL SKILLS",
+      "cognitive": "COGNITIVE",
+      "sensory": "SENSORY",
+      "behavior": "BEHAVIOR",
+      "general": "GENERAL"
+    },
+    "achievement_descriptions": {
+      "first_words": "Complete 5 communication tasks",
+      "chat_master": "Reach 50% in communication skills",
+      "eloquent_speaker": "Master communication skills (80%+)",
+      "first_steps": "Complete 5 motor skills tasks",
+      "agile_mover": "Reach 50% in motor skills",
+      "social_butterfly": "Complete 5 social skills tasks",
+      "team_player": "Reach 50% in social skills",
+      "task_champion": "Complete 20 tasks total",
+      "consistency_king": "Complete tasks for 7 consecutive days",
+      "all_rounder": "Reach 40% in all development areas"
+    },
+    "achievement_rewards": {
+      "communication_badge": "Communication Badge",
+      "advanced_communication_badge": "Advanced Communication Badge",
+      "master_communicator_badge": "Master Communicator Badge",
+      "motor_skills_badge": "Motor Skills Badge",
+      "advanced_motor_skills_badge": "Advanced Motor Skills Badge",
+      "social_skills_badge": "Social Skills Badge",
+      "advanced_social_skills_badge": "Advanced Social Skills Badge",
+      "champion_badge": "Champion Badge",
+      "consistency_badge": "Consistency Badge",
+      "all_rounder_badge": "All-Rounder Badge"
+    }
   }
 }

@@ -25,9 +25,6 @@ export class ProgressService {
     return defaultProgress;
   }
 
-  /**
-
-   */
   static async getProgress(userId: string): Promise<UserProgress | null> {
     try {
       const userDoc = await getDoc(doc(db, 'users', userId));
@@ -161,5 +158,113 @@ export class ProgressService {
       console.error('❌ Error updating last task date:', error);
       throw error;
     }
+  }
+
+  static async getTotalTasksCompleted(userId: string): Promise<number> {
+    try {
+      const { collection, query, where, getDocs } = await import(
+        'firebase/firestore'
+      );
+      const completedTasksQuery = query(
+        collection(db, 'tasks'),
+        where('userId', '==', userId),
+        where('completed', '==', true),
+      );
+
+      const completedTasksSnapshot = await getDocs(completedTasksQuery);
+      return completedTasksSnapshot.size;
+    } catch (error) {
+      console.error('❌ Error getting total tasks completed:', error);
+      return 0;
+    }
+  }
+
+  static async getTasksCompletedForDate(
+    userId: string,
+    date: string,
+  ): Promise<number> {
+    try {
+      const { collection, query, where, getDocs } = await import(
+        'firebase/firestore'
+      );
+      const dateTasksQuery = query(
+        collection(db, 'tasks'),
+        where('userId', '==', userId),
+        where('dailyId', '==', date),
+        where('completed', '==', true),
+      );
+
+      const dateTasksSnapshot = await getDocs(dateTasksQuery);
+      return dateTasksSnapshot.size;
+    } catch (error) {
+      console.error('❌ Error getting tasks completed for date:', error);
+      return 0;
+    }
+  }
+
+  static async getConsecutiveDaysStreak(userId: string): Promise<number> {
+    try {
+      const { collection, query, where, getDocs, orderBy } = await import(
+        'firebase/firestore'
+      );
+      const completedTasksQuery = query(
+        collection(db, 'tasks'),
+        where('userId', '==', userId),
+        where('completed', '==', true),
+        orderBy('dailyId', 'desc'),
+      );
+
+      const completedTasksSnapshot = await getDocs(completedTasksQuery);
+      const completedDates = new Set<string>();
+
+      completedTasksSnapshot.docs.forEach((doc) => {
+        const data = doc.data();
+        if (data.dailyId) {
+          completedDates.add(data.dailyId);
+        }
+      });
+
+      const sortedDates = Array.from(completedDates).sort().reverse();
+      let streak = 0;
+
+      for (let i = 0; i < sortedDates.length; i++) {
+        const currentDate = new Date(sortedDates[i]);
+        const expectedDate = new Date();
+        expectedDate.setDate(expectedDate.getDate() - i);
+        const expectedDateStr = expectedDate.toISOString().split('T')[0];
+
+        if (sortedDates[i] === expectedDateStr) {
+          streak++;
+        } else {
+          break;
+        }
+      }
+
+      return streak;
+    } catch (error) {
+      console.error('❌ Error getting consecutive days streak:', error);
+      return 0;
+    }
+  }
+
+  static calculateLevelFromTasks(totalTasksCompleted: number): number {
+    return Math.floor(totalTasksCompleted / 10) + 1;
+  }
+
+  static calculateProgressToNextLevel(totalTasksCompleted: number): {
+    current: number;
+    next: number;
+    progress: number;
+  } {
+    const currentLevel = this.calculateLevelFromTasks(totalTasksCompleted);
+    const tasksForCurrentLevel = (currentLevel - 1) * 10;
+    const tasksInCurrentLevel = totalTasksCompleted - tasksForCurrentLevel;
+    const progress = (tasksInCurrentLevel / 10) * 100;
+
+    return {
+      current: currentLevel,
+      next: currentLevel + 1,
+      progress: Math.min(100, progress),
+    };
   }
 }

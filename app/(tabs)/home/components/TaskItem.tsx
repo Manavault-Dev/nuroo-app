@@ -30,11 +30,11 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     setUpdating(true);
     try {
       await onToggleComplete(task.id);
-      // Success haptic feedback
+
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (error) {
       console.error('Error toggling task completion:', error);
-      // Error haptic feedback
+
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setUpdating(false);
