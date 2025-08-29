@@ -3,6 +3,7 @@ import { useAuth } from '@/context/AuthContext';
 import tw from '@/lib/design/tw';
 import { ProgressService } from '@/lib/services/progressService';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 
 interface WeeklyCalendarProps {
@@ -16,6 +17,7 @@ export const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
   onDateSelect,
   progress,
 }) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [weekDates, setWeekDates] = useState<Date[]>([]);
   const [dailyProgress, setDailyProgress] = useState<Record<string, number>>(
@@ -33,38 +35,45 @@ export const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
       date.setDate(startOfWeek.getDate() + i);
       dates.push(date);
     }
-    setWeekDates(dates);
+    return dates;
   }, []);
 
-  const loadDailyProgress = useCallback(async () => {
-    try {
-      setLoading(true);
-      const progressData: Record<string, number> = {};
+  const loadDailyProgress = useCallback(
+    async (dates: Date[]) => {
+      try {
+        setLoading(true);
+        const progressData: Record<string, number> = {};
 
-      for (const date of weekDates) {
-        const dateStr = date.toISOString().split('T')[0];
-        const tasksCompleted = await ProgressService.getTasksCompletedForDate(
-          user!.uid,
-          dateStr,
-        );
+        for (const date of dates) {
+          const dateStr = date.toISOString().split('T')[0];
+          const tasksCompleted = await ProgressService.getTasksCompletedForDate(
+            user!.uid,
+            dateStr,
+          );
 
-        const maxTasksPerDay = 4;
-        const progress = Math.min(100, (tasksCompleted / maxTasksPerDay) * 100);
-        progressData[dateStr] = progress;
+          const maxTasksPerDay = 4;
+          const progress = Math.min(
+            100,
+            (tasksCompleted / maxTasksPerDay) * 100,
+          );
+          progressData[dateStr] = progress;
+        }
+
+        setDailyProgress(progressData);
+      } catch (error) {
+        console.error('Error loading daily progress:', error);
+      } finally {
+        setLoading(false);
       }
-
-      setDailyProgress(progressData);
-    } catch (error) {
-      console.error('Error loading daily progress:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [weekDates, user?.uid]);
+    },
+    [user?.uid],
+  );
 
   useEffect(() => {
     if (user?.uid) {
-      generateWeekDates(selectedDate);
-      loadDailyProgress();
+      const newWeekDates = generateWeekDates(selectedDate);
+      setWeekDates(newWeekDates);
+      loadDailyProgress(newWeekDates);
     }
   }, [selectedDate, user?.uid, generateWeekDates, loadDailyProgress]);
 
@@ -111,7 +120,7 @@ export const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
         style={tw`bg-white rounded-2xl p-6 shadow-sm border border-gray-100`}
       >
         <Text style={tw`text-lg text-gray-600 text-center`}>
-          Loading weekly progress...
+          {t('progress.loading_weekly_progress')}
         </Text>
       </View>
     );
@@ -119,31 +128,33 @@ export const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
 
   return (
     <View style={tw`bg-white rounded-2xl shadow-sm border border-gray-100`}>
-      <View style={tw`flex-row items-center justify-between mb-6 p-2 pb-0`}>
-        <Text style={tw`text-lg font-bold text-gray-800`}>Weekly Progress</Text>
+      <View style={tw`flex-row items-center justify-between mb-6 p-6 pb-0`}>
+        <Text style={tw`text-xl font-bold text-gray-800`}>
+          {t('progress.weekly_progress')}
+        </Text>
         <View style={tw`flex-row items-center`}>
-          <Pressable onPress={() => navigateWeek('prev')} style={tw`p-2`}>
-            <Text style={tw`text-xl text-gray-400`}>‹</Text>
+          <Pressable onPress={() => navigateWeek('prev')} style={tw`p-2 mr-2`}>
+            <Text style={tw`text-2xl text-gray-400`}>‹</Text>
           </Pressable>
-          <Text style={tw`text-sm font-sm text-gray-600`}>
+          <Text style={tw`text-sm font-medium text-gray-600`}>
             {weekDates[0]?.toLocaleDateString('en-US', { month: 'short' })}{' '}
             {weekDates[0]?.getDate()} -{' '}
             {weekDates[6]?.toLocaleDateString('en-US', { month: 'short' })}{' '}
             {weekDates[6]?.getDate()}
           </Text>
-          <Pressable onPress={() => navigateWeek('next')} style={tw`p-2 `}>
-            <Text style={tw`text-xl text-gray-400`}>›</Text>
+          <Pressable onPress={() => navigateWeek('next')} style={tw`p-2 ml-2`}>
+            <Text style={tw`text-2xl text-gray-400`}>›</Text>
           </Pressable>
         </View>
       </View>
 
-      <View style={tw`flex-row justify-between px-2`}>
+      <View style={tw`flex-row justify-between px-6`}>
         {weekDates.map((date, index) => (
           <Pressable
             key={index}
             onPress={() => onDateSelect(date)}
             style={[
-              tw`items-center p-1 rounded-xl min-w-[40px]`,
+              tw`items-center p-3 rounded-xl min-w-[40px]`,
               isSelected(date) && tw`bg-blue-50 border-2 border-blue-300`,
               isToday(date) &&
                 !isSelected(date) &&
@@ -202,7 +213,8 @@ export const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
         </Text>
         <View style={tw`flex-row items-center justify-between`}>
           <Text style={tw`text-sm text-gray-600`}>
-            Daily Progress: {Math.round(getDateProgress(selectedDate))}%
+            {t('progress.daily_progress')}:{' '}
+            {Math.round(getDateProgress(selectedDate))}%
           </Text>
           <View style={tw`flex-row items-center`}>
             <View style={tw`w-2 h-2 rounded-full bg-green-500 mr-2`} />
@@ -216,7 +228,7 @@ export const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
       <View style={tw`flex-row justify-between items-center px-6 pb-6`}>
         <View>
           <Text style={tw`text-sm font-medium text-gray-700`}>
-            Week Average
+            {t('progress.week_average')}
           </Text>
           <Text style={tw`text-lg font-bold text-primary`}>
             {Math.round(
@@ -227,7 +239,9 @@ export const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
           </Text>
         </View>
         <View style={tw`items-end`}>
-          <Text style={tw`text-sm font-medium text-gray-700`}>Best Day</Text>
+          <Text style={tw`text-sm font-medium text-gray-700`}>
+            {t('progress.best_day')}
+          </Text>
           <Text style={tw`text-lg font-bold text-green-600`}>
             {Math.round(
               Math.max(...weekDates.map((date) => getDateProgress(date))),

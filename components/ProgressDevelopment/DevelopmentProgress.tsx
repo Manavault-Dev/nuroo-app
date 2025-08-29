@@ -2,6 +2,7 @@ import { UserProgress } from '@/app/(tabs)/home/home.types';
 import { useProgressTracking } from '@/hooks/progressHooks/useProgressTracking';
 import tw from '@/lib/design/tw';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 
 interface DevelopmentProgressProps {
@@ -11,6 +12,7 @@ interface DevelopmentProgressProps {
 export const DevelopmentProgress: React.FC<DevelopmentProgressProps> = ({
   onProgressUpdate,
 }) => {
+  const { t } = useTranslation();
   const {
     progress,
     loading,
@@ -26,8 +28,10 @@ export const DevelopmentProgress: React.FC<DevelopmentProgressProps> = ({
       <View
         style={tw`bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-4`}
       >
-        <Text style={tw`text-lg font-bold mb-4`}>Development Progress</Text>
-        <Text style={tw`text-gray-500`}>Loading progress...</Text>
+        <Text style={tw`text-lg font-bold mb-4`}>
+          {t('progress.development_areas')}
+        </Text>
+        <Text style={tw`text-gray-500`}>{t('progress.loading_progress')}</Text>
       </View>
     );
   }
@@ -39,44 +43,44 @@ export const DevelopmentProgress: React.FC<DevelopmentProgressProps> = ({
   const progressAreas = [
     {
       key: 'communication' as keyof UserProgress,
-      label: 'Communication',
+      label: t('onboarding.area_speech'),
       icon: '💬',
-      description: 'Speech, language, and expression skills',
+      description: t('progress.development_areas_descriptions.communication'),
       color: 'blue',
     },
     {
       key: 'motor_skills' as keyof UserProgress,
-      label: 'Motor Skills',
+      label: t('onboarding.area_motor'),
       icon: '🏃',
-      description: 'Physical movement and coordination',
+      description: t('progress.development_areas_descriptions.motor_skills'),
       color: 'green',
     },
     {
       key: 'social' as keyof UserProgress,
-      label: 'Social Skills',
+      label: t('onboarding.area_social'),
       icon: '👥',
-      description: 'Interaction and relationship building',
+      description: t('progress.development_areas_descriptions.social'),
       color: 'purple',
     },
     {
       key: 'cognitive' as keyof UserProgress,
-      label: 'Cognitive',
+      label: t('onboarding.area_cognitive'),
       icon: '🧠',
-      description: 'Thinking, learning, and problem-solving',
+      description: t('progress.development_areas_descriptions.cognitive'),
       color: 'yellow',
     },
     {
       key: 'sensory' as keyof UserProgress,
-      label: 'Sensory',
+      label: t('onboarding.area_sensory'),
       icon: '👁️',
-      description: 'Sensory processing and awareness',
+      description: t('progress.development_areas_descriptions.sensory'),
       color: 'pink',
     },
     {
       key: 'behavior' as keyof UserProgress,
-      label: 'Behavior',
+      label: t('onboarding.area_behavior'),
       icon: '🎯',
-      description: 'Self-regulation and adaptive behaviors',
+      description: t('progress.development_areas_descriptions.behavior'),
       color: 'orange',
     },
   ];
@@ -126,7 +130,7 @@ export const DevelopmentProgress: React.FC<DevelopmentProgressProps> = ({
         style={tw`flex-row items-center justify-between mb-6 py-4 px-2 pb-0`}
       >
         <Text style={tw`text-xl font-bold text-gray-800`}>
-          Development Areas
+          {t('progress.development_areas')}
         </Text>
         <View style={tw`bg-primary px-2 py-2 rounded-full shadow-sm`}>
           <Text style={tw`text-white font-semibold text-sm`}>
@@ -134,7 +138,7 @@ export const DevelopmentProgress: React.FC<DevelopmentProgressProps> = ({
               Object.values(progress).reduce((sum, val) => sum + val, 0) /
                 Object.keys(progress).length,
             )}
-            % Avg
+            % {t('progress.average_progress')}
           </Text>
         </View>
       </View>
@@ -200,7 +204,7 @@ export const DevelopmentProgress: React.FC<DevelopmentProgressProps> = ({
               <View style={tw`flex-row justify-between items-center`}>
                 <View style={tw`flex-1 mr-4`}>
                   <Text style={tw`text-xs font-semibold text-gray-700 mb-1`}>
-                    Current Level: {progressLabel}
+                    {t('progress.current_level')}: {progressLabel}
                   </Text>
                   <Text style={tw`text-xs text-gray-500`}>
                     Next milestone: {Math.ceil(progressValue / 20) * 20}%
@@ -236,8 +240,7 @@ export const DevelopmentProgress: React.FC<DevelopmentProgressProps> = ({
         style={tw`mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200 mx-6 mb-6`}
       >
         <Text style={tw`text-blue-800 text-xs text-center leading-4`}>
-          💡 Adjust progress based on your child&apos;s development. This helps
-          generate more personalized tasks and track achievements.
+          💡 {t('progress.adjust_progress_help')}
         </Text>
       </View>
     </View>

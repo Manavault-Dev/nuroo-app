@@ -3,6 +3,7 @@ import { useAuth } from '@/context/AuthContext';
 import tw from '@/lib/design/tw';
 import { ProgressService } from '@/lib/services/progressService';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 
 interface LevelProgressProps {
@@ -10,6 +11,7 @@ interface LevelProgressProps {
 }
 
 export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [totalTasksCompleted, setTotalTasksCompleted] = useState(0);
   const [consecutiveDaysStreak, setConsecutiveDaysStreak] = useState(0);
@@ -36,7 +38,7 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
     if (user?.uid) {
       loadTaskData();
     }
-  }, [user?.uid, loadTaskData]);
+  }, [user?.uid]);
 
   if (!progress || loading) {
     return (
@@ -44,7 +46,7 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
         style={tw`bg-white rounded-2xl p-6 shadow-sm border border-gray-100`}
       >
         <Text style={tw`text-lg text-gray-600 text-center`}>
-          Loading level data...
+          {t('progress.loading_level_data')}
         </Text>
       </View>
     );
@@ -62,11 +64,11 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
   const averageProgress = totalProgress / Object.keys(progress).length;
 
   const getLevelTitle = (level: number) => {
-    if (level <= 3) return 'Beginner Explorer';
-    if (level <= 6) return 'Growing Learner';
-    if (level <= 9) return 'Skillful Developer';
-    if (level <= 12) return 'Advanced Achiever';
-    return 'Master Developer';
+    if (level <= 3) return t('progress.level_titles.beginner');
+    if (level <= 6) return t('progress.level_titles.growing');
+    if (level <= 9) return t('progress.level_titles.skillful');
+    if (level <= 12) return t('progress.level_titles.advanced');
+    return t('progress.level_titles.master');
   };
 
   const getLevelColor = (level: number) => {
@@ -81,7 +83,7 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
     <View style={tw`bg-white rounded-2xl shadow-sm border border-gray-100`}>
       <View style={tw`flex-row items-center justify-between mb-4 p-6 pb-0`}>
         <Text style={tw`text-2xl font-bold text-gray-800`}>
-          Level {currentLevel}
+          {t('progress.level')} {currentLevel}
         </Text>
         <View style={tw`bg-blue-100 px-3 py-1 rounded-full`}>
           <Text style={tw`text-blue-700 font-semibold text-sm`}>
@@ -100,14 +102,14 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
           <Text style={tw`text-white text-3xl font-bold`}>{currentLevel}</Text>
         </View>
         <Text style={tw`text-gray-600 text-center`}>
-          {totalTasksCompleted} tasks completed
+          {totalTasksCompleted} {t('progress.tasks_completed')}
         </Text>
       </View>
 
       <View style={tw`mb-4 px-6`}>
         <View style={tw`flex-row items-center justify-between mb-2`}>
           <Text style={tw`text-sm font-medium text-gray-700`}>
-            Progress to Level {currentLevel + 1}
+            {t('progress.progress_to_next_level')} {currentLevel + 1}
           </Text>
           <Text style={tw`text-sm font-semibold text-primary`}>
             {Math.round(progressToNextLevel)}%
@@ -129,21 +131,23 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
             {currentLevel}
           </Text>
           <Text style={tw`text-xs text-gray-500 text-center`}>
-            Current Level
+            {t('progress.current_level')}
           </Text>
         </View>
         <View style={tw`items-center`}>
           <Text style={tw`text-2xl font-bold text-green-600`}>
             {totalTasksCompleted}
           </Text>
-          <Text style={tw`text-xs text-gray-500 text-center`}>Tasks Done</Text>
+          <Text style={tw`text-xs text-gray-500 text-center`}>
+            {t('progress.tasks_done')}
+          </Text>
         </View>
         <View style={tw`items-center`}>
           <Text style={tw`text-2xl font-bold text-blue-600`}>
             {Math.round(averageProgress)}%
           </Text>
           <Text style={tw`text-xs text-gray-500 text-center`}>
-            Avg Progress
+            {t('progress.avg_progress')}
           </Text>
         </View>
       </View>
@@ -154,10 +158,10 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
         <View style={tw`flex-row items-center justify-between`}>
           <View>
             <Text style={tw`text-orange-800 text-sm font-medium`}>
-              🔥 Current Streak
+              🔥 {t('progress.current_streak')}
             </Text>
             <Text style={tw`text-orange-600 text-xs`}>
-              {consecutiveDaysStreak} consecutive days
+              {consecutiveDaysStreak} {t('progress.consecutive_days')}
             </Text>
           </View>
           <Text style={tw`text-2xl font-bold text-orange-600`}>
@@ -170,12 +174,13 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
         style={tw`mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200 mx-6 mb-6`}
       >
         <Text style={tw`text-yellow-800 text-sm font-medium text-center`}>
-          🎉 Level {currentLevel + 1} Reward: {getLevelTitle(currentLevel + 1)}{' '}
-          Badge
+          🎉 {t('progress.level_reward', { level: currentLevel + 1 })}:{' '}
+          {getLevelTitle(currentLevel + 1)} {t('progress.badge')}
         </Text>
         <Text style={tw`text-yellow-800 text-xs text-center mt-1`}>
-          Complete {10 - Math.round(progressToNextLevel / 10)} more tasks to
-          level up!
+          {t('progress.complete_tasks_to_level_up', {
+            count: 10 - Math.round(progressToNextLevel / 10),
+          })}
         </Text>
       </View>
     </View>

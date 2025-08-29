@@ -6,9 +6,11 @@ import { WeeklyCalendar } from '@/components/ProgressDevelopment/WeeklyCalendar'
 import { useProgressTracking } from '@/hooks/progressHooks/useProgressTracking';
 import tw from '@/lib/design/tw';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
 
 export default function ProgressScreen() {
+  const { t } = useTranslation();
   const [refreshing, setRefreshing] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -28,7 +30,9 @@ export default function ProgressScreen() {
     return (
       <LayoutWrapper>
         <View style={tw`flex-1 justify-center items-center`}>
-          <Text style={tw`text-lg text-gray-600`}>Loading progress...</Text>
+          <Text style={tw`text-lg text-gray-600`}>
+            {t('progress.loading_progress')}
+          </Text>
         </View>
       </LayoutWrapper>
     );
@@ -45,11 +49,10 @@ export default function ProgressScreen() {
       >
         <View style={tw`bg-white px-4 py-6 border-b border-gray-100`}>
           <Text style={tw`text-3xl font-bold text-primary mb-2`}>
-            Progress Dashboard
+            {t('progress.dashboard_title')}
           </Text>
           <Text style={tw`text-gray-600 text-base`}>
-            Track your child&apos;s development journey and celebrate
-            achievements
+            {t('progress.dashboard_subtitle')}
           </Text>
         </View>
 

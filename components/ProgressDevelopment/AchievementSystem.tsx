@@ -1,6 +1,7 @@
 import { UserProgress } from '@/app/(tabs)/home/home.types';
 import tw from '@/lib/design/tw';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, Text, View } from 'react-native';
 
 interface AchievementSystemProps {
@@ -29,6 +30,7 @@ interface Achievement {
 export const AchievementSystem: React.FC<AchievementSystemProps> = ({
   progress,
 }) => {
+  const { t } = useTranslation();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
 
   useEffect(() => {
@@ -42,84 +44,84 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
       {
         id: 'comm-1',
         title: 'First Words',
-        description: 'Complete 5 communication tasks',
+        description: t('progress.achievement_descriptions.first_words'),
         icon: '💬',
         category: 'communication',
         threshold: 5,
         unlocked: userProgress.communication >= 25,
         progress: Math.min(100, (userProgress.communication / 25) * 100),
-        reward: 'Communication Badge',
+        reward: t('progress.achievement_rewards.communication_badge'),
       },
       {
         id: 'comm-2',
         title: 'Chat Master',
-        description: 'Reach 50% in communication skills',
+        description: t('progress.achievement_descriptions.chat_master'),
         icon: '🗣️',
         category: 'communication',
         threshold: 50,
         unlocked: userProgress.communication >= 50,
         progress: Math.min(100, (userProgress.communication / 50) * 100),
-        reward: 'Advanced Communication Badge',
+        reward: t('progress.achievement_rewards.advanced_communication_badge'),
       },
       {
         id: 'comm-3',
         title: 'Eloquent Speaker',
-        description: 'Master communication skills (80%+)',
+        description: t('progress.achievement_descriptions.eloquent_speaker'),
         icon: '🎭',
         category: 'communication',
         threshold: 80,
         unlocked: userProgress.communication >= 80,
         progress: Math.min(100, (userProgress.communication / 80) * 100),
-        reward: 'Master Communicator Badge',
+        reward: t('progress.achievement_rewards.master_communicator_badge'),
       },
       {
         id: 'motor-1',
         title: 'First Steps',
-        description: 'Complete 5 motor skills tasks',
+        description: t('progress.achievement_descriptions.first_steps'),
         icon: '🏃',
         category: 'motor_skills',
         threshold: 5,
         unlocked: userProgress.motor_skills >= 25,
         progress: Math.min(100, (userProgress.motor_skills / 25) * 100),
-        reward: 'Motor Skills Badge',
+        reward: t('progress.achievement_rewards.motor_skills_badge'),
       },
       {
         id: 'motor-2',
         title: 'Agile Mover',
-        description: 'Reach 50% in motor skills',
+        description: t('progress.achievement_descriptions.agile_mover'),
         icon: '🤸',
         category: 'motor_skills',
         threshold: 50,
         unlocked: userProgress.motor_skills >= 50,
         progress: Math.min(100, (userProgress.motor_skills / 50) * 100),
-        reward: 'Advanced Motor Skills Badge',
+        reward: t('progress.achievement_rewards.advanced_motor_skills_badge'),
       },
       {
         id: 'social-1',
         title: 'Social Butterfly',
-        description: 'Complete 5 social skills tasks',
+        description: t('progress.achievement_descriptions.social_butterfly'),
         icon: '👥',
         category: 'social',
         threshold: 5,
         unlocked: userProgress.social >= 25,
         progress: Math.min(100, (userProgress.social / 25) * 100),
-        reward: 'Social Skills Badge',
+        reward: t('progress.achievement_rewards.social_skills_badge'),
       },
       {
         id: 'social-2',
         title: 'Team Player',
-        description: 'Reach 50% in social skills',
+        description: t('progress.achievement_descriptions.team_player'),
         icon: '🤝',
         category: 'social',
         threshold: 50,
         unlocked: userProgress.social >= 50,
         progress: Math.min(100, (userProgress.social / 50) * 100),
-        reward: 'Advanced Social Skills Badge',
+        reward: t('progress.achievement_rewards.advanced_social_skills_badge'),
       },
       {
         id: 'general-1',
         title: 'Task Champion',
-        description: 'Complete 20 tasks total',
+        description: t('progress.achievement_descriptions.task_champion'),
         icon: '🏆',
         category: 'general',
         threshold: 20,
@@ -131,23 +133,23 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
             100) *
             100,
         ),
-        reward: 'Champion Badge',
+        reward: t('progress.achievement_rewards.champion_badge'),
       },
       {
         id: 'general-2',
         title: 'Consistency King',
-        description: 'Complete tasks for 7 consecutive days',
+        description: t('progress.achievement_descriptions.consistency_king'),
         icon: '📅',
         category: 'general',
         threshold: 7,
         unlocked: false,
         progress: 0,
-        reward: 'Consistency Badge',
+        reward: t('progress.achievement_rewards.consistency_badge'),
       },
       {
         id: 'general-3',
         title: 'All-Rounder',
-        description: 'Reach 40% in all development areas',
+        description: t('progress.achievement_descriptions.all_rounder'),
         icon: '⭐',
         category: 'general',
         threshold: 40,
@@ -156,7 +158,7 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
           100,
           (Math.min(...Object.values(userProgress)) / 40) * 100,
         ),
-        reward: 'All-Rounder Badge',
+        reward: t('progress.achievement_rewards.all_rounder_badge'),
       },
     ];
 
@@ -184,7 +186,9 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
   return (
     <View style={tw`bg-white rounded-2xl shadow-sm border border-gray-100`}>
       <View style={tw`flex-row items-center justify-between mb-6 p-6 pb-0`}>
-        <Text style={tw`text-xl font-bold text-gray-800`}>Achievements</Text>
+        <Text style={tw`text-xl font-bold text-gray-800`}>
+          {t('progress.achievements')}
+        </Text>
         <View style={tw`bg-primary px-3 py-1 rounded-full`}>
           <Text style={tw`text-white font-semibold text-sm`}>
             {getUnlockedCount()}/{getTotalCount()}
@@ -195,7 +199,7 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
       <View style={tw`mb-6 px-6`}>
         <View style={tw`flex-row items-center justify-between mb-2`}>
           <Text style={tw`text-sm font-medium text-gray-700`}>
-            Overall Progress
+            {t('progress.overall_progress')}
           </Text>
           <Text style={tw`text-sm font-semibold text-primary`}>
             {Math.round((getUnlockedCount() / getTotalCount()) * 100)}%
@@ -236,7 +240,9 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
                   ]}
                 >
                   <Text style={tw`text-xs font-medium`}>
-                    {achievement.category.replace('_', ' ').toUpperCase()}
+                    {t(
+                      `progress.achievement_categories.${achievement.category}`,
+                    )}
                   </Text>
                 </View>
               </View>
@@ -262,10 +268,10 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
               {achievement.unlocked ? (
                 <View style={tw`items-center`}>
                   <Text style={tw`text-green-600 text-xs font-bold`}>
-                    ✓ UNLOCKED
+                    ✓ {t('progress.unlocked')}
                   </Text>
                   <Text style={tw`text-green-500 text-xs text-center mt-1`}>
-                    Reward: {achievement.reward}
+                    {t('progress.reward')}: {achievement.reward}
                   </Text>
                 </View>
               ) : (
@@ -279,7 +285,7 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
                     />
                   </View>
                   <Text style={tw`text-gray-500 text-xs text-center`}>
-                    {Math.round(achievement.progress)}% Complete
+                    {Math.round(achievement.progress)}% {t('progress.complete')}
                   </Text>
                 </View>
               )}
@@ -292,8 +298,10 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
         style={tw`mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200 mx-6 mb-6`}
       >
         <Text style={tw`text-blue-800 text-sm font-medium text-center`}>
-          🎯 Keep going! You&apos;re {getTotalCount() - getUnlockedCount()}{' '}
-          achievements away from becoming a development master!
+          🎯{' '}
+          {t('progress.keep_going', {
+            count: getTotalCount() - getUnlockedCount(),
+          })}
         </Text>
       </View>
     </View>
