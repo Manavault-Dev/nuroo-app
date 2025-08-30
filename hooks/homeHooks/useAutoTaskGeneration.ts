@@ -4,6 +4,7 @@ import { NotificationService } from '@/lib/services/notificationService';
 import { ProgressService } from '@/lib/services/progressService';
 import { TaskGenerationService } from '@/lib/services/taskGenerationService';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const useAutoTaskGeneration = (
   childData: ChildData | null,
@@ -12,6 +13,7 @@ export const useAutoTaskGeneration = (
 ) => {
   const [autoGenerating, setAutoGenerating] = useState(false);
   const [hasCheckedToday, setHasCheckedToday] = useState(false);
+  const { i18n } = useTranslation();
 
   const checkAndGenerateTasks = useCallback(async () => {
     if (hasCheckedToday) {
@@ -26,6 +28,7 @@ export const useAutoTaskGeneration = (
       if (!currentUser) return;
 
       console.log('🔍 Checking if tasks need to be generated...');
+      console.log('🌍 Current language:', i18n.language);
 
       const shouldGenerate = await ProgressService.shouldGenerateTasks(
         currentUser.uid,
@@ -38,6 +41,7 @@ export const useAutoTaskGeneration = (
         const newTasks = await TaskGenerationService.generatePersonalizedTasks(
           currentUser.uid,
           childData,
+          i18n.language,
         );
 
         if (newTasks.length > 0) {
@@ -67,7 +71,7 @@ export const useAutoTaskGeneration = (
     } finally {
       setAutoGenerating(false);
     }
-  }, [childData, setTasks, hasCheckedToday]);
+  }, [childData, setTasks, hasCheckedToday, i18n.language]);
 
   return { autoGenerating, checkAndGenerateTasks };
 };

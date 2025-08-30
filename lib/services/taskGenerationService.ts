@@ -4,21 +4,21 @@ import {
   Task,
   UserProgress,
 } from '@/app/(tabs)/home/home.types';
+import i18n from '@/i18n/i18n';
 import { generateDevelopmentTask } from '@/lib/api/openai';
 import { db } from '@/lib/firebase/firebase';
 import { collection, doc, setDoc } from 'firebase/firestore';
 import { ProgressService } from './progressService';
 
 export class TaskGenerationService {
-  /**
-   * Generate personalized tasks based on user progress
-   */
   static async generatePersonalizedTasks(
     userId: string,
     childData: ChildData,
+    language: string = 'en',
   ): Promise<Task[]> {
     try {
       console.log('🚀 Starting personalized task generation...');
+      console.log('🌍 Language:', language);
 
       const progress = await ProgressService.getProgress(userId);
       if (!progress) {
@@ -28,7 +28,7 @@ export class TaskGenerationService {
         if (!newProgress) {
           throw new Error('Failed to initialize progress');
         }
-        return this.generatePersonalizedTasks(userId, childData);
+        return this.generatePersonalizedTasks(userId, childData, language);
       }
 
       console.log('📊 Current progress:', progress);
@@ -59,7 +59,7 @@ export class TaskGenerationService {
 
         try {
           console.log(
-            `🎯 Generating task ${i + 1}/4 for ${area} (${difficulty} level)`,
+            `🎯 Generating task ${i + 1}/4 for ${area} (${difficulty} level) in ${language}`,
           );
 
           const prompt = this.createPersonalizedPrompt(
@@ -67,10 +67,12 @@ export class TaskGenerationService {
             areaProgress,
             difficulty,
             childData,
+            language,
           );
           const taskDescription = await generateDevelopmentTask(
             prompt,
             childData,
+            language,
           );
 
           const task = this.parseTaskFromAI(
@@ -79,10 +81,14 @@ export class TaskGenerationService {
             i + 1,
             difficulty,
             areaProgress,
+            language,
           );
           tasks.push(task);
 
-          console.log(`✅ Task ${i + 1}/4 generated for ${area}:`, task.title);
+          console.log(
+            `✅ Task ${i + 1}/4 generated for ${area} in ${language}:`,
+            task.title,
+          );
         } catch (error: any) {
           console.error(
             `❌ Error generating task ${i + 1}/4 for ${area}:`,
@@ -91,7 +97,9 @@ export class TaskGenerationService {
         }
       }
 
-      console.log(`🎉 Generated ${tasks.length}/4 personalized tasks`);
+      console.log(
+        `🎉 Generated ${tasks.length}/4 personalized tasks in ${language}`,
+      );
       return tasks;
     } catch (error) {
       console.error('❌ Error in generatePersonalizedTasks:', error);
@@ -99,12 +107,10 @@ export class TaskGenerationService {
     }
   }
 
-  /**
-   * Check and generate daily tasks if needed
-   */
   static async checkAndGenerateDailyTasks(
     userId: string,
     childData: ChildData,
+    language: string = 'en',
   ): Promise<boolean> {
     try {
       const shouldGenerate = await ProgressService.shouldGenerateTasks(userId);
@@ -116,13 +122,14 @@ export class TaskGenerationService {
 
       console.log('🆕 Generating new daily tasks...');
 
-      // Generate tasks
-      const tasks = await this.generatePersonalizedTasks(userId, childData);
+      const tasks = await this.generatePersonalizedTasks(
+        userId,
+        childData,
+        language,
+      );
 
-      // Store tasks in daily collection
       await this.storeDailyTasks(userId, tasks, childData);
 
-      // Update last task date
       await ProgressService.updateLastTaskDate(userId);
 
       console.log('✅ Daily tasks generated and stored successfully');
@@ -133,9 +140,6 @@ export class TaskGenerationService {
     }
   }
 
-  /**
-   * Store daily tasks in Firestore
-   */
   private static async storeDailyTasks(
     userId: string,
     tasks: Task[],
@@ -145,7 +149,6 @@ export class TaskGenerationService {
       const today = new Date().toISOString().split('T')[0];
       const progress = await ProgressService.getProgress(userId);
 
-      // Create daily task set
       const dailyTaskSet: DailyTaskSet = {
         id: `daily-${userId}-${today}`,
         userId,
@@ -162,10 +165,8 @@ export class TaskGenerationService {
         },
       };
 
-      // Store in daily collection
       await setDoc(doc(db, 'dailyTasks', dailyTaskSet.id), dailyTaskSet);
 
-      // Store individual tasks in tasks collection with proper structure
       for (const task of tasks) {
         const taskRef = doc(collection(db, 'tasks'));
         const taskData = {
@@ -174,7 +175,7 @@ export class TaskGenerationService {
           userId,
           dailyId: today,
           createdAt: new Date(),
-          // Ensure all required fields are present
+
           title: task.title,
           description: task.description,
           category: task.category,
@@ -197,56 +198,109 @@ export class TaskGenerationService {
     }
   }
 
-  /**
-   * Create personalized prompt based on progress and difficulty
-   */
   private static createPersonalizedPrompt(
     area: string,
     progress: number,
     difficulty: 'beginner' | 'intermediate' | 'advanced',
     childData: ChildData,
+    language: string = 'en',
   ): string {
-    const difficultyDescriptions = {
-      beginner: 'slightly challenging but achievable',
-      intermediate: 'moderately challenging to help growth',
-      advanced: 'challenging to push current limits',
-    };
+    const difficultyKey = difficulty as keyof typeof i18n.t;
+    const difficultyText = i18n.t(`tasks.difficulty.${difficultyKey}`, {
+      lng: language,
+    });
 
     const progressDescription =
       progress < 30
-        ? 'early stages'
+        ? i18n.t('tasks.progress_levels.early_stages', { lng: language })
         : progress < 70
-          ? 'developing well'
-          : 'advanced level';
+          ? i18n.t('tasks.progress_levels.developing_well', { lng: language })
+          : i18n.t('tasks.progress_levels.advanced_level', { lng: language });
 
-    return `Create a ${difficultyDescriptions[difficulty]} ${area} development activity for a child who is in the ${progressDescription} of their development journey.
+    const areaTranslations = {
+      en: {
+        speech: 'speech',
+        language: 'language',
+        social: 'social',
+        motor: 'motor',
+        cognitive: 'cognitive',
+        sensory: 'sensory',
+        behavior: 'behavior',
+      },
+      ru: {
+        speech: 'речи',
+        language: 'языка',
+        social: 'социальных навыков',
+        motor: 'моторных навыков',
+        cognitive: 'когнитивных способностей',
+        sensory: 'сенсорной обработки',
+        behavior: 'поведения',
+      },
+    };
+
+    const currentAreaTranslations =
+      areaTranslations[language as keyof typeof areaTranslations] ||
+      areaTranslations.en;
+    const translatedArea =
+      currentAreaTranslations[
+        area.toLowerCase() as keyof typeof currentAreaTranslations
+      ] || area;
+
+    const languagePrompts = {
+      en: `Create a ${difficultyText} ${translatedArea} development activity for a child who is in the ${progressDescription} of their development journey.
 
 Child Information:
-- Name: ${childData.name || 'Child'}
-- Age: ${childData.age || 'Unknown'}
-- Diagnosis: ${childData.diagnosis || 'Not specified'}
-- Current ${area} level: ${progress}/100 (${difficulty})
+- Name: {name}
+- Age: {age}
+- Diagnosis: {diagnosis}
+- Current ${translatedArea} level: {progress}/100 (${difficultyText})
 
 Requirements:
-- Make it ${difficultyDescriptions[difficulty]}
+- Make it ${difficultyText}
 - Include clear, step-by-step instructions
 - Suggest materials that are easily available at home
 - Estimated duration: 10-20 minutes
 - Make it fun and engaging
 - Consider the child's current abilities and gently push them forward
 
-Format the response as a clear, actionable task description.`;
+Format the response as a clear, actionable task description in English.`,
+      ru: `Создайте ${difficultyText} занятие по развитию ${translatedArea} для ребёнка, который находится на ${progressDescription} своего пути развития.
+
+Информация о ребёнке:
+- Имя: {name}
+- Возраст: {age}
+- Диагноз: {diagnosis}
+- Текущий уровень ${translatedArea}: {progress}/100 (${difficultyText})
+
+Требования:
+- Сделайте его ${difficultyText}
+- Включите чёткие пошаговые инструкции
+- Предложите материалы, которые легко доступны дома
+- Ожидаемая продолжительность: 10-20 минут
+- Сделайте его весёлым и увлекательным
+- Учитывайте текущие способности ребёнка и мягко подталкивайте их вперёд
+
+Оформите ответ как чёткое, практичное описание задачи на русском языке.`,
+    };
+
+    const currentLang =
+      languagePrompts[language as keyof typeof languagePrompts] ||
+      languagePrompts.en;
+
+    return currentLang
+      .replace('{name}', childData.name || 'Child')
+      .replace('{age}', childData.age || 'Unknown')
+      .replace('{diagnosis}', childData.diagnosis || 'Not specified')
+      .replace('{progress}', progress.toString());
   }
 
-  /**
-   * Parse AI response into structured task
-   */
   private static parseTaskFromAI(
     area: string,
     aiResponse: string,
     taskNumber: number,
     difficulty: 'beginner' | 'intermediate' | 'advanced',
     areaProgress: number,
+    language: string = 'en',
   ): Task {
     const emojis = ['🌅', '😊', '🧱', '🎨', '🎵', '📚'];
     const emoji = emojis[taskNumber - 1] || '✨';
@@ -259,28 +313,60 @@ Format the response as a clear, actionable task description.`;
       title = title.substring(0, 47) + '...';
     }
 
-    // Use consistent ISO date format for dailyId
-    const dailyId = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const dailyId = new Date().toISOString().split('T')[0];
+
+    const categoryTranslations = {
+      en: {
+        speech: 'Speech Development',
+        language: 'Language Development',
+        social: 'Social Development',
+        motor: 'Motor Development',
+        cognitive: 'Cognitive Development',
+        sensory: 'Sensory Development',
+        behavior: 'Behavior Development',
+      },
+      ru: {
+        speech: 'Развитие речи',
+        language: 'Развитие языка',
+        social: 'Социальное развитие',
+        motor: 'Моторное развитие',
+        cognitive: 'Когнитивное развитие',
+        sensory: 'Сенсорное развитие',
+        behavior: 'Развитие поведения',
+      },
+    };
+
+    const currentCategoryTranslations =
+      categoryTranslations[language as keyof typeof categoryTranslations] ||
+      categoryTranslations.en;
+    const translatedCategory =
+      currentCategoryTranslations[
+        area.toLowerCase() as keyof typeof currentCategoryTranslations
+      ] || `${area.charAt(0).toUpperCase() + area.slice(1)} Development`;
+
+    const timeTranslations = {
+      en: '10-15 min',
+      ru: '10-15 мин',
+    };
 
     return {
       id: `task-${Date.now()}-${taskNumber}`,
       title,
       description: aiResponse,
-      category: `${area.charAt(0).toUpperCase() + area.slice(1)} Development`,
-      time: '10-15 min',
+      category: translatedCategory,
+      time:
+        timeTranslations[language as keyof typeof timeTranslations] ||
+        timeTranslations.en,
       emoji,
       completed: false,
       createdAt: new Date(),
       developmentArea: area,
-      dailyId, // Use consistent format
+      dailyId,
       difficulty,
       estimatedDuration: 15,
     };
   }
 
-  /**
-   * Get progress value for a specific area
-   */
   private static getAreaProgress(area: string, progress: UserProgress): number {
     const areaMap: Record<string, keyof UserProgress> = {
       speech: 'communication',
@@ -296,9 +382,6 @@ Format the response as a clear, actionable task description.`;
     return progress[progressKey];
   }
 
-  /**
-   * Map development area to progress key
-   */
   private static mapAreaToProgressKey(area: string): keyof UserProgress {
     const areaMap: Record<string, keyof UserProgress> = {
       speech: 'communication',

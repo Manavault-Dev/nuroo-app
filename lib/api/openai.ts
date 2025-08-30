@@ -3,38 +3,68 @@ import Constants from 'expo-constants';
 
 const API_URL = 'https://api.openai.com/v1/chat/completions';
 
-const createSystemPrompt = (childData?: {
-  name?: string;
-  age?: string;
-  diagnosis?: string;
-  developmentAreas?: string[];
-}) => {
-  let prompt = `You are Nuroo, a specialized AI assistant for parents of neurodivergent children. 
-Your role is to provide supportive, practical advice and create personalized activities.
+const createSystemPrompt = (
+  childData?: {
+    name?: string;
+    age?: string;
+    diagnosis?: string;
+    developmentAreas?: string[];
+  },
+  language: string = 'en',
+) => {
+  const languageInstructions = {
+    en: {
+      role: 'You are Nuroo, a specialized AI assistant for parents of neurodivergent children.',
+      guidelines: [
+        'Always be encouraging and positive',
+        'Provide specific, actionable suggestions',
+        "Consider the child's unique needs",
+        'Suggest activities that are fun and engaging',
+        'Keep responses concise but helpful',
+        'Use simple language that parents can understand',
+      ],
+      response: 'Respond as a supportive child development expert in English.',
+    },
+    ru: {
+      role: 'Вы - Nuroo, специализированный ИИ-помощник для родителей нейроразнообразных детей.',
+      guidelines: [
+        'Всегда будьте ободряющими и позитивными',
+        'Предоставляйте конкретные, практичные предложения',
+        'Учитывайте уникальные потребности ребёнка',
+        'Предлагайте занятия, которые веселые и увлекательные',
+        'Держите ответы краткими, но полезными',
+        'Используйте простой язык, понятный родителям',
+      ],
+      response:
+        'Отвечайте как поддерживающий эксперт по развитию детей на русском языке.',
+    },
+  };
 
-Guidelines:
-- Always be encouraging and positive
-- Provide specific, actionable suggestions
-- Consider the child's unique needs
-- Suggest activities that are fun and engaging
-- Keep responses concise but helpful
-- Use simple language that parents can understand
+  const currentLang =
+    languageInstructions[language as keyof typeof languageInstructions] ||
+    languageInstructions.en;
+
+  let prompt = `${currentLang.role}
+Ваша роль - предоставлять поддерживающие, практические советы и создавать персонализированные занятия.
+
+Руководящие принципы:
+${currentLang.guidelines.map((guideline) => `- ${guideline}`).join('\n')}
 
 `;
 
   if (childData?.name && childData?.age) {
-    prompt += `Child: ${childData.name}, Age: ${childData.age}\n`;
+    prompt += `Ребёнок: ${childData.name}, Возраст: ${childData.age}\n`;
   }
 
   if (childData?.diagnosis) {
-    prompt += `Diagnosis: ${childData.diagnosis}\n`;
+    prompt += `Диагноз: ${childData.diagnosis}\n`;
   }
 
   if (childData?.developmentAreas && childData.developmentAreas.length > 0) {
-    prompt += `Focus Areas: ${childData.developmentAreas.join(', ')}\n`;
+    prompt += `Области фокуса: ${childData.developmentAreas.join(', ')}\n`;
   }
 
-  prompt += `\nRespond as a supportive child development expert.`;
+  prompt += `\n${currentLang.response}`;
 
   return prompt;
 };
@@ -47,6 +77,7 @@ export const askNuroo = async (
     diagnosis?: string;
     developmentAreas?: string[];
   },
+  language: string = 'en',
 ) => {
   const apiKey = Constants.expoConfig?.extra?.OPENAI_API_KEY;
   const projectId = Constants.expoConfig?.extra?.OPENAI_PROJECT_ID;
@@ -60,8 +91,9 @@ export const askNuroo = async (
   console.log('🔐 API KEY:', apiKey ? '✅ Found' : '❌ Missing');
   console.log('📦 PROJECT ID:', projectId || 'Not required');
   console.log('👶 Child Data:', childData);
+  console.log('🌍 Language:', language);
 
-  const systemPrompt = createSystemPrompt(childData);
+  const systemPrompt = createSystemPrompt(childData, language);
   const model = 'gpt-4.1-mini';
 
   try {
@@ -110,10 +142,21 @@ export const generateDevelopmentTask = async (
     age?: string;
     diagnosis?: string;
   },
+  language: string = 'en',
 ) => {
-  const prompt = `Create a fun, engaging ${area} development activity for a child. 
+  const languagePrompts = {
+    en: `Create a fun, engaging ${area} development activity for a child. 
 Make it specific, age-appropriate, and easy for parents to implement at home.
-Include: activity name, simple instructions, materials needed, and expected duration.`;
+Include: activity name, simple instructions, materials needed, and expected duration.
+Respond in English.`,
+    ru: `Создайте веселое, увлекательное занятие по развитию ${area} для ребёнка.
+Сделайте его конкретным, соответствующим возрасту и простым для родителей в реализации дома.
+Включите: название занятия, простые инструкции, необходимые материалы и ожидаемую продолжительность.
+Отвечайте на русском языке.`,
+  };
 
-  return await askNuroo(prompt, childData);
+  const prompt =
+    languagePrompts[language as keyof typeof languagePrompts] ||
+    languagePrompts.en;
+  return await askNuroo(prompt, childData, language);
 };
