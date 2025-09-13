@@ -29,7 +29,7 @@ interface ChildData {
 }
 
 export default function AskNurooScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -67,7 +67,11 @@ export default function AskNurooScreen() {
     setInput('');
 
     try {
-      const reply = await askNuroo(userMessage, childData || undefined);
+      const reply = await askNuroo(
+        userMessage,
+        childData || undefined,
+        i18n.language,
+      );
       setMessages((prev) => [
         ...prev,
         { from: 'nuroo', text: reply, timestamp: new Date() },

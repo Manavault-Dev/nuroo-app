@@ -132,7 +132,27 @@
     "completed_message": "🎉 Congratulations! You've completed this task today.",
     "completed_subtitle": "Keep up the great work!",
     "completed_status": "Completed",
-    "in_progress_status": "In Progress"
+    "in_progress_status": "In Progress",
+    "generation": {
+      "starting": "Starting personalized task generation...",
+      "current_language": "Current language",
+      "generating_for_area": "Generating task for {area} ({difficulty} level) in {language}",
+      "task_generated": "Task generated for {area} in {language}",
+      "generation_complete": "Generated {count} personalized tasks in {language}",
+      "manual_generation": "Starting manual task generation...",
+      "auto_generation": "Auto-generating daily tasks...",
+      "checking_generation": "Checking if tasks need to be generated..."
+    },
+    "difficulty": {
+      "beginner": "beginner",
+      "intermediate": "intermediate",
+      "advanced": "advanced"
+    },
+    "progress_levels": {
+      "early_stages": "early stages",
+      "developing_well": "developing well",
+      "advanced_level": "advanced level"
+    }
   },
 
   "common": {

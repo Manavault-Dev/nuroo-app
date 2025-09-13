@@ -4,10 +4,12 @@ import { NotificationService } from '@/lib/services/notificationService';
 import { ProgressService } from '@/lib/services/progressService';
 import { TaskGenerationService } from '@/lib/services/taskGenerationService';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
 
 export const useTaskGeneration = (childData: ChildData | null) => {
   const [generating, setGenerating] = useState(false);
+  const { i18n } = useTranslation();
 
   const generateDailyTasks = useCallback(
     async (setTasks: (tasks: Task[]) => void) => {
@@ -25,6 +27,7 @@ export const useTaskGeneration = (childData: ChildData | null) => {
 
         setGenerating(true);
         console.log('🚀 Starting manual task generation...');
+        console.log('🌍 Current language:', i18n.language);
 
         const shouldGenerate = await ProgressService.shouldGenerateTasks(
           currentUser.uid,
@@ -38,6 +41,7 @@ export const useTaskGeneration = (childData: ChildData | null) => {
         const newTasks = await TaskGenerationService.generatePersonalizedTasks(
           currentUser.uid,
           childData,
+          i18n.language,
         );
 
         if (newTasks.length > 0) {
@@ -70,7 +74,7 @@ export const useTaskGeneration = (childData: ChildData | null) => {
         setGenerating(false);
       }
     },
-    [childData],
+    [childData, i18n.language],
   );
 
   return { generating, generateDailyTasks };
