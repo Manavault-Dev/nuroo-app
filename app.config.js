@@ -6,12 +6,25 @@ export default {
     slug: 'nuroo',
     scheme: 'nuroo',
     version: '1.0.0',
+
+    ios: {
+      bundleIdentifier: 'com.nuroo.app',
+      buildNumber: '1',
+      supportsTablet: true,
+    },
+    android: {
+      package: 'com.nuroo.app',
+      versionCode: 1,
+    },
+
+    owner: 'tilecho',
+
     extra: {
-      //OPEN AI
+      // OPEN AI
       OPENAI_API_KEY: process.env.OPENAI_API_KEY,
       OPENAI_PROJECT_ID: process.env.OPENAI_PROJECT_ID,
 
-      //FIREBASE
+      // FIREBASE
       EXPO_PUBLIC_FIREBASE_API_KEY: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
       EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN:
         process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -30,6 +43,10 @@ export default {
       FEEDBACK_EMAIL: process.env.FEEDBACK_EMAIL,
       PRIVACY_URL: process.env.PRIVACY_URL,
       HELP_URL: process.env.HELP_URL,
+
+      eas: {
+        projectId: '195d92c9-ef3a-4c31-ab02-bddee8cc627d',
+      },
     },
   },
 };
