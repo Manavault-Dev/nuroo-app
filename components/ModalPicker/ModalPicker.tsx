@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Pressable, Text, View, FlatList } from 'react-native';
+import { Modal, Pressable, Text, FlatList } from 'react-native';
 import tw from '@/lib/design/tw';
 
 type Option = { label: string; value: string };
