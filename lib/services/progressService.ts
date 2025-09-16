@@ -204,19 +204,29 @@ export class ProgressService {
 
   static async getConsecutiveDaysStreak(userId: string): Promise<number> {
     try {
-      const { collection, query, where, getDocs, orderBy } = await import(
+      console.log('�� Calculating consecutive days streak for user:', userId);
+
+      const { collection, query, where, getDocs } = await import(
         'firebase/firestore'
       );
+
+      // TEMPORARY WORKAROUND: Use simple query while index builds
+      // Get all completed tasks for the user (no complex ordering)
       const completedTasksQuery = query(
         collection(db, 'tasks'),
         where('userId', '==', userId),
         where('completed', '==', true),
-        orderBy('dailyId', 'desc'),
       );
 
       const completedTasksSnapshot = await getDocs(completedTasksQuery);
-      const completedDates = new Set<string>();
 
+      if (completedTasksSnapshot.empty) {
+        console.log('🔥 No completed tasks found, streak is 0');
+        return 0;
+      }
+
+      // Extract unique dates from completed tasks
+      const completedDates = new Set<string>();
       completedTasksSnapshot.docs.forEach((doc) => {
         const data = doc.data();
         if (data.dailyId) {
@@ -224,25 +234,84 @@ export class ProgressService {
         }
       });
 
-      const sortedDates = Array.from(completedDates).sort().reverse();
+      // Convert to sorted array (most recent first) - sort locally
+      const sortedDates = Array.from(completedDates)
+        .map((date) => new Date(date))
+        .sort((a, b) => b.getTime() - a.getTime())
+        .map((date) => date.toISOString().split('T')[0]);
+
+      console.log('🔥 Completed dates found:', sortedDates);
+
+      if (sortedDates.length === 0) {
+        return 0;
+      }
+
+      // Calculate consecutive days streak
       let streak = 0;
+      const today = new Date();
+      const todayStr = today.toISOString().split('T')[0];
 
-      for (let i = 0; i < sortedDates.length; i++) {
-        const currentDate = new Date(sortedDates[i]);
-        const expectedDate = new Date();
-        expectedDate.setDate(expectedDate.getDate() - i);
-        const expectedDateStr = expectedDate.toISOString().split('T')[0];
+      // Check if today has completed tasks
+      const hasTodayTasks = sortedDates.includes(todayStr);
+      if (!hasTodayTasks) {
+        // If no tasks completed today, check if yesterday has tasks
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-        if (sortedDates[i] === expectedDateStr) {
-          streak++;
-        } else {
-          break;
+        if (!sortedDates.includes(yesterdayStr)) {
+          console.log('🔥 No tasks completed today or yesterday, streak is 0');
+          return 0;
+        }
+
+        // Start counting from yesterday
+        streak = 1;
+        let checkDate = new Date(yesterday);
+
+        for (let i = 1; i < sortedDates.length; i++) {
+          checkDate.setDate(checkDate.getDate() - 1);
+          const checkDateStr = checkDate.toISOString().split('T')[0];
+
+          if (sortedDates.includes(checkDateStr)) {
+            streak++;
+          } else {
+            break;
+          }
+        }
+      } else {
+        // Start counting from today
+        streak = 1;
+        let checkDate = new Date(today);
+
+        for (let i = 1; i < sortedDates.length; i++) {
+          checkDate.setDate(checkDate.getDate() - 1);
+          const checkDateStr = checkDate.toISOString().split('T')[0];
+
+          if (sortedDates.includes(checkDateStr)) {
+            streak++;
+          } else {
+            break;
+          }
         }
       }
 
+      console.log('🔥 Calculated consecutive days streak:', streak);
       return streak;
     } catch (error) {
       console.error('❌ Error getting consecutive days streak:', error);
+
+      // Type-safe error handling
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
+      // If it's still the index building error, return a temporary value
+      if (errorMessage.includes('currently building')) {
+        console.log(
+          '🔥 Index still building, returning temporary streak value',
+        );
+        return 1; // Return a reasonable default while index builds
+      }
+
       return 0;
     }
   }

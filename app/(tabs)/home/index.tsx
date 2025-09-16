@@ -65,10 +65,20 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (user?.uid && childData) {
-      fetchTasks(user.uid).catch((error: any) => {
-        if (error.message && error.message.includes('requires an index')) {
+      fetchTasks(user.uid).catch((error: unknown) => {
+        console.error('❌ Error fetching tasks:', error);
+
+        // Type-safe error handling
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+
+        if (errorMessage.includes('requires an index')) {
           setFirebaseError(
-            'Database index configuration issue. Tasks may not display correctly.',
+            'Database configuration is being updated. Please wait a moment and refresh.',
+          );
+        } else {
+          setFirebaseError(
+            'Unable to load tasks. Please check your connection and try again.',
           );
         }
       });
@@ -96,10 +106,20 @@ export default function HomeScreen() {
     if (user?.uid) {
       try {
         await fetchTasks(user.uid);
-      } catch (error: any) {
-        if (error.message && error.message.includes('requires an index')) {
+      } catch (error: unknown) {
+        console.error('❌ Error refreshing tasks:', error);
+
+        // Type-safe error handling
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+
+        if (errorMessage.includes('requires an index')) {
           setFirebaseError(
-            'Database index configuration issue. Tasks may not display correctly.',
+            'Database configuration is being updated. Please wait a moment and refresh.',
+          );
+        } else {
+          setFirebaseError(
+            'Unable to refresh tasks. Please check your connection and try again.',
           );
         }
       }

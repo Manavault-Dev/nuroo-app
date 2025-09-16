@@ -16,6 +16,7 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
   const [totalTasksCompleted, setTotalTasksCompleted] = useState(0);
   const [consecutiveDaysStreak, setConsecutiveDaysStreak] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [indexBuilding, setIndexBuilding] = useState(false);
 
   const loadTaskData = useCallback(async () => {
     try {
@@ -27,8 +28,20 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
 
       setTotalTasksCompleted(totalTasks);
       setConsecutiveDaysStreak(streak);
+
+      if (streak === 1 && totalTasks > 1) {
+        setIndexBuilding(true);
+      }
     } catch (error) {
       console.error('Error loading task data:', error);
+
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
+      if (errorMessage.includes('currently building')) {
+        setIndexBuilding(true);
+        setConsecutiveDaysStreak(1);
+      }
     } finally {
       setLoading(false);
     }
@@ -163,6 +176,11 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
             <Text style={tw`text-orange-600 text-xs`}>
               {consecutiveDaysStreak} {t('progress.consecutive_days')}
             </Text>
+            {indexBuilding && (
+              <Text style={tw`text-orange-500 text-xs mt-1`}>
+                ⏳ Updating streak calculation...
+              </Text>
+            )}
           </View>
           <Text style={tw`text-2xl font-bold text-orange-600`}>
             {consecutiveDaysStreak}
