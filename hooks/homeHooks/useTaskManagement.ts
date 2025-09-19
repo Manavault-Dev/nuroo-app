@@ -183,7 +183,6 @@ export const useTaskManagement = (
               .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()) // Sort locally
               .slice(0, 4) as Task[];
 
-            // Merge with existing local tasks to preserve completion status
             const mergedTasks = recentTasks.map((recentTask) => {
               const localTask = tasksRef.current.find(
                 (t) => t.id === recentTask.id,

@@ -300,7 +300,7 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
         <Text style={tw`text-blue-800 text-sm font-medium text-center`}>
           🎯{' '}
           {t('progress.keep_going', {
-            count: getTotalCount() - getUnlockedCount(),
+            count: Math.max(0, getTotalCount() - getUnlockedCount()),
           })}
         </Text>
       </View>
