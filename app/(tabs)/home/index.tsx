@@ -46,7 +46,7 @@ export default function HomeScreen() {
     console.log('🔄 useTaskManagement hook recreated');
   }, [fetchTasks, toggleTaskCompletion, setLoadingState]);
 
-  const today = new Date().toLocaleDateString('en-US', {
+  const today = new Date().toLocaleDateString(t('date.locale'), {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -194,7 +194,8 @@ export default function HomeScreen() {
                 </Text>
                 <View style={tw`flex-row items-center justify-between mb-2`}>
                   <Text style={tw`text-sm text-gray-600`}>
-                    {completedTasks} of {totalTasks} tasks completed
+                    {completedTasks} {t('home.of')} {totalTasks}{' '}
+                    {t('home.tasks_completed')}
                   </Text>
                   <Text style={tw`text-sm font-semibold text-primary`}>
                     {formatProgressPercentage(completedTasks, totalTasks)}
@@ -219,14 +220,13 @@ export default function HomeScreen() {
                   style={tw`mb-4 p-4 bg-red-50 border border-red-200 rounded-lg`}
                 >
                   <Text style={tw`text-red-700 text-base font-bold mb-2`}>
-                    🚫 Cannot Generate New Tasks
+                    {t('home.cannot_generate_tasks')}
                   </Text>
                   <Text style={tw`text-red-600 text-sm mb-3`}>
-                    You have incomplete tasks from previous days. Complete ALL
-                    existing tasks before you can generate new ones.
+                    {t('home.incomplete_tasks_warning')}
                   </Text>
                   <Text style={tw`text-red-500 text-xs mb-3`}>
-                    This helps you stay focused and make steady progress!
+                    {t('home.incomplete_tasks_help')}
                   </Text>
                   <Pressable
                     style={tw`bg-red-100 border border-red-300 rounded-lg px-4 py-2`}
@@ -239,7 +239,7 @@ export default function HomeScreen() {
                     <Text
                       style={tw`text-red-700 text-sm font-medium text-center`}
                     >
-                      View Incomplete Tasks
+                      {t('home.view_incomplete_tasks')}
                     </Text>
                   </Pressable>
                 </View>
@@ -263,7 +263,7 @@ export default function HomeScreen() {
                         <ActivityIndicator size="small" color="white" />
                         <Text style={homeStyles.generateButtonText}>
                           {autoGenerating
-                            ? '🤖 Auto-generating...'
+                            ? t('home.auto_generating')
                             : t('home.generating')}
                         </Text>
                       </View>
@@ -274,7 +274,7 @@ export default function HomeScreen() {
                           tw`text-gray-600`,
                         ]}
                       >
-                        🚫 Complete All Tasks First
+                        {t('home.complete_all_tasks_first')}
                       </Text>
                     ) : (
                       <Text style={homeStyles.generateButtonText}>
@@ -295,11 +295,10 @@ export default function HomeScreen() {
               style={tw`mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg`}
             >
               <Text style={tw`text-yellow-700 text-sm font-medium mb-1`}>
-                ⚠️ Complete All Tasks to Unlock New Ones
+                {t('home.complete_all_tasks_to_unlock')}
               </Text>
               <Text style={tw`text-yellow-600 text-xs`}>
-                You have incomplete tasks from previous days. Complete them all
-                to generate new tasks.
+                {t('home.complete_tasks_to_unlock_help')}
               </Text>
             </View>
           )}

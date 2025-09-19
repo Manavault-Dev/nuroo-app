@@ -4,6 +4,10 @@ import { useAuth } from '@/context/AuthContext';
 import { useLinks } from '@/hooks/useLinks';
 import tw from '@/lib/design/tw';
 import { auth, db } from '@/lib/firebase/firebase';
+import {
+  translateDevelopmentAreas,
+  translateDiagnosis,
+} from '@/lib/utils/translationHelpers';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -138,9 +142,11 @@ const ProfileScreen = () => {
     <ScrollView contentContainerStyle={tw`p-4 pt-16 pb-32`}>
       <View style={tw`flex-row items-center justify-between mb-4`}>
         <View>
-          <Text style={tw`text-2xl font-bold text-primary mb-1`}>Settings</Text>
+          <Text style={tw`text-2xl font-bold text-primary mb-1`}>
+            {t('profile.settings')}
+          </Text>
           <Text style={tw`text-gray-500`}>
-            Manage your account and preferences
+            {t('profile.manage_account_preferences')}
           </Text>
         </View>
 
@@ -207,7 +213,7 @@ const ProfileScreen = () => {
 
         <View style={tw`mt-4`}>
           <Text style={tw`text-primary font-bold mb-1`}>
-            Child&apos;s Profile
+            {t('profile.child_profile')}
           </Text>
 
           {isEditing ? (
@@ -223,17 +229,25 @@ const ProfileScreen = () => {
           ) : (
             <>
               <Text style={tw`text-gray-700 mb-1`}>
-                Name: {profile?.name || '—'}
+                {t('profile.name_label')}{' '}
+                {profile?.name || t('profile.not_set')}
               </Text>
               <Text style={tw`text-gray-700 mb-1`}>
-                Age: {profile?.age || '—'}
+                {t('profile.age_label')} {profile?.age || t('profile.not_set')}
               </Text>
               <Text style={tw`text-gray-700 mb-1`}>
-                Diagnosis: {profile?.diagnosis || '—'}
+                {t('profile.diagnosis_label')}{' '}
+                {profile?.diagnosis
+                  ? translateDiagnosis(profile.diagnosis, t)
+                  : t('profile.not_set')}
               </Text>
               <Text style={tw`text-gray-700 mb-1`}>
-                Development Areas:{' '}
-                {profile?.developmentAreas?.join(', ') || '—'}
+                {t('profile.development_areas_label')}{' '}
+                {profile?.developmentAreas?.length
+                  ? translateDevelopmentAreas(profile.developmentAreas, t).join(
+                      ', ',
+                    )
+                  : t('profile.not_set')}
               </Text>
             </>
           )}
@@ -245,9 +259,11 @@ const ProfileScreen = () => {
       <View
         style={tw`bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-4`}
       >
-        <Text style={tw`text-lg font-bold mb-4`}>Account Settings</Text>
-        <Option label="Privacy & Security" onPress={openPrivacy} />
-        <Option label="Help & Support" onPress={openHelp} />
+        <Text style={tw`text-lg font-bold mb-4`}>
+          {t('profile.account_settings')}
+        </Text>
+        <Option label={t('profile.privacy_security')} onPress={openPrivacy} />
+        <Option label={t('profile.help_support')} onPress={openHelp} />
         <Option
           label={t('common.logout')}
           onPress={handleLogout}
@@ -268,23 +284,28 @@ const ProfileScreen = () => {
           <Text style={tw`text-primary text-lg font-bold text-center`}>
             Nuroo
           </Text>
-          <Text style={tw`text-gray-500 text-center mb-2`}>Version 1.0.0</Text>
+          <Text style={tw`text-gray-500 text-center mb-2`}>
+            {t('profile.version')}
+          </Text>
           <Text style={tw`text-gray-500 text-center mb-4`}>
-            Helping families support children with special needs through
-            personalized development plans.
+            {t('profile.app_description')}
           </Text>
           <View style={tw`flex-row justify-center gap-4`}>
             <Pressable
               style={tw`border border-primary rounded-full px-4 py-2`}
               onPress={rateApp}
             >
-              <Text style={tw`text-primary font-medium`}>Rate App</Text>
+              <Text style={tw`text-primary font-medium`}>
+                {t('profile.rate_app')}
+              </Text>
             </Pressable>
             <Pressable
               style={tw`border border-primary rounded-full px-4 py-2`}
               onPress={shareFeedback}
             >
-              <Text style={tw`text-primary font-medium`}>Share Feedback</Text>
+              <Text style={tw`text-primary font-medium`}>
+                {t('profile.share_feedback')}
+              </Text>
             </Pressable>
           </View>
         </View>

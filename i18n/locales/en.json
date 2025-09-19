@@ -67,6 +67,14 @@
       "other": "Other",
       "autism": "Autism Spectrum Disorder",
       "speech_delay": "Speech Delay"
+    },
+    "development_areas": {
+      "speech": "Speech & Language",
+      "social": "Social Skills", 
+      "motor": "Motor Skills",
+      "cognitive": "Cognitive Development",
+      "sensory": "Sensory Processing",
+      "behavior": "Behavior Management"
     }
   },
 
@@ -85,7 +93,17 @@
     "generate_button": "🤖 Generate Today's Tasks",
     "generating": "🤖 Generating AI Tasks...",
     "help_text": "💡 Tasks are generated once per day and saved for the entire day",
-    "loading": "Loading today's plan..."
+    "loading": "Loading today's plan...",
+    "auto_generating": "🤖 Auto-generating...",
+    "complete_all_tasks_first": "🚫 Complete All Tasks First",
+    "cannot_generate_tasks": "🚫 Cannot Generate New Tasks",
+    "incomplete_tasks_warning": "You have incomplete tasks from previous days. Complete ALL existing tasks before you can generate new ones.",
+    "incomplete_tasks_help": "This helps you stay focused and make steady progress!",
+    "view_incomplete_tasks": "View Incomplete Tasks",
+    "complete_all_tasks_to_unlock": "⚠️ Complete All Tasks to Unlock New Ones",
+    "complete_tasks_to_unlock_help": "You have incomplete tasks from previous days. Complete them all to generate new tasks.",
+    "tasks_completed": "tasks completed",
+    "of": "of"
   },
 
   "ask_nuroo": {
@@ -115,7 +133,23 @@
     "loading": "Loading profile...",
     "error_loading": "Error loading profile",
     "error_saving": "Error saving profile",
-    "success_saving": "Profile updated successfully"
+    "success_saving": "Profile updated successfully",
+    "child_profile": "Child's Profile",
+    "account_settings": "Account Settings",
+    "privacy_security": "Privacy & Security",
+    "help_support": "Help & Support",
+    "language": "Language",
+    "version": "Version 1.0.0",
+    "app_description": "Helping families support children with special needs through personalized development plans.",
+    "rate_app": "Rate App",
+    "share_feedback": "Share Feedback",
+    "child_name_placeholder": "Child's Name",
+    "age_placeholder": "Age",
+    "diagnosis_placeholder": "Diagnosis",
+    "save": "Save",
+    "not_set": "—",
+    "settings": "Settings",
+    "manage_account_preferences": "Manage your account and preferences"
   },
 
   "tasks": {
@@ -123,7 +157,8 @@
     "category": "Category",
     "duration": "Duration",
     "focus_area": "Focus Area",
-    "mark_complete": "Mark as Complete",
+    "mark_complete": "✓ Mark Complete",
+    "completed": "✓ Completed",
     "reopen_task": "Reopen Task",
     "updating": "Updating...",
     "back_to_tasks": "Back to Tasks",
@@ -133,6 +168,7 @@
     "completed_subtitle": "Keep up the great work!",
     "completed_status": "Completed",
     "in_progress_status": "In Progress",
+    "minutes": "min",
     "generation": {
       "starting": "Starting personalized task generation...",
       "current_language": "Current language",
@@ -172,6 +208,33 @@
     "close": "Close",
     "logout": "Logout",
     "logout_confirm": "Are you sure you want to logout?"
+  },
+
+  "date": {
+    "locale": "en-US",
+    "weekdays": {
+      "monday": "Monday",
+      "tuesday": "Tuesday", 
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    },
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    }
   },
 
   "progress": {

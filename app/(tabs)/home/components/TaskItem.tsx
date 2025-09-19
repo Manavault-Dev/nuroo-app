@@ -3,6 +3,7 @@ import { Task } from '@/lib/home/home.types';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 interface TaskItemProps {
@@ -14,6 +15,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   task,
   onToggleComplete,
 }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const [updating, setUpdating] = useState(false);
 
@@ -92,7 +94,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             {task.difficulty}
           </Text>
           <Text style={tw`text-xs text-gray-500 flex-shrink-0`}>
-            {task.estimatedDuration} min
+            {task.estimatedDuration} {t('tasks.minutes')}
           </Text>
         </View>
 
@@ -124,7 +126,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
                   task.completed ? tw`text-green-700` : tw`text-blue-700`,
                 ]}
               >
-                Updating...
+                {t('tasks.updating')}
               </Text>
             </View>
           ) : (
@@ -134,7 +136,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
                 task.completed ? tw`text-green-700` : tw`text-blue-700`,
               ]}
             >
-              {task.completed ? '✓ Completed' : '✓ Mark Complete'}
+              {task.completed ? t('tasks.completed') : t('tasks.mark_complete')}
             </Text>
           )}
         </Pressable>
