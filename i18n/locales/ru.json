@@ -69,7 +69,7 @@
     },
     "development_areas": {
       "speech": "Речь и язык",
-      "social": "Социальные навыки", 
+      "social": "Социальные навыки",
       "motor": "Моторные навыки",
       "cognitive": "Когнитивное развитие",
       "sensory": "Сенсорная обработка",
@@ -213,7 +213,7 @@
     "locale": "ru-RU",
     "weekdays": {
       "monday": "Понедельник",
-      "tuesday": "Вторник", 
+      "tuesday": "Вторник",
       "wednesday": "Среда",
       "thursday": "Четверг",
       "friday": "Пятница",

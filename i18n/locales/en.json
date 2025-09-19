@@ -70,7 +70,7 @@
     },
     "development_areas": {
       "speech": "Speech & Language",
-      "social": "Social Skills", 
+      "social": "Social Skills",
       "motor": "Motor Skills",
       "cognitive": "Cognitive Development",
       "sensory": "Sensory Processing",
@@ -214,7 +214,7 @@
     "locale": "en-US",
     "weekdays": {
       "monday": "Monday",
-      "tuesday": "Tuesday", 
+      "tuesday": "Tuesday",
       "wednesday": "Wednesday",
       "thursday": "Thursday",
       "friday": "Friday",
