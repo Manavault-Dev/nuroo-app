@@ -19,7 +19,7 @@ export interface ChildData {
   diagnosis?: string;
   developmentAreas?: string[];
   progress?: UserProgress;
-  lastTaskDate?: string; // ISO date string
+  lastTaskDate?: string;
   onboardingCompleted?: boolean;
   onboardingCompletedAt?: Date;
 }

@@ -1,6 +1,5 @@
-import { Task, UserProgress } from '@/app/(tabs)/home/home.types';
 import { auth, db } from '@/lib/firebase/firebase';
-import { NotificationService } from '@/lib/services/notificationService';
+import { Task, UserProgress } from '@/lib/home/home.types';
 import { ProgressService } from '@/lib/services/progressService';
 import {
   collection,
@@ -333,21 +332,16 @@ export const useTaskManagement = (
               currentTask.developmentArea,
               currentUser.uid,
             );
-            await NotificationService.sendTaskCompletionNotification(
-              currentTask.title,
+            const allTasksComplete = updatedTasks.every(
+              (task) => task.completed,
             );
-            console.log('✅ Progress and notification updated');
           } catch (error) {
             console.error('❌ Error updating progress:', error);
-            // Don't fail the entire operation if progress update fails
           }
         }
-
-        console.log('🎉 Task completion toggled successfully');
       } catch (error) {
         console.error('❌ Error updating task:', error);
 
-        // Revert local state on error
         const currentTasks = tasksRef.current;
         const currentTask = currentTasks.find((t) => t.id === taskId);
         if (currentTask) {

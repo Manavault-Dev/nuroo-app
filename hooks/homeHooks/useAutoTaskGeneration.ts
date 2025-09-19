@@ -1,5 +1,5 @@
-import { ChildData, Task } from '@/app/(tabs)/home/home.types';
 import { auth } from '@/lib/firebase/firebase';
+import { ChildData, Task } from '@/lib/home/home.types';
 import { NotificationService } from '@/lib/services/notificationService';
 import { ProgressService } from '@/lib/services/progressService';
 import { TaskGenerationService } from '@/lib/services/taskGenerationService';

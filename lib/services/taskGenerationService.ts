@@ -1,12 +1,12 @@
+import i18n from '@/i18n/i18n';
+import { generateDevelopmentTask } from '@/lib/api/openai';
+import { db } from '@/lib/firebase/firebase';
 import {
   ChildData,
   DailyTaskSet,
   Task,
   UserProgress,
-} from '@/app/(tabs)/home/home.types';
-import i18n from '@/i18n/i18n';
-import { generateDevelopmentTask } from '@/lib/api/openai';
-import { db } from '@/lib/firebase/firebase';
+} from '@/lib/home/home.types';
 import { collection, doc, setDoc } from 'firebase/firestore';
 import { ProgressService } from './progressService';
 

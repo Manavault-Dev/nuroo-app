@@ -1,9 +1,9 @@
 import tw from '@/lib/design/tw';
+import { Task } from '@/lib/home/home.types';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
-import { Task } from '../home.types';
 
 interface TaskItemProps {
   task: Task;
@@ -24,10 +24,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   const handleToggleComplete = async () => {
     if (updating) return;
 
-    // Add haptic feedback
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-    setUpdating(true);
     try {
       await onToggleComplete(task.id);
 
@@ -37,7 +34,6 @@ export const TaskItem: React.FC<TaskItemProps> = ({
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
-      setUpdating(false);
     }
   };
 

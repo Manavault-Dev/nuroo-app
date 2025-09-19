@@ -1,6 +1,6 @@
-import { UserProgress } from '@/app/(tabs)/home/home.types';
 import { useProgressTracking } from '@/hooks/progressHooks/useProgressTracking';
 import tw from '@/lib/design/tw';
+import { UserProgress } from '@/lib/home/home.types';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';

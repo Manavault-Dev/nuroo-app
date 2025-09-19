@@ -1,5 +1,5 @@
-import { UserProgress } from '@/app/(tabs)/home/home.types';
 import tw from '@/lib/design/tw';
+import { UserProgress } from '@/lib/home/home.types';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, Text, View } from 'react-native';

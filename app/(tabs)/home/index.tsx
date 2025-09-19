@@ -5,6 +5,10 @@ import { useChildData } from '@/hooks/homeHooks/useChildData';
 import { useTaskGeneration } from '@/hooks/homeHooks/useTaskGeneration';
 import { useTaskManagement } from '@/hooks/homeHooks/useTaskManagement';
 import tw from '@/lib/design/tw';
+import { homeStyles } from '@/lib/home/home.styles';
+import { Task } from '@/lib/home/home.types';
+import { formatProgressPercentage } from '@/lib/home/home.utils';
+import { ProgressService } from '@/lib/services/progressService';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -17,9 +21,6 @@ import {
 } from 'react-native';
 import { HomeSkeleton } from './components/HomeSkeleton';
 import { TaskItem } from './components/TaskItem';
-import { homeStyles } from './home.styles';
-import { Task } from './home.types';
-import { formatProgressPercentage } from './home.utils';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
@@ -27,6 +28,7 @@ export default function HomeScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [hasIncompleteTasks, setHasIncompleteTasks] = useState(false);
 
   const { childData, fetchChildData } = useChildData();
   const { generating, generateDailyTasks } = useTaskGeneration(childData);
@@ -40,7 +42,6 @@ export default function HomeScreen() {
 
   const [firebaseError, setFirebaseError] = useState<string | null>(null);
 
-  // Debug: Log when the hook is recreated
   useEffect(() => {
     console.log('🔄 useTaskManagement hook recreated');
   }, [fetchTasks, toggleTaskCompletion, setLoadingState]);
@@ -68,7 +69,6 @@ export default function HomeScreen() {
       fetchTasks(user.uid).catch((error: unknown) => {
         console.error('❌ Error fetching tasks:', error);
 
-        // Type-safe error handling
         const errorMessage =
           error instanceof Error ? error.message : String(error);
 
@@ -84,6 +84,21 @@ export default function HomeScreen() {
       });
     }
   }, [user?.uid, childData, fetchTasks]);
+
+  useEffect(() => {
+    const checkIncompleteTasks = async () => {
+      if (user?.uid) {
+        try {
+          const incomplete = await ProgressService.hasIncompleteTasks(user.uid);
+          setHasIncompleteTasks(incomplete);
+        } catch (error) {
+          console.error('Error checking incomplete tasks:', error);
+        }
+      }
+    };
+
+    checkIncompleteTasks();
+  }, [user?.uid, tasks]);
 
   useEffect(() => {
     if (childData && user?.uid) {
@@ -102,14 +117,13 @@ export default function HomeScreen() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    setFirebaseError(null); // Clear previous errors
+    setFirebaseError(null);
     if (user?.uid) {
       try {
         await fetchTasks(user.uid);
       } catch (error: unknown) {
         console.error('❌ Error refreshing tasks:', error);
 
-        // Type-safe error handling
         const errorMessage =
           error instanceof Error ? error.message : String(error);
 
@@ -139,78 +153,6 @@ export default function HomeScreen() {
     return (
       <View style={tw`flex-1 bg-gray-50`}>
         <HomeSkeleton />
-        <View style={tw`p-4`}>
-          <Text style={tw`text-center text-gray-600 mb-4`}>
-            Debug: Loading state is stuck. Tasks count: {tasks.length}
-          </Text>
-
-          <Text style={tw`text-center text-gray-600 mb-4`}>
-            Completed tasks: {tasks.filter((t) => t.completed).length} /{' '}
-            {tasks.length}
-          </Text>
-
-          <Text style={tw`text-center text-gray-600 mb-4`}>
-            Task IDs:{' '}
-            {tasks.map((t) => `${t.id}(${t.completed ? '✓' : '○'})`).join(', ')}
-          </Text>
-
-          <Pressable
-            style={tw`bg-red-500 py-3 px-6 rounded-lg mb-2`}
-            onPress={() => {
-              console.log('🛑 Force stop loading');
-              setLoading(false);
-            }}
-          >
-            <Text style={tw`text-white font-semibold text-center`}>
-              Force Stop Loading
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={tw`bg-blue-500 py-3 px-6 rounded-lg mb-2`}
-            onPress={() => {
-              console.log('🔍 Manual fetch tasks');
-              if (user?.uid) {
-                fetchTasks(user.uid);
-              }
-            }}
-          >
-            <Text style={tw`text-white font-semibold text-center`}>
-              Manual Fetch Tasks
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={tw`bg-green-500 py-3 px-6 rounded-lg`}
-            onPress={() => {
-              console.log('🚀 Force generate tasks');
-              if (user?.uid && childData) {
-                generateDailyTasks(setTasks);
-              }
-            }}
-          >
-            <Text style={tw`text-white font-semibold text-center`}>
-              Force Generate Tasks
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={tw`bg-purple-500 py-3 px-6 rounded-lg mt-2`}
-            onPress={() => {
-              console.log('🔍 Debug: Current tasks state');
-              console.log('Tasks:', tasks);
-              console.log('Tasks length:', tasks.length);
-              console.log(
-                'Completed tasks:',
-                tasks.filter((t) => t.completed),
-              );
-            }}
-          >
-            <Text style={tw`text-white font-semibold text-center`}>
-              Debug Tasks State
-            </Text>
-          </Pressable>
-        </View>
       </View>
     );
   }
@@ -225,7 +167,6 @@ export default function HomeScreen() {
         }
       >
         <View style={tw`p-4`}>
-          {/* Firebase Error Banner */}
           {firebaseError && (
             <View
               style={tw`mb-4 p-3 bg-red-50 border border-red-200 rounded-lg`}
@@ -273,30 +214,93 @@ export default function HomeScreen() {
 
           {totalTasks === 0 && (
             <View style={tw`mt-4`}>
-              <Text style={tw`text-sm text-gray-600 mb-3`}>
-                📅 {t('home.no_tasks_title')}
-              </Text>
-              <Pressable
-                style={homeStyles.generateButton}
-                onPress={() => generateDailyTasks(setTasks)}
-                disabled={generating || autoGenerating}
-              >
-                {generating || autoGenerating ? (
-                  <View style={tw`flex-row items-center`}>
-                    <ActivityIndicator size="small" color="white" />
-                    <Text style={homeStyles.generateButtonText}>
-                      {autoGenerating
-                        ? '🤖 Auto-generating...'
-                        : t('home.generating')}
-                    </Text>
-                  </View>
-                ) : (
-                  <Text style={homeStyles.generateButtonText}>
-                    {t('home.generate_button')}
+              {hasIncompleteTasks ? (
+                <View
+                  style={tw`mb-4 p-4 bg-red-50 border border-red-200 rounded-lg`}
+                >
+                  <Text style={tw`text-red-700 text-base font-bold mb-2`}>
+                    🚫 Cannot Generate New Tasks
                   </Text>
-                )}
-              </Pressable>
-              <Text style={homeStyles.helpText}>💡 {t('home.help_text')}</Text>
+                  <Text style={tw`text-red-600 text-sm mb-3`}>
+                    You have incomplete tasks from previous days. Complete ALL
+                    existing tasks before you can generate new ones.
+                  </Text>
+                  <Text style={tw`text-red-500 text-xs mb-3`}>
+                    This helps you stay focused and make steady progress!
+                  </Text>
+                  <Pressable
+                    style={tw`bg-red-100 border border-red-300 rounded-lg px-4 py-2`}
+                    onPress={() => {
+                      if (user?.uid) {
+                        fetchTasks(user.uid);
+                      }
+                    }}
+                  >
+                    <Text
+                      style={tw`text-red-700 text-sm font-medium text-center`}
+                    >
+                      View Incomplete Tasks
+                    </Text>
+                  </Pressable>
+                </View>
+              ) : (
+                <>
+                  <Text style={tw`text-sm text-gray-600 mb-3`}>
+                    📅 {t('home.no_tasks_title')}
+                  </Text>
+                  <Pressable
+                    style={[
+                      homeStyles.generateButton,
+                      hasIncompleteTasks && tw`opacity-50 bg-gray-400`,
+                    ]}
+                    onPress={() => generateDailyTasks(setTasks)}
+                    disabled={
+                      generating || autoGenerating || hasIncompleteTasks
+                    }
+                  >
+                    {generating || autoGenerating ? (
+                      <View style={tw`flex-row items-center`}>
+                        <ActivityIndicator size="small" color="white" />
+                        <Text style={homeStyles.generateButtonText}>
+                          {autoGenerating
+                            ? '🤖 Auto-generating...'
+                            : t('home.generating')}
+                        </Text>
+                      </View>
+                    ) : hasIncompleteTasks ? (
+                      <Text
+                        style={[
+                          homeStyles.generateButtonText,
+                          tw`text-gray-600`,
+                        ]}
+                      >
+                        🚫 Complete All Tasks First
+                      </Text>
+                    ) : (
+                      <Text style={homeStyles.generateButtonText}>
+                        {t('home.generate_button')}
+                      </Text>
+                    )}
+                  </Pressable>
+                  <Text style={homeStyles.helpText}>
+                    💡 {t('home.help_text')}
+                  </Text>
+                </>
+              )}
+            </View>
+          )}
+
+          {hasIncompleteTasks && totalTasks > 0 && (
+            <View
+              style={tw`mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg`}
+            >
+              <Text style={tw`text-yellow-700 text-sm font-medium mb-1`}>
+                ⚠️ Complete All Tasks to Unlock New Ones
+              </Text>
+              <Text style={tw`text-yellow-600 text-xs`}>
+                You have incomplete tasks from previous days. Complete them all
+                to generate new tasks.
+              </Text>
             </View>
           )}
 
@@ -305,18 +309,11 @@ export default function HomeScreen() {
               key={task.id}
               task={task}
               onToggleComplete={async (taskId) => {
-                console.log(
-                  '🔄 Home screen: Toggling task completion for:',
-                  taskId,
-                );
                 try {
                   await toggleTaskCompletion(taskId);
-                  console.log(
-                    '✅ Home screen: Task completion toggled successfully',
-                  );
                 } catch (error) {
                   console.error(
-                    '❌ Home screen: Error toggling task completion:',
+                    ' Home screen: Error toggling task completion:',
                     error,
                   );
                 }

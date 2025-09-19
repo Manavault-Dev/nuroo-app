@@ -1,5 +1,5 @@
-import { ChildData, Task } from '@/app/(tabs)/home/home.types';
 import { auth } from '@/lib/firebase/firebase';
+import { ChildData, Task } from '@/lib/home/home.types';
 import { NotificationService } from '@/lib/services/notificationService';
 import { ProgressService } from '@/lib/services/progressService';
 import { TaskGenerationService } from '@/lib/services/taskGenerationService';
@@ -34,7 +34,19 @@ export const useTaskGeneration = (childData: ChildData | null) => {
         );
 
         if (!shouldGenerate) {
-          Alert.alert('Info', 'Tasks already exist for today');
+          // Check if it's because of incomplete tasks
+          const hasIncompleteTasks = await ProgressService.hasIncompleteTasks(
+            currentUser.uid,
+          );
+
+          if (hasIncompleteTasks) {
+            Alert.alert(
+              '🚫 Cannot Generate New Tasks',
+              'You have incomplete tasks from previous days. Complete ALL existing tasks before you can generate new ones.\n\nThis helps you stay focused and make steady progress!',
+            );
+          } else {
+            Alert.alert('Info', 'Tasks already exist for today');
+          }
           return;
         }
 

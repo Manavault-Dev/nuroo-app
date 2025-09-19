@@ -1,5 +1,5 @@
-import { UserProgress } from '@/app/(tabs)/home/home.types';
 import { useAuth } from '@/context/AuthContext';
+import { UserProgress } from '@/lib/home/home.types';
 import { ProgressService } from '@/lib/services/progressService';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
