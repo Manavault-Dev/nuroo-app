@@ -1,5 +1,5 @@
-import { ChildData } from '@/app/(tabs)/home/home.types';
 import { auth, db } from '@/lib/firebase/firebase';
+import { ChildData } from '@/lib/home/home.types';
 import * as BackgroundFetch from 'expo-background-fetch';
 import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
@@ -7,7 +7,6 @@ import { doc, getDoc } from 'firebase/firestore';
 import { ProgressService } from './progressService';
 import { TaskGenerationService } from './taskGenerationService';
 
-// Configure notification behavior
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -95,36 +94,10 @@ export class NotificationService {
   }
 
   /**
-   * Send task completion notification
-   */
-  static async sendTaskCompletionNotification(
-    taskTitle: string,
-  ): Promise<void> {
-    try {
-      const hasPermission = await this.requestPermissions();
-      if (!hasPermission) return;
-
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: '🎉 Task Completed!',
-          body: `Great job completing: ${taskTitle}`,
-          data: { type: 'task_completed', taskTitle },
-        },
-        trigger: null, // Send immediately
-      });
-
-      console.log('✅ Task completion notification sent');
-    } catch (error) {
-      console.error('❌ Error sending task completion notification:', error);
-    }
-  }
-
-  /**
    * Initialize background task for automatic task generation
    */
   static async initializeBackgroundTask(): Promise<void> {
     try {
-      // Define background task
       TaskManager.defineTask(this.BACKGROUND_TASK_NAME, async () => {
         try {
           console.log('🔄 Background task: Checking for task generation...');
@@ -135,7 +108,6 @@ export class NotificationService {
             return BackgroundFetch.BackgroundFetchResult.NoData;
           }
 
-          // Get user data
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
           if (!userDoc.exists()) {
             console.log('❌ User document not found, skipping background task');
@@ -144,7 +116,6 @@ export class NotificationService {
 
           const userData = userDoc.data() as ChildData;
 
-          // Check if tasks need to be generated
           const shouldGenerate = await ProgressService.shouldGenerateTasks(
             currentUser.uid,
           );
@@ -159,7 +130,6 @@ export class NotificationService {
             );
 
             if (tasks.length > 0) {
-              // Store tasks
               await TaskGenerationService['storeDailyTasks'](
                 currentUser.uid,
                 tasks,
@@ -167,7 +137,6 @@ export class NotificationService {
               );
               await ProgressService.updateLastTaskDate(currentUser.uid);
 
-              // Send notification
               await this.sendTaskGenerationNotification(tasks.length);
 
               console.log('✅ Background task: Tasks generated successfully');
@@ -183,7 +152,6 @@ export class NotificationService {
         }
       });
 
-      // Register background fetch
       await BackgroundFetch.registerTaskAsync(this.BACKGROUND_TASK_NAME, {
         minimumInterval: 60 * 60, // 1 hour minimum
         stopOnTerminate: false,
@@ -216,14 +184,14 @@ export class NotificationService {
           console.log(
             `📱 User tapped tasks generated notification (${taskCount} tasks)`,
           );
-          // Navigate to home screen (handled by app navigation)
+
           break;
 
         case 'task_completed':
           console.log(
             `📱 User tapped task completion notification: ${taskTitle}`,
           );
-          // Navigate to tasks screen (handled by app navigation)
+
           break;
       }
     } catch (error) {

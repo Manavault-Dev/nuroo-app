@@ -40,13 +40,11 @@ export default function SignInScreen() {
       );
       const user = userCredential.user;
 
-      // Check if user has completed onboarding
       try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data();
 
-          // Check if user has completed onboarding
           if (
             userData.onboardingCompleted &&
             userData.name &&
@@ -54,19 +52,16 @@ export default function SignInScreen() {
             userData.diagnosis &&
             userData.developmentAreas
           ) {
-            // User has completed onboarding, redirect to homepage
             router.replace('/(tabs)/home');
           } else {
-            // User hasn't completed onboarding, redirect to onboarding
             router.replace('/onboarding');
           }
         } else {
-          // New user, redirect to onboarding
           router.replace('/onboarding');
         }
       } catch (error) {
         console.error('Error checking user data:', error);
-        // Fallback to onboarding
+
         router.replace('/onboarding');
       }
     } catch (error: any) {

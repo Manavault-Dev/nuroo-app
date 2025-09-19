@@ -1,9 +1,10 @@
 import tw from '@/lib/design/tw';
+import { Task } from '@/lib/home/home.types';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
-import { Task } from '../home.types';
 
 interface TaskItemProps {
   task: Task;
@@ -14,6 +15,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   task,
   onToggleComplete,
 }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const [updating, setUpdating] = useState(false);
 
@@ -24,10 +26,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   const handleToggleComplete = async () => {
     if (updating) return;
 
-    // Add haptic feedback
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-    setUpdating(true);
     try {
       await onToggleComplete(task.id);
 
@@ -37,7 +36,6 @@ export const TaskItem: React.FC<TaskItemProps> = ({
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
-      setUpdating(false);
     }
   };
 
@@ -96,7 +94,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             {task.difficulty}
           </Text>
           <Text style={tw`text-xs text-gray-500 flex-shrink-0`}>
-            {task.estimatedDuration} min
+            {task.estimatedDuration} {t('tasks.minutes')}
           </Text>
         </View>
 
@@ -128,7 +126,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
                   task.completed ? tw`text-green-700` : tw`text-blue-700`,
                 ]}
               >
-                Updating...
+                {t('tasks.updating')}
               </Text>
             </View>
           ) : (
@@ -138,7 +136,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
                 task.completed ? tw`text-green-700` : tw`text-blue-700`,
               ]}
             >
-              {task.completed ? '✓ Completed' : '✓ Mark Complete'}
+              {task.completed ? t('tasks.completed') : t('tasks.mark_complete')}
             </Text>
           )}
         </Pressable>

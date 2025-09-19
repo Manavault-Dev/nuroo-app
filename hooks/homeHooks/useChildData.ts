@@ -1,5 +1,5 @@
-import { ChildData } from '@/app/(tabs)/home/home.types';
 import { db } from '@/lib/firebase/firebase';
+import { ChildData } from '@/lib/home/home.types';
 import { doc, getDoc } from 'firebase/firestore';
 import { useCallback, useState } from 'react';
 

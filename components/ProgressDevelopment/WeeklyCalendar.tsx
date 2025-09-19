@@ -1,6 +1,6 @@
-import { UserProgress } from '@/app/(tabs)/home/home.types';
 import { useAuth } from '@/context/AuthContext';
 import tw from '@/lib/design/tw';
+import { UserProgress } from '@/lib/home/home.types';
 import { ProgressService } from '@/lib/services/progressService';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';

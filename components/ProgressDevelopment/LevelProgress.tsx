@@ -1,6 +1,6 @@
-import { UserProgress } from '@/app/(tabs)/home/home.types';
 import { useAuth } from '@/context/AuthContext';
 import tw from '@/lib/design/tw';
+import { UserProgress } from '@/lib/home/home.types';
 import { ProgressService } from '@/lib/services/progressService';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -65,8 +65,9 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
     );
   }
 
-  const levelData =
-    ProgressService.calculateProgressToNextLevel(totalTasksCompleted);
+  const levelData = ProgressService.calculateProgressToNextLevel(
+    totalTasksCompleted || 0,
+  );
   const currentLevel = levelData.current;
   const progressToNextLevel = levelData.progress;
 
@@ -96,11 +97,11 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
     <View style={tw`bg-white rounded-2xl shadow-sm border border-gray-100`}>
       <View style={tw`flex-row items-center justify-between mb-4 p-6 pb-0`}>
         <Text style={tw`text-2xl font-bold text-gray-800`}>
-          {t('progress.level')} {currentLevel}
+          {t('progress.level')} {currentLevel || 0}
         </Text>
         <View style={tw`bg-blue-100 px-3 py-1 rounded-full`}>
           <Text style={tw`text-blue-700 font-semibold text-sm`}>
-            {getLevelTitle(currentLevel)}
+            {getLevelTitle(currentLevel || 0)}
           </Text>
         </View>
       </View>
@@ -122,17 +123,17 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
       <View style={tw`mb-4 px-6`}>
         <View style={tw`flex-row items-center justify-between mb-2`}>
           <Text style={tw`text-sm font-medium text-gray-700`}>
-            {t('progress.progress_to_next_level')} {currentLevel + 1}
+            {t('progress.progress_to_next_level')} {(currentLevel || 0) + 1}
           </Text>
           <Text style={tw`text-sm font-semibold text-primary`}>
-            {Math.round(progressToNextLevel)}%
+            {Math.round(progressToNextLevel || 0)}%
           </Text>
         </View>
         <View style={tw`w-full bg-gray-200 rounded-full h-3`}>
           <View
             style={[
               tw`bg-primary h-3 rounded-full`,
-              { width: `${progressToNextLevel}%` },
+              { width: `${progressToNextLevel || 0}%` },
             ]}
           />
         </View>
@@ -192,12 +193,15 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
         style={tw`mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200 mx-6 mb-6`}
       >
         <Text style={tw`text-yellow-800 text-sm font-medium text-center`}>
-          🎉 {t('progress.level_reward', { level: currentLevel + 1 })}:{' '}
-          {getLevelTitle(currentLevel + 1)} {t('progress.badge')}
+          🎉 {t('progress.level_reward', { level: (currentLevel || 0) + 1 })}:{' '}
+          {getLevelTitle((currentLevel || 0) + 1)} {t('progress.badge')}
         </Text>
         <Text style={tw`text-yellow-800 text-xs text-center mt-1`}>
           {t('progress.complete_tasks_to_level_up', {
-            count: 10 - Math.round(progressToNextLevel / 10),
+            count: Math.max(
+              0,
+              10 - Math.round((progressToNextLevel || 0) / 10),
+            ),
           })}
         </Text>
       </View>

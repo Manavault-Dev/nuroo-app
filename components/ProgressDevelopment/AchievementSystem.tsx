@@ -1,5 +1,5 @@
-import { UserProgress } from '@/app/(tabs)/home/home.types';
 import tw from '@/lib/design/tw';
+import { UserProgress } from '@/lib/home/home.types';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, Text, View } from 'react-native';
@@ -300,7 +300,7 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
         <Text style={tw`text-blue-800 text-sm font-medium text-center`}>
           🎯{' '}
           {t('progress.keep_going', {
-            count: getTotalCount() - getUnlockedCount(),
+            count: Math.max(0, getTotalCount() - getUnlockedCount()),
           })}
         </Text>
       </View>

@@ -1,5 +1,5 @@
-import { ChildData, UserProgress } from '@/app/(tabs)/home/home.types';
 import { db } from '@/lib/firebase/firebase';
+import { ChildData, UserProgress } from '@/lib/home/home.types';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
 export class ProgressService {
@@ -108,9 +108,23 @@ export class ProgressService {
         shouldGenerate: lastTaskDate !== today,
       });
 
-      // If lastTaskDate is different from today, we should generate
+      // If lastTaskDate is different from today, check for incomplete tasks first
       if (lastTaskDate !== today) {
-        console.log('📅 Last task date different from today, should generate');
+        console.log(
+          '📅 Last task date different from today, checking for incomplete tasks...',
+        );
+
+        // Check if there are any incomplete tasks from previous days
+        const hasIncompleteTasks = await this.hasIncompleteTasks(userId);
+
+        if (hasIncompleteTasks) {
+          console.log(
+            '⚠️ Found incomplete tasks from previous days, NOT generating new tasks',
+          );
+          return false;
+        }
+
+        console.log('✅ No incomplete tasks found, should generate new tasks');
         return true;
       }
 
@@ -144,6 +158,44 @@ export class ProgressService {
     } catch (error) {
       console.error('❌ Error checking task generation need:', error);
       return true; // Generate tasks if there's an error
+    }
+  }
+
+  /**
+   * Check if user has any incomplete tasks from previous days
+   */
+  static async hasIncompleteTasks(userId: string): Promise<boolean> {
+    try {
+      const { collection, query, where, getDocs } = await import(
+        'firebase/firestore'
+      );
+
+      // Query for all tasks that are not completed
+      const incompleteTasksQuery = query(
+        collection(db, 'tasks'),
+        where('userId', '==', userId),
+        where('completed', '==', false),
+      );
+
+      const incompleteTasksSnapshot = await getDocs(incompleteTasksQuery);
+      const incompleteCount = incompleteTasksSnapshot.size;
+
+      console.log(`🔍 Found ${incompleteCount} incomplete tasks`);
+
+      if (incompleteCount > 0) {
+        // Log details about incomplete tasks
+        incompleteTasksSnapshot.forEach((doc) => {
+          const task = doc.data();
+          console.log(
+            `📋 Incomplete task: "${task.title}" (Date: ${task.dailyId})`,
+          );
+        });
+      }
+
+      return incompleteCount > 0;
+    } catch (error) {
+      console.error('❌ Error checking for incomplete tasks:', error);
+      return false; // If there's an error, assume no incomplete tasks
     }
   }
 
