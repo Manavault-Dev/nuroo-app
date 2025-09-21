@@ -153,9 +153,9 @@
   },
 
   "tasks": {
-      "task_details": "Детали задачи",
-      "activity_name": "Название активности",
-      "instructions": "Инструкции",
+    "task_details": "Детали задачи",
+    "activity_name": "Название активности",
+    "instructions": "Инструкции",
     "category": "Категория",
     "duration": "Продолжительность",
     "focus_area": "Область фокуса",

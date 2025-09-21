@@ -154,9 +154,9 @@
   },
 
   "tasks": {
-      "task_details": "Task Details",
-      "activity_name": "Activity Name",
-      "instructions": "Instructions",
+    "task_details": "Task Details",
+    "activity_name": "Activity Name",
+    "instructions": "Instructions",
     "category": "Category",
     "duration": "Duration",
     "focus_area": "Focus Area",
