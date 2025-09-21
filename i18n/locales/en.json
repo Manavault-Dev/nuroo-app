@@ -116,6 +116,7 @@
     "welcome_tip_3": "• Learning techniques",
     "welcome_tip_4": "• Progress tracking ideas",
     "get_started_button": "Get Started",
+    "welcome_message_text": "Hi! I'm new to Nuroo. Can you give me some tips for getting started with my child's development?",
     "placeholder": "Ask Nuroo anything...",
     "send_button": "Send",
     "error_message": "Sorry, an error occurred: {error}. Please check your OpenAI API key and try again."
