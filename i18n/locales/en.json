@@ -53,12 +53,12 @@
     "diagnosis_label": "Diagnosis (optional)",
     "diagnosis_placeholder": "Select if applicable",
     "development_areas": "Areas of Development",
-    "area_speech": "🗣️ Speech & Language",
-    "area_social": "👥 Social Skills",
-    "area_motor": "🏃 Motor Skills",
-    "area_cognitive": "🧠 Cognitive Development",
-    "area_sensory": "👂 Sensory Processing",
-    "area_behavior": "✨ Behavior Management",
+    "area_speech": "Speech & Language",
+    "area_social": "Social Skills",
+    "area_motor": "Motor Skills",
+    "area_cognitive": "Cognitive Development",
+    "area_sensory": "Sensory Processing",
+    "area_behavior": "Behavior Management",
     "create_profile": "Create Profile",
     "diagnosis_options": {
       "adhd": "ADHD",
@@ -103,7 +103,11 @@
     "complete_all_tasks_to_unlock": "⚠️ Complete All Tasks to Unlock New Ones",
     "complete_tasks_to_unlock_help": "You have incomplete tasks from previous days. Complete them all to generate new tasks.",
     "tasks_completed": "tasks completed",
-    "of": "of"
+    "of": "of",
+    "all_tasks_completed": "🎉 All Tasks Completed!",
+    "all_tasks_completed_message": "Amazing work! You've completed all your tasks today. Your dedication to your child's development is inspiring!",
+    "generate_more_tasks": "🎁 Generate More Tasks",
+    "generate_more_tasks_help": "Keep the momentum going with additional personalized activities!"
   },
 
   "ask_nuroo": {
@@ -261,6 +265,8 @@
     "complete_tasks_to_level_up": "Complete {{count}} more tasks to level up!",
     "weekly_progress": "Weekly Progress",
     "daily_progress": "Daily Progress",
+    "swipe_to_view_days": "Swipe to view all days",
+    "week_indicator": "7 days",
     "week_average": "Week Average",
     "best_day": "Best Day",
     "achievements": "Achievements",

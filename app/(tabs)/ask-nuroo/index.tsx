@@ -194,7 +194,7 @@ export default function AskNurooScreen() {
             renderItem={({ item }) => (
               <View
                 style={[
-                  tw`mb-4 max-w-[85%]`,
+                  tw`mb-4 max-w-[90%]`,
                   item.from === 'user' ? tw`ml-auto` : tw`mr-auto`,
                 ]}
               >
@@ -209,6 +209,7 @@ export default function AskNurooScreen() {
                       tw`text-base leading-6`,
                       item.from === 'user' ? tw`text-white` : tw`text-gray-800`,
                     ]}
+                    numberOfLines={0}
                   >
                     {item.text}
                   </Text>

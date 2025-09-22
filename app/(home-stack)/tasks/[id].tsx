@@ -273,7 +273,7 @@ export default function TaskPage() {
           onPress={markTaskComplete}
           disabled={updating}
           style={({ pressed }) => [
-            tw`py-4 px-6 mb-4 rounded-2xl shadow-sm`,
+            tw`py-4 px-4 mb-4 rounded-2xl shadow-sm`,
             task.completed ? tw`bg-orange-500` : tw`bg-primary`,
             updating && tw`opacity-50`,
             pressed && tw`scale-95`,
@@ -287,7 +287,10 @@ export default function TaskPage() {
               </Text>
             </View>
           ) : (
-            <Text style={tw`text-white font-semibold text-center text-lg`}>
+            <Text
+              style={tw`text-white font-semibold text-center text-base`}
+              numberOfLines={2}
+            >
               {task.completed
                 ? t('tasks.reopen_task')
                 : t('tasks.mark_complete')}

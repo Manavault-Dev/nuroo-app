@@ -4,7 +4,7 @@ import { UserProgress } from '@/lib/home/home.types';
 import { ProgressService } from '@/lib/services/progressService';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
 interface WeeklyCalendarProps {
   selectedDate: Date;
@@ -128,7 +128,7 @@ export const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
 
   return (
     <View style={tw`bg-white rounded-2xl shadow-sm border border-gray-100`}>
-      <View style={tw`flex-row items-center justify-between mb-6 p-6 pb-0`}>
+      <View style={tw`flex items-center justify-between mb-6 p-6 pb-0`}>
         <Text style={tw`text-xl font-bold text-gray-800`}>
           {t('progress.weekly_progress')}
         </Text>
@@ -148,59 +148,78 @@ export const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
         </View>
       </View>
 
-      <View style={tw`flex-row justify-between px-6`}>
-        {weekDates.map((date, index) => (
-          <Pressable
-            key={index}
-            onPress={() => onDateSelect(date)}
-            style={[
-              tw`items-center p-3 rounded-xl min-w-[40px]`,
-              isSelected(date) && tw`bg-blue-50 border-2 border-blue-300`,
-              isToday(date) &&
-                !isSelected(date) &&
-                tw`bg-green-50 border border-green-200`,
-            ]}
-          >
-            <Text
-              style={[
-                tw`text-xs font-medium mb-1`,
-                isSelected(date) ? tw`text-blue-700` : tw`text-gray-500`,
-                isToday(date) && !isSelected(date) && tw`text-green-700`,
-              ]}
-            >
-              {formatDate(date)}
-            </Text>
-
-            <Text
-              style={[
-                tw`text-lg font-bold mb-2`,
-                isSelected(date) ? tw`text-blue-800` : tw`text-gray-800`,
-                isToday(date) && !isSelected(date) && tw`text-green-800`,
-              ]}
-            >
-              {formatDay(date)}
-            </Text>
-
-            <View style={tw`w-3 h-3 rounded-full mb-2`}>
-              <View
-                style={[
-                  tw`w-full h-full rounded-full`,
-                  tw`${getDateColor(date)}`,
-                ]}
-              />
-            </View>
-
-            <Text
-              style={[
-                tw`text-xs font-medium`,
-                isSelected(date) ? tw`text-blue-600` : tw`text-gray-400`,
-              ]}
-            >
-              {Math.round(getDateProgress(date))}%
-            </Text>
-          </Pressable>
-        ))}
+      <View style={tw`px-4 mb-2`}>
+        <Text style={tw`text-sm font-medium text-gray-600 text-center mb-3`}>
+          {t('progress.swipe_to_view_days', 'Swipe to view all days')}
+        </Text>
       </View>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={true}
+        contentContainerStyle={tw`px-4 py-4`}
+        style={tw`flex-grow-0`}
+        decelerationRate="fast"
+        snapToInterval={72}
+        snapToAlignment="start"
+      >
+        <View style={tw`flex-row`}>
+          {weekDates.map((date, index) => (
+            <Pressable
+              key={index}
+              onPress={() => onDateSelect(date)}
+              style={[
+                tw`items-center p-4 rounded-xl mx-1 min-w-[70px]`,
+                isSelected(date) &&
+                  tw`bg-blue-50 border-2 border-blue-300 shadow-sm`,
+                isToday(date) &&
+                  !isSelected(date) &&
+                  tw`bg-green-50 border border-green-200 shadow-sm`,
+              ]}
+            >
+              <Text
+                style={[
+                  tw`text-sm font-medium mb-2`,
+                  isSelected(date) ? tw`text-blue-700` : tw`text-gray-500`,
+                  isToday(date) && !isSelected(date) && tw`text-green-700`,
+                ]}
+                numberOfLines={1}
+              >
+                {formatDate(date)}
+              </Text>
+
+              <Text
+                style={[
+                  tw`text-xl font-bold mb-2`,
+                  isSelected(date) ? tw`text-blue-800` : tw`text-gray-800`,
+                  isToday(date) && !isSelected(date) && tw`text-green-800`,
+                ]}
+              >
+                {formatDay(date)}
+              </Text>
+
+              <View style={tw`w-3 h-3 rounded-full mb-2`}>
+                <View
+                  style={[
+                    tw`w-full h-full rounded-full`,
+                    tw`${getDateColor(date)}`,
+                  ]}
+                />
+              </View>
+
+              <Text
+                style={[
+                  tw`text-xs font-medium`,
+                  isSelected(date) ? tw`text-blue-600` : tw`text-gray-400`,
+                ]}
+                numberOfLines={1}
+              >
+                {Math.round(getDateProgress(date))}%
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      </ScrollView>
 
       <View style={tw`mt-6 p-4 bg-gray-50 rounded-xl mx-6 mb-6`}>
         <Text style={tw`text-sm font-medium text-gray-700 mb-2`}>
