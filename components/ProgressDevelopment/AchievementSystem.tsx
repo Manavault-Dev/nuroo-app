@@ -43,7 +43,7 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
     const allAchievements: Achievement[] = [
       {
         id: 'comm-1',
-        title: 'First Words',
+        title: t('progress.achievement_titles.first_words'),
         description: t('progress.achievement_descriptions.first_words'),
         icon: '💬',
         category: 'communication',
@@ -54,7 +54,7 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
       },
       {
         id: 'comm-2',
-        title: 'Chat Master',
+        title: t('progress.achievement_titles.chat_master'),
         description: t('progress.achievement_descriptions.chat_master'),
         icon: '🗣️',
         category: 'communication',
@@ -65,7 +65,7 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
       },
       {
         id: 'comm-3',
-        title: 'Eloquent Speaker',
+        title: t('progress.achievement_titles.eloquent_speaker'),
         description: t('progress.achievement_descriptions.eloquent_speaker'),
         icon: '🎭',
         category: 'communication',
@@ -76,7 +76,7 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
       },
       {
         id: 'motor-1',
-        title: 'First Steps',
+        title: t('progress.achievement_titles.first_steps'),
         description: t('progress.achievement_descriptions.first_steps'),
         icon: '🏃',
         category: 'motor_skills',
@@ -87,7 +87,7 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
       },
       {
         id: 'motor-2',
-        title: 'Agile Mover',
+        title: t('progress.achievement_titles.agile_mover'),
         description: t('progress.achievement_descriptions.agile_mover'),
         icon: '🤸',
         category: 'motor_skills',
@@ -98,7 +98,7 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
       },
       {
         id: 'social-1',
-        title: 'Social Butterfly',
+        title: t('progress.achievement_titles.social_butterfly'),
         description: t('progress.achievement_descriptions.social_butterfly'),
         icon: '👥',
         category: 'social',
@@ -109,7 +109,7 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
       },
       {
         id: 'social-2',
-        title: 'Team Player',
+        title: t('progress.achievement_titles.team_player'),
         description: t('progress.achievement_descriptions.team_player'),
         icon: '🤝',
         category: 'social',
@@ -120,7 +120,7 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
       },
       {
         id: 'general-1',
-        title: 'Task Champion',
+        title: t('progress.achievement_titles.task_champion'),
         description: t('progress.achievement_descriptions.task_champion'),
         icon: '🏆',
         category: 'general',
@@ -137,7 +137,7 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
       },
       {
         id: 'general-2',
-        title: 'Consistency King',
+        title: t('progress.achievement_titles.consistency_king'),
         description: t('progress.achievement_descriptions.consistency_king'),
         icon: '📅',
         category: 'general',
@@ -148,7 +148,7 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
       },
       {
         id: 'general-3',
-        title: 'All-Rounder',
+        title: t('progress.achievement_titles.all_rounder'),
         description: t('progress.achievement_descriptions.all_rounder'),
         icon: '⭐',
         category: 'general',
@@ -187,7 +187,7 @@ export const AchievementSystem: React.FC<AchievementSystemProps> = ({
     <View style={tw`bg-white rounded-2xl shadow-sm border border-gray-100`}>
       <View style={tw`flex-row items-center justify-between mb-6 p-6 pb-0`}>
         <Text style={tw`text-xl font-bold text-gray-800`}>
-          {t('progress.achievements')}
+          {t('progress.achievements') || 'Achievements'}
         </Text>
         <View style={tw`bg-primary px-3 py-1 rounded-full`}>
           <Text style={tw`text-white font-semibold text-sm`}>

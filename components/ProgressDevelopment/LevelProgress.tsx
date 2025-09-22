@@ -139,12 +139,12 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
         </View>
       </View>
 
-      <View style={tw`flex-row justify-between mb-4 px-6`}>
+      <View style={tw`flex-row justify-between mb-4 px-4`}>
         <View style={tw`items-center`}>
           <Text style={tw`text-2xl font-bold text-primary`}>
             {currentLevel}
           </Text>
-          <Text style={tw`text-xs text-gray-500 text-center`}>
+          <Text style={tw`text-xs text-gray-500 w-25 text-center`}>
             {t('progress.current_level')}
           </Text>
         </View>
@@ -152,7 +152,7 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
           <Text style={tw`text-2xl font-bold text-green-600`}>
             {totalTasksCompleted}
           </Text>
-          <Text style={tw`text-xs text-gray-500 text-center`}>
+          <Text style={tw`text-xs text-gray-500 w-25 text-center`}>
             {t('progress.tasks_done')}
           </Text>
         </View>
@@ -160,7 +160,7 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
           <Text style={tw`text-2xl font-bold text-blue-600`}>
             {Math.round(averageProgress)}%
           </Text>
-          <Text style={tw`text-xs text-gray-500 text-center`}>
+          <Text style={tw`text-xs text-gray-500 w-25 text-center`}>
             {t('progress.avg_progress')}
           </Text>
         </View>

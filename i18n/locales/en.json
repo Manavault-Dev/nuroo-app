@@ -256,6 +256,7 @@
     "tasks_completed": "tasks completed",
     "progress_to_next_level": "Progress to Level",
     "current_level": "Current Level",
+    "next_milestone": "Next Milestone",
     "tasks_done": "Tasks Done",
     "avg_progress": "Avg Progress",
     "current_streak": "Current Streak",
@@ -300,17 +301,29 @@
       "behavior": "BEHAVIOR",
       "general": "GENERAL"
     },
+    "achievement_titles": {
+      "first_words": "First Words",
+      "chat_master": "Chat Master",
+      "eloquent_speaker": "Eloquent Speaker",
+      "first_steps": "First Steps",
+      "agile_mover": "Agile Mover",
+      "social_butterfly": "Social Butterfly",
+      "team_player": "Team Player",
+      "task_champion": "Task Champion",
+      "consistency_king": "Consistency King",
+      "all_rounder": "All-Rounder"
+    },
     "achievement_descriptions": {
-      "first_words": "Complete 5 communication tasks",
-      "chat_master": "Reach 50% in communication skills",
-      "eloquent_speaker": "Master communication skills (80%+)",
-      "first_steps": "Complete 5 motor skills tasks",
-      "agile_mover": "Reach 50% in motor skills",
-      "social_butterfly": "Complete 5 social skills tasks",
-      "team_player": "Reach 50% in social skills",
-      "task_champion": "Complete 20 tasks total",
-      "consistency_king": "Complete tasks for 7 consecutive days",
-      "all_rounder": "Reach 40% in all development areas"
+      "first_words": "Complete your first communication task",
+      "chat_master": "Master the art of conversation",
+      "eloquent_speaker": "Become a confident communicator",
+      "first_steps": "Take your first motor skills steps",
+      "agile_mover": "Develop advanced motor skills",
+      "social_butterfly": "Build strong social connections",
+      "team_player": "Excel in group activities",
+      "task_champion": "Complete 20 tasks successfully",
+      "consistency_king": "Maintain a 7-day streak",
+      "all_rounder": "Achieve balanced development across all areas"
     },
     "achievement_rewards": {
       "communication_badge": "Communication Badge",

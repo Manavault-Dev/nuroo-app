@@ -78,7 +78,7 @@ export const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
   }, [selectedDate, user?.uid, generateWeekDates, loadDailyProgress]);
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', { weekday: 'short' });
+    return date.toLocaleDateString(t('date.locale'), { weekday: 'short' });
   };
 
   const formatDay = (date: Date) => {
@@ -137,9 +137,13 @@ export const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
             <Text style={tw`text-2xl text-gray-400`}>‹</Text>
           </Pressable>
           <Text style={tw`text-sm font-medium text-gray-600`}>
-            {weekDates[0]?.toLocaleDateString('en-US', { month: 'short' })}{' '}
+            {weekDates[0]?.toLocaleDateString(t('date.locale'), {
+              month: 'short',
+            })}{' '}
             {weekDates[0]?.getDate()} -{' '}
-            {weekDates[6]?.toLocaleDateString('en-US', { month: 'short' })}{' '}
+            {weekDates[6]?.toLocaleDateString(t('date.locale'), {
+              month: 'short',
+            })}{' '}
             {weekDates[6]?.getDate()}
           </Text>
           <Pressable onPress={() => navigateWeek('next')} style={tw`p-2 ml-2`}>
@@ -223,14 +227,14 @@ export const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
 
       <View style={tw`mt-6 p-4 bg-gray-50 rounded-xl mx-6 mb-6`}>
         <Text style={tw`text-sm font-medium text-gray-700 mb-2`}>
-          {selectedDate.toLocaleDateString('en-US', {
+          {selectedDate.toLocaleDateString(t('date.locale'), {
             weekday: 'long',
             year: 'numeric',
             month: 'long',
             day: 'numeric',
           })}
         </Text>
-        <View style={tw`flex-row items-center justify-between`}>
+        <View style={tw` items-center justify-between`}>
           <Text style={tw`text-sm text-gray-600`}>
             {t('progress.daily_progress')}:{' '}
             {Math.round(getDateProgress(selectedDate))}%
@@ -238,7 +242,8 @@ export const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
           <View style={tw`flex-row items-center`}>
             <View style={tw`w-2 h-2 rounded-full bg-green-500 mr-2`} />
             <Text style={tw`text-xs text-gray-500`}>
-              {Math.round(getDateProgress(selectedDate) / 25)} tasks completed
+              {Math.round(getDateProgress(selectedDate) / 25)}{' '}
+              {t('progress.tasks_completed')}
             </Text>
           </View>
         </View>

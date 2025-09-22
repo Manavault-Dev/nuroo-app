@@ -250,11 +250,12 @@
     "loading_level_data": "Загружаю данные уровня...",
     "loading_weekly_progress": "Загружаю недельный прогресс...",
     "development_areas": "Области развития",
-    "average_progress": "Среднее",
+    "average_progress": "Срдн",
     "level": "Уровень",
     "tasks_completed": "задач выполнено",
     "progress_to_next_level": "Прогресс до уровня",
     "current_level": "Текущий уровень",
+    "next_milestone": "Следующий этап",
     "tasks_done": "Выполнено задач",
     "avg_progress": "Средний прогресс",
     "current_streak": "Текущая серия",
@@ -298,6 +299,18 @@
       "sensory": "СЕНСОРНОЕ",
       "behavior": "ПОВЕДЕНИЕ",
       "general": "ОБЩЕЕ"
+    },
+    "achievement_titles": {
+      "first_words": "Первые слова",
+      "chat_master": "Мастер общения",
+      "eloquent_speaker": "Красноречивый оратор",
+      "first_steps": "Первые шаги",
+      "agile_mover": "Ловкий движущийся",
+      "social_butterfly": "Социальная бабочка",
+      "team_player": "Командный игрок",
+      "task_champion": "Чемпион задач",
+      "consistency_king": "Король постоянства",
+      "all_rounder": "Универсал"
     },
     "achievement_descriptions": {
       "first_words": "Выполните 5 задач по коммуникации",

@@ -207,7 +207,8 @@ export const DevelopmentProgress: React.FC<DevelopmentProgressProps> = ({
                     {t('progress.current_level')}: {progressLabel}
                   </Text>
                   <Text style={tw`text-xs text-gray-500`}>
-                    Next milestone: {Math.ceil(progressValue / 20) * 20}%
+                    {t('progress.next_milestone')}:{' '}
+                    {Math.ceil(progressValue / 20) * 20}%
                   </Text>
                 </View>
 
