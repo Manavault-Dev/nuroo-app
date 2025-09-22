@@ -102,7 +102,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
           onPress={handleToggleComplete}
           disabled={updating}
           style={({ pressed }) => [
-            tw`px-4 py-2 rounded-md border min-w-[120px] items-center justify-center shadow-sm flex-shrink-0`,
+            tw`px-3 py-2 rounded-md border items-center justify-center shadow-sm flex-shrink-0`,
             task.completed
               ? tw`bg-green-100 border-green-300 shadow-green-200`
               : tw`bg-blue-100 border-blue-300 shadow-blue-200`,
@@ -132,9 +132,10 @@ export const TaskItem: React.FC<TaskItemProps> = ({
           ) : (
             <Text
               style={[
-                tw`text-sm font-semibold`,
+                tw`text-xs font-semibold text-center`,
                 task.completed ? tw`text-green-700` : tw`text-blue-700`,
               ]}
+              numberOfLines={1}
             >
               {task.completed ? t('tasks.completed') : t('tasks.mark_complete')}
             </Text>

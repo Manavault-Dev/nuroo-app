@@ -53,12 +53,12 @@
     "diagnosis_label": "Diagnosis (optional)",
     "diagnosis_placeholder": "Select if applicable",
     "development_areas": "Areas of Development",
-    "area_speech": "🗣️ Speech & Language",
-    "area_social": "👥 Social Skills",
-    "area_motor": "🏃 Motor Skills",
-    "area_cognitive": "🧠 Cognitive Development",
-    "area_sensory": "👂 Sensory Processing",
-    "area_behavior": "✨ Behavior Management",
+    "area_speech": "Speech & Language",
+    "area_social": "Social Skills",
+    "area_motor": "Motor Skills",
+    "area_cognitive": "Cognitive Development",
+    "area_sensory": "Sensory Processing",
+    "area_behavior": "Behavior Management",
     "create_profile": "Create Profile",
     "diagnosis_options": {
       "adhd": "ADHD",
@@ -103,7 +103,11 @@
     "complete_all_tasks_to_unlock": "⚠️ Complete All Tasks to Unlock New Ones",
     "complete_tasks_to_unlock_help": "You have incomplete tasks from previous days. Complete them all to generate new tasks.",
     "tasks_completed": "tasks completed",
-    "of": "of"
+    "of": "of",
+    "all_tasks_completed": "🎉 All Tasks Completed!",
+    "all_tasks_completed_message": "Amazing work! You've completed all your tasks today. Your dedication to your child's development is inspiring!",
+    "generate_more_tasks": "🎁 Generate More Tasks",
+    "generate_more_tasks_help": "Keep the momentum going with additional personalized activities!"
   },
 
   "ask_nuroo": {
@@ -252,6 +256,7 @@
     "tasks_completed": "tasks completed",
     "progress_to_next_level": "Progress to Level",
     "current_level": "Current Level",
+    "next_milestone": "Next Milestone",
     "tasks_done": "Tasks Done",
     "avg_progress": "Avg Progress",
     "current_streak": "Current Streak",
@@ -261,6 +266,8 @@
     "complete_tasks_to_level_up": "Complete {{count}} more tasks to level up!",
     "weekly_progress": "Weekly Progress",
     "daily_progress": "Daily Progress",
+    "swipe_to_view_days": "Swipe to view all days",
+    "week_indicator": "7 days",
     "week_average": "Week Average",
     "best_day": "Best Day",
     "achievements": "Achievements",
@@ -294,17 +301,29 @@
       "behavior": "BEHAVIOR",
       "general": "GENERAL"
     },
+    "achievement_titles": {
+      "first_words": "First Words",
+      "chat_master": "Chat Master",
+      "eloquent_speaker": "Eloquent Speaker",
+      "first_steps": "First Steps",
+      "agile_mover": "Agile Mover",
+      "social_butterfly": "Social Butterfly",
+      "team_player": "Team Player",
+      "task_champion": "Task Champion",
+      "consistency_king": "Consistency King",
+      "all_rounder": "All-Rounder"
+    },
     "achievement_descriptions": {
-      "first_words": "Complete 5 communication tasks",
-      "chat_master": "Reach 50% in communication skills",
-      "eloquent_speaker": "Master communication skills (80%+)",
-      "first_steps": "Complete 5 motor skills tasks",
-      "agile_mover": "Reach 50% in motor skills",
-      "social_butterfly": "Complete 5 social skills tasks",
-      "team_player": "Reach 50% in social skills",
-      "task_champion": "Complete 20 tasks total",
-      "consistency_king": "Complete tasks for 7 consecutive days",
-      "all_rounder": "Reach 40% in all development areas"
+      "first_words": "Complete your first communication task",
+      "chat_master": "Master the art of conversation",
+      "eloquent_speaker": "Become a confident communicator",
+      "first_steps": "Take your first motor skills steps",
+      "agile_mover": "Develop advanced motor skills",
+      "social_butterfly": "Build strong social connections",
+      "team_player": "Excel in group activities",
+      "task_champion": "Complete 20 tasks successfully",
+      "consistency_king": "Maintain a 7-day streak",
+      "all_rounder": "Achieve balanced development across all areas"
     },
     "achievement_rewards": {
       "communication_badge": "Communication Badge",

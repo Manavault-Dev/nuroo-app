@@ -108,13 +108,11 @@ export class ProgressService {
         shouldGenerate: lastTaskDate !== today,
       });
 
-      // If lastTaskDate is different from today, check for incomplete tasks first
       if (lastTaskDate !== today) {
         console.log(
           '📅 Last task date different from today, checking for incomplete tasks...',
         );
 
-        // Check if there are any incomplete tasks from previous days
         const hasIncompleteTasks = await this.hasIncompleteTasks(userId);
 
         if (hasIncompleteTasks) {
@@ -161,16 +159,12 @@ export class ProgressService {
     }
   }
 
-  /**
-   * Check if user has any incomplete tasks from previous days
-   */
   static async hasIncompleteTasks(userId: string): Promise<boolean> {
     try {
       const { collection, query, where, getDocs } = await import(
         'firebase/firestore'
       );
 
-      // Query for all tasks that are not completed
       const incompleteTasksQuery = query(
         collection(db, 'tasks'),
         where('userId', '==', userId),
@@ -183,7 +177,6 @@ export class ProgressService {
       console.log(`🔍 Found ${incompleteCount} incomplete tasks`);
 
       if (incompleteCount > 0) {
-        // Log details about incomplete tasks
         incompleteTasksSnapshot.forEach((doc) => {
           const task = doc.data();
           console.log(
@@ -195,7 +188,7 @@ export class ProgressService {
       return incompleteCount > 0;
     } catch (error) {
       console.error('❌ Error checking for incomplete tasks:', error);
-      return false; // If there's an error, assume no incomplete tasks
+      return false;
     }
   }
 
@@ -262,8 +255,6 @@ export class ProgressService {
         'firebase/firestore'
       );
 
-      // TEMPORARY WORKAROUND: Use simple query while index builds
-      // Get all completed tasks for the user (no complex ordering)
       const completedTasksQuery = query(
         collection(db, 'tasks'),
         where('userId', '==', userId),
@@ -277,7 +268,6 @@ export class ProgressService {
         return 0;
       }
 
-      // Extract unique dates from completed tasks
       const completedDates = new Set<string>();
       completedTasksSnapshot.docs.forEach((doc) => {
         const data = doc.data();
@@ -286,7 +276,6 @@ export class ProgressService {
         }
       });
 
-      // Convert to sorted array (most recent first) - sort locally
       const sortedDates = Array.from(completedDates)
         .map((date) => new Date(date))
         .sort((a, b) => b.getTime() - a.getTime())
@@ -298,15 +287,12 @@ export class ProgressService {
         return 0;
       }
 
-      // Calculate consecutive days streak
       let streak = 0;
       const today = new Date();
       const todayStr = today.toISOString().split('T')[0];
 
-      // Check if today has completed tasks
       const hasTodayTasks = sortedDates.includes(todayStr);
       if (!hasTodayTasks) {
-        // If no tasks completed today, check if yesterday has tasks
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStr = yesterday.toISOString().split('T')[0];
@@ -316,7 +302,6 @@ export class ProgressService {
           return 0;
         }
 
-        // Start counting from yesterday
         streak = 1;
         let checkDate = new Date(yesterday);
 
@@ -331,7 +316,6 @@ export class ProgressService {
           }
         }
       } else {
-        // Start counting from today
         streak = 1;
         let checkDate = new Date(today);
 
@@ -352,16 +336,13 @@ export class ProgressService {
     } catch (error) {
       console.error('❌ Error getting consecutive days streak:', error);
 
-      // Type-safe error handling
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-
-      // If it's still the index building error, return a temporary value
       if (errorMessage.includes('currently building')) {
         console.log(
           '🔥 Index still building, returning temporary streak value',
         );
-        return 1; // Return a reasonable default while index builds
+        return 1;
       }
 
       return 0;

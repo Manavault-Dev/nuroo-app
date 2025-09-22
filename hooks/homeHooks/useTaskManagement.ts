@@ -1,6 +1,7 @@
 import { auth, db } from '@/lib/firebase/firebase';
 import { Task, UserProgress } from '@/lib/home/home.types';
 import { ProgressService } from '@/lib/services/progressService';
+import { TaskCompletionService } from '@/lib/services/taskCompletionService';
 import {
   collection,
   doc,
@@ -331,9 +332,24 @@ export const useTaskManagement = (
               currentTask.developmentArea,
               currentUser.uid,
             );
+
+            // Check if all tasks are now completed
             const allTasksComplete = updatedTasks.every(
               (task) => task.completed,
             );
+
+            if (allTasksComplete) {
+              console.log('🎉 All tasks completed! Triggering celebration...');
+              // Handle all tasks completion with celebration and bonus tasks
+              await TaskCompletionService.handleAllTasksCompleted(
+                currentUser.uid,
+                updatedTasks,
+                (newTasks) => {
+                  // Add new tasks to the current list
+                  setTasksFunction([...updatedTasks, ...newTasks]);
+                },
+              );
+            }
           } catch (error) {
             console.error('❌ Error updating progress:', error);
           }
