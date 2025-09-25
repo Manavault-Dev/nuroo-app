@@ -1,7 +1,6 @@
 import { auth, db } from '@/lib/firebase/firebase';
 import { Task, UserProgress } from '@/lib/home/home.types';
 import { ProgressService } from '@/lib/services/progressService';
-import { TaskCompletionService } from '@/lib/services/taskCompletionService';
 import {
   collection,
   doc,
@@ -91,7 +90,6 @@ export const useTaskManagement = (
       try {
         const today = new Date().toISOString().split('T')[0];
 
-        // Don't use cache if we have local tasks that might be updated
         if (lastFetchDate === today && tasks.length > 0) {
           console.log(
             '📅 Using existing tasks for today (local state preserved)',
@@ -269,10 +267,8 @@ export const useTaskManagement = (
           return;
         }
 
-        // First try to find in local state
         let currentTask = currentTasks.find((t) => t.id === taskId);
 
-        // If not found locally, try to fetch from Firebase
         if (!currentTask) {
           console.log('🔍 Task not found locally, fetching from Firebase...');
           try {
@@ -337,19 +333,6 @@ export const useTaskManagement = (
             const allTasksComplete = updatedTasks.every(
               (task) => task.completed,
             );
-
-            if (allTasksComplete) {
-              console.log('🎉 All tasks completed! Triggering celebration...');
-              // Handle all tasks completion with celebration and bonus tasks
-              await TaskCompletionService.handleAllTasksCompleted(
-                currentUser.uid,
-                updatedTasks,
-                (newTasks) => {
-                  // Add new tasks to the current list
-                  setTasksFunction([...updatedTasks, ...newTasks]);
-                },
-              );
-            }
           } catch (error) {
             console.error('❌ Error updating progress:', error);
           }
@@ -370,7 +353,7 @@ export const useTaskManagement = (
         }
 
         Alert.alert('Error', 'Failed to update task. Please try again.');
-        throw error; // Re-throw to let the UI handle it
+        throw error;
       }
     },
     [setTasksFunction, updateProgressForTask],
