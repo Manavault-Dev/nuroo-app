@@ -1,4 +1,5 @@
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
+import { TaskTimer } from '@/components/TaskTimer/TaskTimer';
 import { useAuth } from '@/context/AuthContext';
 import { useAutoTaskGeneration } from '@/hooks/homeHooks/useAutoTaskGeneration';
 import { useChildData } from '@/hooks/homeHooks/useChildData';
@@ -7,6 +8,7 @@ import tw from '@/lib/design/tw';
 import { homeStyles } from '@/lib/home/home.styles';
 import { Task } from '@/lib/home/home.types';
 import { formatProgressPercentage } from '@/lib/home/home.utils';
+import { ProgressService } from '@/lib/services/progressService';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
@@ -19,6 +21,7 @@ export default function HomeScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [hasIncompleteTasks, setHasIncompleteTasks] = useState(false);
 
   const { childData, fetchChildData } = useChildData();
   const { fetchTasks, toggleTaskCompletion, setLoadingState } =
@@ -81,6 +84,21 @@ export default function HomeScreen() {
   }, [childData, user?.uid, checkAndGenerateTasks]);
 
   useEffect(() => {
+    const checkIncompleteTasks = async () => {
+      if (user?.uid) {
+        try {
+          const incomplete = await ProgressService.hasIncompleteTasks(user.uid);
+          setHasIncompleteTasks(incomplete);
+        } catch (error) {
+          console.error('Error checking incomplete tasks:', error);
+        }
+      }
+    };
+
+    checkIncompleteTasks();
+  }, [user?.uid, tasks]);
+
+  useEffect(() => {
     console.log('📊 Home screen state changed:', {
       loading,
       tasksCount: tasks.length,
@@ -141,20 +159,6 @@ export default function HomeScreen() {
         }
       >
         <View style={tw`p-4`}>
-          {firebaseError && (
-            <View
-              style={tw`mb-4 p-3 bg-red-50 border border-red-200 rounded-lg`}
-            >
-              <Text style={tw`text-red-700 text-sm font-medium mb-1`}>
-                ⚠️ Database Configuration Issue
-              </Text>
-              <Text style={tw`text-red-600 text-xs`}>{firebaseError}</Text>
-              <Text style={tw`text-red-500 text-xs mt-1`}>
-                Please contact support if this persists.
-              </Text>
-            </View>
-          )}
-
           <View style={tw`mb-6`}>
             <Text style={homeStyles.headerTitle}>{t('home.title')}</Text>
             <Text style={homeStyles.headerSubtitle}>{today}</Text>
@@ -175,6 +179,7 @@ export default function HomeScreen() {
                     {formatProgressPercentage(completedTasks, totalTasks)}
                   </Text>
                 </View>
+
                 <View style={tw`w-full bg-gray-200 rounded-lg h-2`}>
                   <View
                     style={[
@@ -197,25 +202,39 @@ export default function HomeScreen() {
               </Text>
             </View>
           )}
+          <TaskTimer userId={user?.uid} />
 
-          {tasks.map((task) => (
-            <TaskItem
-              key={task.id}
-              task={task}
-              onToggleComplete={async (taskId) => {
-                try {
-                  await toggleTaskCompletion(taskId);
-                } catch (error) {
-                  console.error(
-                    ' Home screen: Error toggling task completion:',
-                    error,
-                  );
-                }
-              }}
-            />
-          ))}
+          {hasIncompleteTasks && totalTasks > 0 && (
+            <View
+              style={tw`mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg`}
+            >
+              <Text style={tw`text-yellow-700 text-sm font-medium mb-1`}>
+                {t('home.complete_all_tasks_to_unlock')}
+              </Text>
+              <Text style={tw`text-yellow-600 text-xs`}>
+                {t('home.complete_tasks_to_unlock_help')}
+              </Text>
+            </View>
+          )}
+          <View style={tw`py-4`}>
+            {tasks.map((task) => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                onToggleComplete={async (taskId) => {
+                  try {
+                    await toggleTaskCompletion(taskId);
+                  } catch (error) {
+                    console.error(
+                      ' Home screen: Error toggling task completion:',
+                      error,
+                    );
+                  }
+                }}
+              />
+            ))}
+          </View>
 
-          {/* Simple Completion Celebration */}
           {totalTasks > 0 && completedTasks === totalTasks && (
             <View style={tw`mt-6 mb-4`}>
               <View
@@ -238,6 +257,8 @@ export default function HomeScreen() {
                   </Text>
                 </View>
               </View>
+
+              <View style={tw`mt-3`}></View>
             </View>
           )}
         </View>
