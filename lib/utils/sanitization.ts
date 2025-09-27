@@ -13,7 +13,10 @@ export class InputSanitizer {
   /**
    * Sanitize text input by removing potentially dangerous content
    */
-  static sanitizeText(input: string, options: SanitizationOptions = {}): string {
+  static sanitizeText(
+    input: string,
+    options: SanitizationOptions = {},
+  ): string {
     const {
       maxLength = 1000,
       allowHtml = false,
@@ -30,6 +33,12 @@ export class InputSanitizer {
 
     // Remove HTML tags if not allowed
     if (!allowHtml) {
+      // Remove script tags and their content
+      sanitized = sanitized.replace(
+        /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+        '',
+      );
+      // Remove other HTML tags
       sanitized = sanitized.replace(/<[^>]*>/g, '');
     }
 
@@ -53,6 +62,7 @@ export class InputSanitizer {
     return email
       .toLowerCase()
       .trim()
+      .replace(/<[^>]*>/g, '') // Remove HTML tags first
       .replace(/[^a-z0-9@._-]/g, '')
       .substring(0, 254); // RFC 5321 limit
   }
@@ -72,11 +82,11 @@ export class InputSanitizer {
    */
   static sanitizeAge(age: string | number): number {
     const numAge = typeof age === 'string' ? parseInt(age, 10) : age;
-    
+
     if (isNaN(numAge) || numAge < 0 || numAge > 18) {
       throw new Error('Invalid age: must be between 0 and 18');
     }
-    
+
     return numAge;
   }
 
@@ -117,7 +127,7 @@ export class InputSanitizer {
       /url\(/i,
     ];
 
-    return maliciousPatterns.some(pattern => pattern.test(input));
+    return maliciousPatterns.some((pattern) => pattern.test(input));
   }
 
   /**
@@ -153,7 +163,11 @@ export class InputValidator {
    * Validate name format
    */
   static isValidName(name: string): boolean {
-    return name.length >= 1 && name.length <= 50 && /^[a-zA-Z\s\u00C0-\u017F\u0100-\u017F\u0180-\u024F]+$/.test(name);
+    return (
+      name.length >= 1 &&
+      name.length <= 50 &&
+      /^[a-zA-Z\s\u00C0-\u017F\u0100-\u017F\u0180-\u024F]+$/.test(name)
+    );
   }
 
   /**
