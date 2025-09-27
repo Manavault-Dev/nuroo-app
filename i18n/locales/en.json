@@ -154,7 +154,10 @@
     "save": "Save",
     "not_set": "—",
     "settings": "Settings",
-    "manage_account_preferences": "Manage your account and preferences"
+    "manage_account_preferences": "Manage your account and preferences",
+    "invalid_name": "Please enter a valid name (letters and spaces only)",
+    "invalid_age": "Please enter a valid age (0-18)",
+    "invalid_diagnosis": "Please enter a valid diagnosis (max 500 characters)"
   },
 
   "tasks": {

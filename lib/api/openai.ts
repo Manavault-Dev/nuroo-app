@@ -1,5 +1,7 @@
 import axios from 'axios';
 import Constants from 'expo-constants';
+import { InputSanitizer, InputValidator } from '@/lib/utils/sanitization';
+import { RateLimitService } from '@/lib/services/rateLimitService';
 
 const API_URL = 'https://api.openai.com/v1/chat/completions';
 
@@ -78,7 +80,45 @@ export const askNuroo = async (
     developmentAreas?: string[];
   },
   language: string = 'en',
+  userId?: string,
 ) => {
+  // Check rate limit if userId provided
+  if (userId) {
+    const rateLimitResult = await RateLimitService.checkRateLimit(userId, 'openai_ask');
+    if (!rateLimitResult.allowed) {
+      throw new Error(
+        `Rate limit exceeded. Please try again in ${RateLimitService.formatTimeUntilReset(rateLimitResult.resetTime)}`
+      );
+    }
+  }
+
+  // Sanitize inputs
+  const sanitizedMessage = InputSanitizer.sanitizePrompt(message);
+  const sanitizedLanguage = InputSanitizer.sanitizeText(language, { maxLength: 10 });
+  
+  // Validate inputs
+  if (!sanitizedMessage || sanitizedMessage.length === 0) {
+    throw new Error('Message cannot be empty');
+  }
+
+  // Check for malicious content
+  if (InputSanitizer.containsMaliciousContent(message)) {
+    throw new Error('Message contains potentially harmful content');
+  }
+
+  // Sanitize child data if provided
+  let sanitizedChildData = childData;
+  if (childData) {
+    sanitizedChildData = {
+      name: childData.name ? InputSanitizer.sanitizeName(childData.name) : undefined,
+      age: childData.age ? InputSanitizer.sanitizeText(childData.age, { maxLength: 10 }) : undefined,
+      diagnosis: childData.diagnosis ? InputSanitizer.sanitizeMedicalInfo(childData.diagnosis) : undefined,
+      developmentAreas: childData.developmentAreas?.map(area => 
+        InputSanitizer.sanitizeText(area, { maxLength: 100 })
+      ),
+    };
+  }
+
   const apiKey = Constants.expoConfig?.extra?.OPENAI_API_KEY;
   const projectId = Constants.expoConfig?.extra?.OPENAI_PROJECT_ID;
 
@@ -90,10 +130,10 @@ export const askNuroo = async (
 
   console.log('🔐 API KEY:', apiKey ? '✅ Found' : '❌ Missing');
   console.log('📦 PROJECT ID:', projectId || 'Not required');
-  console.log('👶 Child Data:', childData);
-  console.log('🌍 Language:', language);
+  console.log('👶 Child Data:', sanitizedChildData);
+  console.log('🌍 Language:', sanitizedLanguage);
 
-  const systemPrompt = createSystemPrompt(childData, language);
+  const systemPrompt = createSystemPrompt(sanitizedChildData, sanitizedLanguage);
   const model = 'gpt-4.1-mini';
 
   try {
@@ -104,7 +144,7 @@ export const askNuroo = async (
         model,
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: message },
+          { role: 'user', content: sanitizedMessage },
         ],
         max_tokens: 500,
         temperature: 0.7,
@@ -143,20 +183,50 @@ export const generateDevelopmentTask = async (
     diagnosis?: string;
   },
   language: string = 'en',
+  userId?: string,
 ) => {
+  // Check rate limit if userId provided
+  if (userId) {
+    const rateLimitResult = await RateLimitService.checkRateLimit(userId, 'openai_tasks');
+    if (!rateLimitResult.allowed) {
+      throw new Error(
+        `Daily task generation limit reached. Please try again tomorrow.`
+      );
+    }
+  }
+
+  // Sanitize inputs
+  const sanitizedArea = InputSanitizer.sanitizeText(area, { maxLength: 100 });
+  const sanitizedLanguage = InputSanitizer.sanitizeText(language, { maxLength: 10 });
+  
+  // Validate area
+  if (!sanitizedArea || sanitizedArea.length === 0) {
+    throw new Error('Development area cannot be empty');
+  }
+
+  // Sanitize child data if provided
+  let sanitizedChildData = childData;
+  if (childData) {
+    sanitizedChildData = {
+      name: childData.name ? InputSanitizer.sanitizeName(childData.name) : undefined,
+      age: childData.age ? InputSanitizer.sanitizeText(childData.age, { maxLength: 10 }) : undefined,
+      diagnosis: childData.diagnosis ? InputSanitizer.sanitizeMedicalInfo(childData.diagnosis) : undefined,
+    };
+  }
+
   const languagePrompts = {
-    en: `Create a fun, engaging ${area} development activity for a child. 
+    en: `Create a fun, engaging ${sanitizedArea} development activity for a child. 
 Make it specific, age-appropriate, and easy for parents to implement at home.
 Include: activity name, simple instructions, materials needed, and expected duration.
 Respond in English.`,
-    ru: `Создайте веселое, увлекательное занятие по развитию ${area} для ребёнка.
+    ru: `Создайте веселое, увлекательное занятие по развитию ${sanitizedArea} для ребёнка.
 Сделайте его конкретным, соответствующим возрасту и простым для родителей в реализации дома.
 Включите: название занятия, простые инструкции, необходимые материалы и ожидаемую продолжительность.
 Отвечайте на русском языке.`,
   };
 
   const prompt =
-    languagePrompts[language as keyof typeof languagePrompts] ||
+    languagePrompts[sanitizedLanguage as keyof typeof languagePrompts] ||
     languagePrompts.en;
-  return await askNuroo(prompt, childData, language);
+  return await askNuroo(prompt, sanitizedChildData, sanitizedLanguage);
 };
