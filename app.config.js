@@ -19,6 +19,8 @@ export default {
 
     owner: 'tilecho',
 
+    plugins: ['expo-router'],
+
     extra: {
       // OPEN AI
       OPENAI_API_KEY: process.env.OPENAI_API_KEY,
