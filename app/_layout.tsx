@@ -1,6 +1,7 @@
 import { AuthProvider } from '@/context/AuthContext';
 import '@/i18n/i18n';
 import { NotificationService } from '@/lib/services/notificationService';
+import ErrorBoundary from '@/components/ErrorBoundary/ErrorBoundary';
 import * as Notifications from 'expo-notifications';
 import { Slot } from 'expo-router';
 import { useEffect } from 'react';
@@ -42,9 +43,11 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <Slot />
-      </AuthProvider>
+      <ErrorBoundary>
+        <AuthProvider>
+          <Slot />
+        </AuthProvider>
+      </ErrorBoundary>
     </SafeAreaProvider>
   );
 }

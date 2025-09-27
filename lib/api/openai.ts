@@ -2,6 +2,7 @@ import axios from 'axios';
 import Constants from 'expo-constants';
 import { InputSanitizer, InputValidator } from '@/lib/utils/sanitization';
 import { RateLimitService } from '@/lib/services/rateLimitService';
+import { ErrorHandlingService } from '@/lib/services/errorHandlingService';
 
 const API_URL = 'https://api.openai.com/v1/chat/completions';
 
@@ -167,11 +168,23 @@ export const askNuroo = async (
       `❌ Model ${model} failed:`,
       err.response?.data?.error?.message || err.message,
     );
-    throw new Error(
-      err.response?.data?.error?.message ||
-        err.message ||
-        'OpenAI API failed. Please check your API access and billing.',
+    
+    // Handle error with comprehensive error handling
+    const errorHandling = await ErrorHandlingService.handleOpenAIError(
+      err,
+      {
+        component: 'askNuroo',
+        action: 'openai_api_call',
+        userId,
+        additionalData: {
+          model,
+          messageLength: sanitizedMessage.length,
+          hasChildData: !!sanitizedChildData,
+        },
+      }
     );
+
+    throw new Error(errorHandling.message);
   }
 };
 

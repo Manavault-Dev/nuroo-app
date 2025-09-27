@@ -220,6 +220,26 @@
     "logout_confirm": "Are you sure you want to logout?"
   },
 
+  "error": {
+    "something_went_wrong": "Oops! Something went wrong",
+    "boundary_message": "We encountered an unexpected error. Don't worry, your data is safe.",
+    "try_again": "Try Again",
+    "report_issue": "Report Issue",
+    "support_text": "If this problem persists, please contact our support team.",
+    "network_error": "Network connection issue. Please check your internet connection.",
+    "auth_error": "Authentication failed. Please sign in again.",
+    "rate_limit": "Too many requests. Please wait a moment and try again.",
+    "server_error": "Server error. Please try again later.",
+    "generic_error": "Something went wrong. Please try again.",
+    "firebase_error": "Database error. Please try again.",
+    "openai_error": "AI service temporarily unavailable. Please try again.",
+    "permission_denied": "Permission denied. Please contact support.",
+    "service_unavailable": "Service temporarily unavailable. Please try again.",
+    "retry": "Retry",
+    "retry_later": "Retry Later",
+    "contact_support": "Contact Support"
+  },
+
   "date": {
     "locale": "en-US",
     "weekdays": {
