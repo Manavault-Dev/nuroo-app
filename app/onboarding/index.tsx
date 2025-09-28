@@ -62,7 +62,6 @@ export default function OnboardingScreen() {
         if (userDoc.exists()) {
           const userData = userDoc.data();
 
-          // Pre-populate form with existing data if available
           if (userData.name) setChildName(userData.name);
           if (userData.age) setChildAge(userData.age);
           if (userData.diagnosis) setDiagnosis(userData.diagnosis);
@@ -136,17 +135,12 @@ export default function OnboardingScreen() {
         onboardingCompletedAt: new Date(),
       };
 
-      console.log('Saving to Firebase:', userData);
-
       await setDoc(doc(db, 'users', currentUser.uid), userData, {
         merge: true,
       });
 
-      // Initialize user progress
-      console.log('Initializing user progress...');
       await ProgressService.initializeProgress(currentUser.uid);
 
-      console.log('Successfully saved to Firebase, navigating to home');
       router.replace('/(tabs)/home');
     } catch (error) {
       console.error('Error saving onboarding data:', error);

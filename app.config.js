@@ -6,20 +6,79 @@ export default {
     slug: 'nuroo',
     scheme: 'nuroo',
     version: '1.0.0',
-
+    orientation: 'portrait',
+    icon: './assets/images/icon.png',
+    userInterfaceStyle: 'light',
+    splash: {
+      image: './assets/images/splash-icon.png',
+      resizeMode: 'contain',
+      backgroundColor: '#ffffff',
+    },
+    assetBundlePatterns: ['**/*'],
     ios: {
       bundleIdentifier: 'com.nuroo.app',
       buildNumber: '1',
       supportsTablet: true,
+      infoPlist: {
+        NSUserTrackingUsageDescription:
+          'This app uses data to provide personalized development plans for your child.',
+        NSCameraUsageDescription: 'Camera access is not required for this app.',
+        NSMicrophoneUsageDescription:
+          'Microphone access is not required for this app.',
+        NSLocationWhenInUseUsageDescription:
+          'Location access is not required for this app.',
+        NSContactsUsageDescription:
+          'Contacts access is not required for this app.',
+        NSPhotoLibraryUsageDescription:
+          'Photo library access is not required for this app.',
+      },
     },
     android: {
       package: 'com.nuroo.app',
       versionCode: 1,
+      adaptiveIcon: {
+        foregroundImage: './assets/images/adaptive-icon.png',
+        backgroundColor: '#ffffff',
+      },
+      permissions: [
+        'android.permission.INTERNET',
+        'android.permission.ACCESS_NETWORK_STATE',
+        'android.permission.WAKE_LOCK',
+        'android.permission.VIBRATE',
+        'android.permission.RECEIVE_BOOT_COMPLETED',
+        'android.permission.POST_NOTIFICATIONS',
+      ],
     },
-
+    web: {
+      favicon: './assets/images/favicon.png',
+      bundler: 'metro',
+    },
     owner: 'tilecho',
-
-    plugins: ['expo-router'],
+    privacy: 'public',
+    category: 'education',
+    keywords: [
+      'children',
+      'development',
+      'special needs',
+      'autism',
+      'ADHD',
+      'parenting',
+      'education',
+      'therapy',
+    ],
+    description:
+      'Nuroo helps parents support children with special needs through personalized AI-driven development plans, progress tracking, and expert guidance.',
+    plugins: [
+      'expo-router',
+      [
+        'expo-notifications',
+        {
+          icon: './assets/images/notification-icon.png',
+          color: '#ffffff',
+          sounds: ['./assets/sounds/notification.wav'],
+        },
+      ],
+    ],
 
     extra: {
       // OPEN AI

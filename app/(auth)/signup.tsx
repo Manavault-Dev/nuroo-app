@@ -47,7 +47,6 @@ export default function SignUpScreen() {
         createdAt: new Date(),
       });
 
-      // Redirect to onboarding after successful signup
       router.replace('/onboarding');
     } catch (error: any) {
       console.error('Sign up error', error);

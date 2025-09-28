@@ -17,12 +17,8 @@ export class TaskGenerationService {
     language: string = 'en',
   ): Promise<Task[]> {
     try {
-      console.log('🚀 Starting personalized task generation...');
-      console.log('🌍 Language:', language);
-
       const progress = await ProgressService.getProgress(userId);
       if (!progress) {
-        console.log('📊 No progress found, initializing...');
         await ProgressService.initializeProgress(userId);
         const newProgress = await ProgressService.getProgress(userId);
         if (!newProgress) {
@@ -31,11 +27,8 @@ export class TaskGenerationService {
         return this.generatePersonalizedTasks(userId, childData, language);
       }
 
-      console.log('📊 Current progress:', progress);
-
       const difficulties =
         ProgressService.getPersonalizedDifficulties(progress);
-      console.log('🎯 Personalized difficulties:', difficulties);
 
       const tasks: Task[] = [];
       const developmentAreas = childData.developmentAreas || [];
@@ -116,11 +109,8 @@ export class TaskGenerationService {
       const shouldGenerate = await ProgressService.shouldGenerateTasks(userId);
 
       if (!shouldGenerate) {
-        console.log('📅 Tasks already generated for today');
         return false;
       }
-
-      console.log('🆕 Generating new daily tasks...');
 
       const tasks = await this.generatePersonalizedTasks(
         userId,
@@ -132,7 +122,6 @@ export class TaskGenerationService {
 
       await ProgressService.updateLastTaskDate(userId);
 
-      console.log('✅ Daily tasks generated and stored successfully');
       return true;
     } catch (error) {
       console.error('❌ Error checking/generating daily tasks:', error);
@@ -188,10 +177,7 @@ export class TaskGenerationService {
         };
 
         await setDoc(taskRef, taskData);
-        console.log(`💾 Task stored: ${task.title}`);
       }
-
-      console.log('💾 Daily tasks stored successfully');
     } catch (error) {
       console.error('❌ Error storing daily tasks:', error);
       throw error;

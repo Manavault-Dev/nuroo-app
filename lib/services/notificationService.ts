@@ -40,14 +40,11 @@ export class NotificationService {
     try {
       const hasPermission = await this.requestPermissions();
       if (!hasPermission) {
-        console.log('❌ Notification permissions not granted');
         return;
       }
 
-      // Cancel existing notifications
       await Notifications.cancelAllScheduledNotificationsAsync();
 
-      // Schedule daily notification at 9 AM
       await Notifications.scheduleNotificationAsync({
         content: {
           title: '🌅 Good Morning!',
@@ -61,8 +58,6 @@ export class NotificationService {
           repeats: true,
         },
       });
-
-      console.log('✅ Daily notification scheduled');
     } catch (error) {
       console.error('❌ Error scheduling daily notification:', error);
     }
@@ -86,8 +81,6 @@ export class NotificationService {
         },
         trigger: null, // Send immediately
       });
-
-      console.log('✅ Task generation notification sent');
     } catch (error) {
       console.error('❌ Error sending task generation notification:', error);
     }
@@ -100,17 +93,13 @@ export class NotificationService {
     try {
       TaskManager.defineTask(this.BACKGROUND_TASK_NAME, async () => {
         try {
-          console.log('🔄 Background task: Checking for task generation...');
-
           const currentUser = auth.currentUser;
           if (!currentUser) {
-            console.log('❌ No user logged in, skipping background task');
             return BackgroundFetch.BackgroundFetchResult.NoData;
           }
 
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
           if (!userDoc.exists()) {
-            console.log('❌ User document not found, skipping background task');
             return BackgroundFetch.BackgroundFetchResult.NoData;
           }
 
@@ -121,9 +110,6 @@ export class NotificationService {
           );
 
           if (shouldGenerate) {
-            console.log('🆕 Background task: Generating daily tasks...');
-
-            // Generate tasks
             const tasks = await TaskGenerationService.generatePersonalizedTasks(
               currentUser.uid,
               userData,
@@ -139,12 +125,10 @@ export class NotificationService {
 
               await this.sendTaskGenerationNotification(tasks.length);
 
-              console.log('✅ Background task: Tasks generated successfully');
               return BackgroundFetch.BackgroundFetchResult.NewData;
             }
           }
 
-          console.log('📅 Background task: No tasks needed');
           return BackgroundFetch.BackgroundFetchResult.NoData;
         } catch (error) {
           console.error('❌ Background task error:', error);
@@ -157,8 +141,6 @@ export class NotificationService {
         stopOnTerminate: false,
         startOnBoot: true,
       });
-
-      console.log('✅ Background task initialized');
     } catch (error) {
       console.error('❌ Error initializing background task:', error);
     }
@@ -176,8 +158,6 @@ export class NotificationService {
 
       switch (type) {
         case 'daily_tasks':
-          console.log('📱 User tapped daily tasks notification');
-          // Navigate to home screen (handled by app navigation)
           break;
 
         case 'tasks_generated':

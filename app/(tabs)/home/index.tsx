@@ -1,6 +1,6 @@
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import { TaskTimer } from '@/components/TaskTimer/TaskTimer';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/features/auth/AuthContext';
 import { useAutoTaskGeneration } from '@/hooks/homeHooks/useAutoTaskGeneration';
 import { useChildData } from '@/hooks/homeHooks/useChildData';
 import { useTaskManagement } from '@/hooks/homeHooks/useTaskManagement';
@@ -34,9 +34,7 @@ export default function HomeScreen() {
 
   const [firebaseError, setFirebaseError] = useState<string | null>(null);
 
-  useEffect(() => {
-    console.log('🔄 useTaskManagement hook recreated');
-  }, [fetchTasks, toggleTaskCompletion, setLoadingState]);
+  useEffect(() => {}, [fetchTasks, toggleTaskCompletion, setLoadingState]);
 
   const today = new Date().toLocaleDateString(t('date.locale'), {
     weekday: 'long',
@@ -132,8 +130,6 @@ export default function HomeScreen() {
     }
     setRefreshing(false);
   };
-
-  console.log('🔄 Render check - loading:', loading, 'tasks:', tasks.length);
 
   if (loading) {
     console.log(

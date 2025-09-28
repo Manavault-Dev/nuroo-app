@@ -13,8 +13,6 @@ export class TaskCompletionService {
     language: string = 'en',
   ): Promise<void> {
     try {
-      console.log('🎉 All tasks completed! Handling celebration...');
-
       const userDoc = await getDoc(doc(db, 'users', userId));
       if (!userDoc.exists()) {
         console.error('❌ User data not found');
@@ -103,8 +101,6 @@ export class TaskCompletionService {
     language: string,
   ): Promise<Task[]> {
     try {
-      console.log('🎁 Generating bonus tasks...');
-
       const bonusTasks = await TaskGenerationService.generatePersonalizedTasks(
         userId,
         childData,
@@ -124,8 +120,6 @@ export class TaskCompletionService {
           bonusTasksWithId,
           childData,
         );
-
-        console.log(`✅ Generated ${bonusTasks.length} bonus tasks`);
       }
 
       return bonusTasks;

@@ -17,7 +17,6 @@ export const useAutoTaskGeneration = (
 
   const checkAndGenerateTasks = useCallback(async () => {
     if (hasCheckedToday) {
-      console.log('📅 Already checked today, skipping auto-generation');
       return;
     }
 
@@ -27,15 +26,11 @@ export const useAutoTaskGeneration = (
       const currentUser = auth.currentUser;
       if (!currentUser) return;
 
-      console.log('🔍 Checking if tasks need to be generated...');
-      console.log('🌍 Current language:', i18n.language);
-
       const shouldGenerate = await ProgressService.shouldGenerateTasks(
         currentUser.uid,
       );
 
       if (shouldGenerate) {
-        console.log('🆕 Auto-generating daily tasks...');
         setAutoGenerating(true);
 
         const newTasks = await TaskGenerationService.generatePersonalizedTasks(
@@ -62,7 +57,6 @@ export const useAutoTaskGeneration = (
           );
         }
       } else {
-        console.log('📅 Tasks already exist for today');
       }
 
       setHasCheckedToday(true);

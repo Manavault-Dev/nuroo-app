@@ -12,9 +12,7 @@ export const useChildData = () => {
       if (userDoc.exists()) {
         const data = userDoc.data();
         setChildData(data as ChildData);
-        console.log('✅ Child data loaded:', data);
       } else {
-        console.log('📄 No child data found for user');
       }
     } catch (error) {
       console.error('❌ Error fetching child data:', error);

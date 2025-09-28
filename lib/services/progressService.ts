@@ -56,8 +56,6 @@ export class ProgressService {
       await updateDoc(doc(db, 'users', userId), {
         [`progress.${area}`]: clampedValue,
       });
-
-      console.log(`✅ Progress updated for ${area}: ${clampedValue}`);
     } catch (error) {
       console.error(`❌ Error updating progress for ${area}:`, error);
       throw error;
@@ -94,7 +92,6 @@ export class ProgressService {
 
       const userDoc = await getDoc(doc(db, 'users', userId));
       if (!userDoc.exists()) {
-        console.log('📅 User document not found, should generate tasks');
         return true;
       }
 
@@ -122,7 +119,6 @@ export class ProgressService {
           return false;
         }
 
-        console.log('✅ No incomplete tasks found, should generate new tasks');
         return true;
       }
 
@@ -147,11 +143,9 @@ export class ProgressService {
       );
 
       if (!hasTasks) {
-        console.log('📅 No tasks found despite matching date, should generate');
         return true;
       }
 
-      console.log('📅 Tasks already exist for today, no need to generate');
       return false;
     } catch (error) {
       console.error('❌ Error checking task generation need:', error);
@@ -173,8 +167,6 @@ export class ProgressService {
 
       const incompleteTasksSnapshot = await getDocs(incompleteTasksQuery);
       const incompleteCount = incompleteTasksSnapshot.size;
-
-      console.log(`🔍 Found ${incompleteCount} incomplete tasks`);
 
       if (incompleteCount > 0) {
         incompleteTasksSnapshot.forEach((doc) => {
@@ -198,7 +190,6 @@ export class ProgressService {
       await updateDoc(doc(db, 'users', userId), {
         lastTaskDate: today,
       });
-      console.log('✅ Last task date updated:', today);
     } catch (error) {
       console.error('❌ Error updating last task date:', error);
       throw error;
@@ -249,8 +240,6 @@ export class ProgressService {
 
   static async getConsecutiveDaysStreak(userId: string): Promise<number> {
     try {
-      console.log('�� Calculating consecutive days streak for user:', userId);
-
       const { collection, query, where, getDocs } = await import(
         'firebase/firestore'
       );
@@ -264,7 +253,6 @@ export class ProgressService {
       const completedTasksSnapshot = await getDocs(completedTasksQuery);
 
       if (completedTasksSnapshot.empty) {
-        console.log('🔥 No completed tasks found, streak is 0');
         return 0;
       }
 
@@ -281,8 +269,6 @@ export class ProgressService {
         .sort((a, b) => b.getTime() - a.getTime())
         .map((date) => date.toISOString().split('T')[0]);
 
-      console.log('🔥 Completed dates found:', sortedDates);
-
       if (sortedDates.length === 0) {
         return 0;
       }
@@ -298,7 +284,6 @@ export class ProgressService {
         const yesterdayStr = yesterday.toISOString().split('T')[0];
 
         if (!sortedDates.includes(yesterdayStr)) {
-          console.log('🔥 No tasks completed today or yesterday, streak is 0');
           return 0;
         }
 
@@ -331,7 +316,6 @@ export class ProgressService {
         }
       }
 
-      console.log('🔥 Calculated consecutive days streak:', streak);
       return streak;
     } catch (error) {
       console.error('❌ Error getting consecutive days streak:', error);

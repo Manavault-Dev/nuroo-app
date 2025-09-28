@@ -1,4 +1,4 @@
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/features/auth/AuthContext';
 import { UserProgress } from '@/lib/home/home.types';
 import { ProgressService } from '@/lib/services/progressService';
 import { useCallback, useEffect, useState } from 'react';
@@ -52,8 +52,6 @@ export const useProgressTracking = ({
         const updatedProgress = { ...progress, [area]: newValue };
         setProgress(updatedProgress);
         onProgressUpdate?.(updatedProgress);
-
-        console.log(`✅ Progress updated for ${area}: ${newValue}`);
       } catch (error) {
         console.error(`❌ Error updating progress for ${area}:`, error);
         Alert.alert('Error', 'Failed to update progress. Please try again.');
