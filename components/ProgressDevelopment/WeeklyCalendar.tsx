@@ -1,4 +1,4 @@
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/features/auth/AuthContext';
 import tw from '@/lib/design/tw';
 import { UserProgress } from '@/lib/home/home.types';
 import { ProgressService } from '@/lib/services/progressService';

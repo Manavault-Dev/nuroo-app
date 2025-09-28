@@ -1,4 +1,3 @@
-// useModalPicker.ts
 import { useState } from 'react';
 
 type Option = { label: string; value: string };

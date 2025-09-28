@@ -26,15 +26,12 @@ export const useTaskGeneration = (childData: ChildData | null) => {
         }
 
         setGenerating(true);
-        console.log('🚀 Starting manual task generation...');
-        console.log('🌍 Current language:', i18n.language);
 
         const shouldGenerate = await ProgressService.shouldGenerateTasks(
           currentUser.uid,
         );
 
         if (!shouldGenerate) {
-          // Check if it's because of incomplete tasks
           const hasIncompleteTasks = await ProgressService.hasIncompleteTasks(
             currentUser.uid,
           );

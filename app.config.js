@@ -20,12 +20,17 @@ export default {
       buildNumber: '1',
       supportsTablet: true,
       infoPlist: {
-        NSUserTrackingUsageDescription: 'This app uses data to provide personalized development plans for your child.',
+        NSUserTrackingUsageDescription:
+          'This app uses data to provide personalized development plans for your child.',
         NSCameraUsageDescription: 'Camera access is not required for this app.',
-        NSMicrophoneUsageDescription: 'Microphone access is not required for this app.',
-        NSLocationWhenInUseUsageDescription: 'Location access is not required for this app.',
-        NSContactsUsageDescription: 'Contacts access is not required for this app.',
-        NSPhotoLibraryUsageDescription: 'Photo library access is not required for this app.',
+        NSMicrophoneUsageDescription:
+          'Microphone access is not required for this app.',
+        NSLocationWhenInUseUsageDescription:
+          'Location access is not required for this app.',
+        NSContactsUsageDescription:
+          'Contacts access is not required for this app.',
+        NSPhotoLibraryUsageDescription:
+          'Photo library access is not required for this app.',
       },
     },
     android: {
@@ -51,8 +56,18 @@ export default {
     owner: 'tilecho',
     privacy: 'public',
     category: 'education',
-    keywords: ['children', 'development', 'special needs', 'autism', 'ADHD', 'parenting', 'education', 'therapy'],
-    description: 'Nuroo helps parents support children with special needs through personalized AI-driven development plans, progress tracking, and expert guidance.',
+    keywords: [
+      'children',
+      'development',
+      'special needs',
+      'autism',
+      'ADHD',
+      'parenting',
+      'education',
+      'therapy',
+    ],
+    description:
+      'Nuroo helps parents support children with special needs through personalized AI-driven development plans, progress tracking, and expert guidance.',
     plugins: [
       'expo-router',
       [

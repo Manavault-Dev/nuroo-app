@@ -26,28 +26,23 @@ export class InputSanitizer {
 
     let sanitized = input;
 
-    // Trim whitespace if requested
     if (trimWhitespace) {
       sanitized = sanitized.trim();
     }
 
-    // Remove HTML tags if not allowed
     if (!allowHtml) {
-      // Remove script tags and their content
       sanitized = sanitized.replace(
         /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
         '',
       );
-      // Remove other HTML tags
+
       sanitized = sanitized.replace(/<[^>]*>/g, '');
     }
 
-    // Remove potentially dangerous characters
     if (!allowSpecialChars) {
       sanitized = sanitized.replace(/[<>\"'%;()&+]/g, '');
     }
 
-    // Limit length
     if (sanitized.length > maxLength) {
       sanitized = sanitized.substring(0, maxLength);
     }

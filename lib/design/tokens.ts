@@ -1,5 +1,3 @@
-// lib/design/tokens.ts
-
 export const colors = {
   primary: '#1D2B64',
   teal: '#4FD1C7',

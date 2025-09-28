@@ -69,11 +69,7 @@ export default function ProgressScreen() {
         </View>
 
         <View style={tw`px-4 py-2`}>
-          <DevelopmentProgress
-            onProgressUpdate={(progress) => {
-              console.log('Development progress updated:', progress);
-            }}
-          />
+          <DevelopmentProgress onProgressUpdate={(progress) => {}} />
         </View>
 
         <View style={tw`px-4 py-4`}>

@@ -42,7 +42,6 @@ const ChildProfileForm: React.FC<ChildProfileFormProps> = ({
   };
 
   const handleSave = () => {
-    // Validate inputs before saving
     if (!InputValidator.isValidName(childName)) {
       alert(t('profile.invalid_name'));
       return;

@@ -1,6 +1,6 @@
 import ChildProfileForm from '@/components/ChildProfileForm/ChildProfileForm';
 import Option from '@/components/ui/Option';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/features/auth/AuthContext';
 import { useLinks } from '@/hooks/useLinks';
 import tw from '@/lib/design/tw';
 import { auth, db } from '@/lib/firebase/firebase';
@@ -55,8 +55,6 @@ const ProfileScreen = () => {
         if (userDoc.exists()) {
           const userData = userDoc.data() as ProfileData;
 
-          console.log('Profile data fetched:', userData);
-
           const fullName = userData.fullName || '';
           const initials = fullName
             .split(' ')
@@ -101,7 +99,6 @@ const ProfileScreen = () => {
         onPress: async () => {
           try {
             await logout();
-            console.log('Logout completed, navigating to welcome...');
 
             setTimeout(() => {
               router.replace('/welcome');

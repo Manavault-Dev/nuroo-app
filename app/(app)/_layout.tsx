@@ -1,4 +1,4 @@
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/features/auth/AuthContext';
 import { Redirect, Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 

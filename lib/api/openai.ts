@@ -83,39 +83,45 @@ export const askNuroo = async (
   language: string = 'en',
   userId?: string,
 ) => {
-  // Check rate limit if userId provided
   if (userId) {
-    const rateLimitResult = await RateLimitService.checkRateLimit(userId, 'openai_ask');
+    const rateLimitResult = await RateLimitService.checkRateLimit(
+      userId,
+      'openai_ask',
+    );
     if (!rateLimitResult.allowed) {
       throw new Error(
-        `Rate limit exceeded. Please try again in ${RateLimitService.formatTimeUntilReset(rateLimitResult.resetTime)}`
+        `Rate limit exceeded. Please try again in ${RateLimitService.formatTimeUntilReset(rateLimitResult.resetTime)}`,
       );
     }
   }
 
-  // Sanitize inputs
   const sanitizedMessage = InputSanitizer.sanitizePrompt(message);
-  const sanitizedLanguage = InputSanitizer.sanitizeText(language, { maxLength: 10 });
-  
-  // Validate inputs
+  const sanitizedLanguage = InputSanitizer.sanitizeText(language, {
+    maxLength: 10,
+  });
+
   if (!sanitizedMessage || sanitizedMessage.length === 0) {
     throw new Error('Message cannot be empty');
   }
 
-  // Check for malicious content
   if (InputSanitizer.containsMaliciousContent(message)) {
     throw new Error('Message contains potentially harmful content');
   }
 
-  // Sanitize child data if provided
   let sanitizedChildData = childData;
   if (childData) {
     sanitizedChildData = {
-      name: childData.name ? InputSanitizer.sanitizeName(childData.name) : undefined,
-      age: childData.age ? InputSanitizer.sanitizeText(childData.age, { maxLength: 10 }) : undefined,
-      diagnosis: childData.diagnosis ? InputSanitizer.sanitizeMedicalInfo(childData.diagnosis) : undefined,
-      developmentAreas: childData.developmentAreas?.map(area => 
-        InputSanitizer.sanitizeText(area, { maxLength: 100 })
+      name: childData.name
+        ? InputSanitizer.sanitizeName(childData.name)
+        : undefined,
+      age: childData.age
+        ? InputSanitizer.sanitizeText(childData.age, { maxLength: 10 })
+        : undefined,
+      diagnosis: childData.diagnosis
+        ? InputSanitizer.sanitizeMedicalInfo(childData.diagnosis)
+        : undefined,
+      developmentAreas: childData.developmentAreas?.map((area) =>
+        InputSanitizer.sanitizeText(area, { maxLength: 100 }),
       ),
     };
   }
@@ -129,16 +135,13 @@ export const askNuroo = async (
     );
   }
 
-  console.log('🔐 API KEY:', apiKey ? '✅ Found' : '❌ Missing');
-  console.log('📦 PROJECT ID:', projectId || 'Not required');
-  console.log('👶 Child Data:', sanitizedChildData);
-  console.log('🌍 Language:', sanitizedLanguage);
-
-  const systemPrompt = createSystemPrompt(sanitizedChildData, sanitizedLanguage);
+  const systemPrompt = createSystemPrompt(
+    sanitizedChildData,
+    sanitizedLanguage,
+  );
   const model = 'gpt-4.1-mini';
 
   try {
-    console.log(`🔄 Using model: ${model}`);
     const response = await axios.post(
       API_URL,
       {
@@ -161,28 +164,24 @@ export const askNuroo = async (
     );
 
     const reply = response.data.choices[0]?.message?.content?.trim();
-    console.log(`✅ Success with model: ${model}`);
+
     return reply || "Sorry, I couldn't generate a response.";
   } catch (err: any) {
     console.error(
       `❌ Model ${model} failed:`,
       err.response?.data?.error?.message || err.message,
     );
-    
-    // Handle error with comprehensive error handling
-    const errorHandling = await ErrorHandlingService.handleOpenAIError(
-      err,
-      {
-        component: 'askNuroo',
-        action: 'openai_api_call',
-        userId,
-        additionalData: {
-          model,
-          messageLength: sanitizedMessage.length,
-          hasChildData: !!sanitizedChildData,
-        },
-      }
-    );
+
+    const errorHandling = await ErrorHandlingService.handleOpenAIError(err, {
+      component: 'askNuroo',
+      action: 'openai_api_call',
+      userId,
+      additionalData: {
+        model,
+        messageLength: sanitizedMessage.length,
+        hasChildData: !!sanitizedChildData,
+      },
+    });
 
     throw new Error(errorHandling.message);
   }
@@ -198,32 +197,39 @@ export const generateDevelopmentTask = async (
   language: string = 'en',
   userId?: string,
 ) => {
-  // Check rate limit if userId provided
   if (userId) {
-    const rateLimitResult = await RateLimitService.checkRateLimit(userId, 'openai_tasks');
+    const rateLimitResult = await RateLimitService.checkRateLimit(
+      userId,
+      'openai_tasks',
+    );
     if (!rateLimitResult.allowed) {
       throw new Error(
-        `Daily task generation limit reached. Please try again tomorrow.`
+        `Daily task generation limit reached. Please try again tomorrow.`,
       );
     }
   }
 
-  // Sanitize inputs
   const sanitizedArea = InputSanitizer.sanitizeText(area, { maxLength: 100 });
-  const sanitizedLanguage = InputSanitizer.sanitizeText(language, { maxLength: 10 });
-  
-  // Validate area
+  const sanitizedLanguage = InputSanitizer.sanitizeText(language, {
+    maxLength: 10,
+  });
+
   if (!sanitizedArea || sanitizedArea.length === 0) {
     throw new Error('Development area cannot be empty');
   }
 
-  // Sanitize child data if provided
   let sanitizedChildData = childData;
   if (childData) {
     sanitizedChildData = {
-      name: childData.name ? InputSanitizer.sanitizeName(childData.name) : undefined,
-      age: childData.age ? InputSanitizer.sanitizeText(childData.age, { maxLength: 10 }) : undefined,
-      diagnosis: childData.diagnosis ? InputSanitizer.sanitizeMedicalInfo(childData.diagnosis) : undefined,
+      name: childData.name
+        ? InputSanitizer.sanitizeName(childData.name)
+        : undefined,
+      age: childData.age
+        ? InputSanitizer.sanitizeText(childData.age, { maxLength: 10 })
+        : undefined,
+      diagnosis: childData.diagnosis
+        ? InputSanitizer.sanitizeMedicalInfo(childData.diagnosis)
+        : undefined,
     };
   }
 

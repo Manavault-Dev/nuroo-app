@@ -1,5 +1,4 @@
-import { InputSanitizer, InputValidator } from "@/lib/utils/sanitization";
-
+import { InputSanitizer, InputValidator } from '@/lib/utils/sanitization';
 
 describe('InputSanitizer', () => {
   describe('sanitizeText', () => {
@@ -9,7 +8,9 @@ describe('InputSanitizer', () => {
     });
 
     it('should remove HTML tags when allowHtml is false', () => {
-      const result = InputSanitizer.sanitizeText('<script>alert("xss")</script>hello');
+      const result = InputSanitizer.sanitizeText(
+        '<script>alert("xss")</script>hello',
+      );
       expect(result).toBe('hello');
     });
 
@@ -20,7 +21,9 @@ describe('InputSanitizer', () => {
     });
 
     it('should remove special characters when allowSpecialChars is false', () => {
-      const result = InputSanitizer.sanitizeText('hello<>world', { allowSpecialChars: false });
+      const result = InputSanitizer.sanitizeText('hello<>world', {
+        allowSpecialChars: false,
+      });
       expect(result).toBe('helloworld');
     });
   });
@@ -75,12 +78,16 @@ describe('InputSanitizer', () => {
 
   describe('containsMaliciousContent', () => {
     it('should detect script tags', () => {
-      const result = InputSanitizer.containsMaliciousContent('<script>alert("xss")</script>');
+      const result = InputSanitizer.containsMaliciousContent(
+        '<script>alert("xss")</script>',
+      );
       expect(result).toBe(true);
     });
 
     it('should detect javascript: protocol', () => {
-      const result = InputSanitizer.containsMaliciousContent('javascript:alert("xss")');
+      const result = InputSanitizer.containsMaliciousContent(
+        'javascript:alert("xss")',
+      );
       expect(result).toBe(true);
     });
 

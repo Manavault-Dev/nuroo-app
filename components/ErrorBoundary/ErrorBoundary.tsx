@@ -32,23 +32,20 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
+
     this.setState({
       error,
       errorInfo,
     });
 
-    // Call custom error handler if provided
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
 
-    // Log error for monitoring
     this.logError(error, errorInfo);
   }
 
   private logError = (error: Error, errorInfo: ErrorInfo) => {
-    // In production, this would send to error monitoring service
     console.error('Error logged:', {
       message: error.message,
       stack: error.stack,
@@ -64,24 +61,26 @@ class ErrorBoundary extends Component<Props, State> {
   private handleReportError = () => {
     const { error, errorInfo } = this.state;
     if (error && errorInfo) {
-      // In production, this would open a feedback form or email
       Alert.alert(
         'Report Error',
         'Thank you for helping us improve the app. This error has been logged.',
-        [{ text: 'OK' }]
+        [{ text: 'OK' }],
       );
     }
   };
 
   render() {
     if (this.state.hasError) {
-      // Use custom fallback if provided
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
-      // Default error UI
-      return <ErrorFallback onRetry={this.handleRetry} onReport={this.handleReportError} />;
+      return (
+        <ErrorFallback
+          onRetry={this.handleRetry}
+          onReport={this.handleReportError}
+        />
+      );
     }
 
     return this.props.children;

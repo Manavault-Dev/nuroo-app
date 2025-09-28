@@ -3,7 +3,6 @@ import { fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
 import { Text } from 'react-native';
 
-// Mock component that throws an error
 const ThrowError = ({ shouldThrow }: { shouldThrow: boolean }) => {
   if (shouldThrow) {
     throw new Error('Test error');
@@ -13,7 +12,6 @@ const ThrowError = ({ shouldThrow }: { shouldThrow: boolean }) => {
 
 describe('ErrorBoundary Component', () => {
   beforeEach(() => {
-    // Suppress console.error for these tests
     jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
@@ -49,15 +47,11 @@ describe('ErrorBoundary Component', () => {
       </ErrorBoundary>,
     );
 
-    // Initially, error UI is shown
     expect(getByText('error.something_went_wrong')).toBeTruthy();
 
     const retryButton = getByText('error.try_again');
     fireEvent.press(retryButton);
 
-    // After retry, the error boundary should reset its state
-    // Note: The component will still throw an error because shouldThrow is still true
-    // This test verifies that the retry button is clickable and calls the handler
     expect(retryButton).toBeTruthy();
   });
 });

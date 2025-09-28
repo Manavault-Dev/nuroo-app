@@ -22,7 +22,6 @@ export const useTaskManagement = (
   const [lastFetchDate, setLastFetchDate] = useState<string | null>(null);
   const [cache, setCache] = useState<Map<string, Task[]>>(new Map());
 
-  // Use ref to preserve tasks state across re-renders
   const tasksRef = useRef<Task[]>([]);
   tasksRef.current = tasks;
 
@@ -30,7 +29,6 @@ export const useTaskManagement = (
 
   const setLoadingState = useCallback(
     (isLoading: boolean) => {
-      console.log('🔄 Setting loading state to:', isLoading);
       setLoading(isLoading);
       if (externalSetLoading) {
         externalSetLoading(isLoading);
@@ -100,7 +98,6 @@ export const useTaskManagement = (
 
         const cacheKey = `${userId}-${today}`;
         if (cache.has(cacheKey) && tasks.length === 0) {
-          console.log('📅 Using cached tasks from memory');
           const cachedTasks = cache.get(cacheKey)!;
           setTasksFunction(cachedTasks);
           setLastFetchDate(today);
@@ -108,7 +105,6 @@ export const useTaskManagement = (
           return;
         }
 
-        console.log('🔍 Fetching tasks for user:', userId);
         setLoadingState(true);
 
         const timeoutPromise = new Promise((_, reject) => {
@@ -146,9 +142,6 @@ export const useTaskManagement = (
               };
             }) as Task[];
 
-            console.log(`✅ Found ${existingTasks.length} tasks for today`);
-
-            // Merge with existing local tasks to preserve completion status
             const mergedTasks = existingTasks.map((existingTask) => {
               const localTask = tasksRef.current.find(
                 (t) => t.id === existingTask.id,
@@ -168,7 +161,6 @@ export const useTaskManagement = (
           const allTasksQuery = query(
             collection(db, 'tasks'),
             where('userId', '==', userId),
-            // Removed orderBy to avoid index requirement - we'll sort locally
           );
 
           const allTasksSnapshot = await getDocs(allTasksQuery);
@@ -208,14 +200,12 @@ export const useTaskManagement = (
       } catch (error: any) {
         console.error('❌ Error fetching tasks:', error);
 
-        // Handle specific Firebase index errors
         if (error.message && error.message.includes('requires an index')) {
           console.error(
             '🔧 Firebase index required. Please create the index in Firebase Console.',
           );
           console.error('📋 Index details:', error.message);
 
-          // Still try to show some tasks if possible
           try {
             const today = new Date().toISOString().split('T')[0];
             const simpleQuery = query(
@@ -234,7 +224,6 @@ export const useTaskManagement = (
 
               setTasksFunction(fallbackTasks);
               setLastFetchDate(today);
-              console.log('✅ Using fallback task fetching (no sorting)');
             }
           } catch (fallbackError) {
             console.error('❌ Fallback fetching also failed:', fallbackError);
@@ -250,7 +239,6 @@ export const useTaskManagement = (
   const toggleTaskCompletion = useCallback(
     async (taskId: string) => {
       try {
-        console.log('🔄 Toggling task completion for:', taskId);
         const currentTasks = tasksRef.current;
         console.log(
           '📋 Available tasks:',
@@ -270,7 +258,6 @@ export const useTaskManagement = (
         let currentTask = currentTasks.find((t) => t.id === taskId);
 
         if (!currentTask) {
-          console.log('🔍 Task not found locally, fetching from Firebase...');
           try {
             const taskDoc = await getDoc(doc(db, 'tasks', taskId));
             if (taskDoc.exists()) {
@@ -280,7 +267,6 @@ export const useTaskManagement = (
                 id: taskDoc.id,
                 createdAt: taskData.createdAt?.toDate() || new Date(),
               } as Task;
-              console.log('✅ Task fetched from Firebase:', currentTask);
             }
           } catch (fetchError) {
             console.error('❌ Error fetching task from Firebase:', fetchError);
@@ -293,30 +279,22 @@ export const useTaskManagement = (
           return;
         }
 
-        console.log('📝 Current task state:', currentTask.completed);
         const newCompletedState = !currentTask.completed;
-        console.log('🔄 New completion state:', newCompletedState);
 
-        // Update local state immediately for better UX
         const updatedTasks = currentTasks.map((task) =>
           task.id === taskId ? { ...task, completed: newCompletedState } : task,
         );
         setTasksFunction(updatedTasks);
-        console.log('✅ Local state updated');
 
-        // Invalidate cache to prevent it from overriding local changes
         setCache(new Map());
         setLastFetchDate(null);
-        console.log('🗑️ Cache invalidated to preserve local changes');
 
-        // Update Firebase
         const taskRef = doc(db, 'tasks', taskId);
         await setDoc(
           taskRef,
           { completed: newCompletedState },
           { merge: true },
         );
-        console.log('✅ Firebase updated successfully');
 
         if (newCompletedState) {
           try {
@@ -329,7 +307,6 @@ export const useTaskManagement = (
               currentUser.uid,
             );
 
-            // Check if all tasks are now completed
             const allTasksComplete = updatedTasks.every(
               (task) => task.completed,
             );
@@ -349,7 +326,6 @@ export const useTaskManagement = (
               : task,
           );
           setTasksFunction(revertedTasks);
-          console.log('🔄 Local state reverted due to error');
         }
 
         Alert.alert('Error', 'Failed to update task. Please try again.');
@@ -364,7 +340,6 @@ export const useTaskManagement = (
   }, [setTasksFunction]);
 
   const invalidateCache = useCallback(() => {
-    console.log('🗑️ Invalidating task cache');
     setCache(new Map());
     setLastFetchDate(null);
   }, []);

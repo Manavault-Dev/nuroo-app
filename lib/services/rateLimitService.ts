@@ -20,8 +20,7 @@ export interface RateLimitResult {
 
 export class RateLimitService {
   private static readonly STORAGE_KEY_PREFIX = 'rate_limit_';
-  
-  // Default rate limits
+
   private static readonly DEFAULT_LIMITS: Record<string, RateLimitConfig> = {
     openai_ask: {
       maxRequests: 10,
@@ -51,17 +50,16 @@ export class RateLimitService {
   static async checkRateLimit(
     userId: string,
     limitType: keyof typeof RateLimitService.DEFAULT_LIMITS,
-    customConfig?: RateLimitConfig
+    customConfig?: RateLimitConfig,
   ): Promise<RateLimitResult> {
     const config = customConfig || this.DEFAULT_LIMITS[limitType];
     const key = `${this.STORAGE_KEY_PREFIX}${config.keyPrefix}_${userId}`;
-    
+
     try {
       const stored = await AsyncStorage.getItem(key);
       const now = Date.now();
-      
+
       if (!stored) {
-        // First request
         await this.recordRequest(key, now, config);
         return {
           allowed: true,
@@ -72,10 +70,8 @@ export class RateLimitService {
 
       const data = JSON.parse(stored);
       const { requests, windowStart } = data;
-      
-      // Check if window has expired
+
       if (now - windowStart >= config.windowMs) {
-        // Reset window
         await this.recordRequest(key, now, config);
         return {
           allowed: true,
@@ -84,11 +80,10 @@ export class RateLimitService {
         };
       }
 
-      // Check if limit exceeded
       if (requests >= config.maxRequests) {
         const resetTime = windowStart + config.windowMs;
         const retryAfter = Math.ceil((resetTime - now) / 1000);
-        
+
         return {
           allowed: false,
           remaining: 0,
@@ -97,9 +92,8 @@ export class RateLimitService {
         };
       }
 
-      // Increment request count
       await this.recordRequest(key, windowStart, config, requests + 1);
-      
+
       return {
         allowed: true,
         remaining: config.maxRequests - (requests + 1),
@@ -107,7 +101,7 @@ export class RateLimitService {
       };
     } catch (error) {
       console.error('Rate limit check failed:', error);
-      // Fail open - allow request if rate limiting fails
+
       return {
         allowed: true,
         remaining: config.maxRequests - 1,
@@ -123,13 +117,13 @@ export class RateLimitService {
     key: string,
     windowStart: number,
     config: RateLimitConfig,
-    requestCount: number = 1
+    requestCount: number = 1,
   ): Promise<void> {
     const data = {
       requests: requestCount,
       windowStart,
     };
-    
+
     await AsyncStorage.setItem(key, JSON.stringify(data));
   }
 
@@ -138,15 +132,15 @@ export class RateLimitService {
    */
   static async getRateLimitStatus(
     userId: string,
-    limitType: keyof typeof RateLimitService.DEFAULT_LIMITS
+    limitType: keyof typeof RateLimitService.DEFAULT_LIMITS,
   ): Promise<RateLimitResult> {
     const config = this.DEFAULT_LIMITS[limitType];
     const key = `${this.STORAGE_KEY_PREFIX}${config.keyPrefix}_${userId}`;
-    
+
     try {
       const stored = await AsyncStorage.getItem(key);
       const now = Date.now();
-      
+
       if (!stored) {
         return {
           allowed: true,
@@ -157,8 +151,7 @@ export class RateLimitService {
 
       const data = JSON.parse(stored);
       const { requests, windowStart } = data;
-      
-      // Check if window has expired
+
       if (now - windowStart >= config.windowMs) {
         return {
           allowed: true,
@@ -169,12 +162,13 @@ export class RateLimitService {
 
       const remaining = Math.max(0, config.maxRequests - requests);
       const resetTime = windowStart + config.windowMs;
-      
+
       return {
         allowed: remaining > 0,
         remaining,
         resetTime,
-        retryAfter: remaining === 0 ? Math.ceil((resetTime - now) / 1000) : undefined,
+        retryAfter:
+          remaining === 0 ? Math.ceil((resetTime - now) / 1000) : undefined,
       };
     } catch (error) {
       console.error('Rate limit status check failed:', error);
@@ -191,11 +185,11 @@ export class RateLimitService {
    */
   static async resetRateLimit(
     userId: string,
-    limitType: keyof typeof RateLimitService.DEFAULT_LIMITS
+    limitType: keyof typeof RateLimitService.DEFAULT_LIMITS,
   ): Promise<void> {
     const config = this.DEFAULT_LIMITS[limitType];
     const key = `${this.STORAGE_KEY_PREFIX}${config.keyPrefix}_${userId}`;
-    
+
     try {
       await AsyncStorage.removeItem(key);
     } catch (error) {
@@ -209,7 +203,7 @@ export class RateLimitService {
   static async clearAllRateLimits(userId: string): Promise<void> {
     try {
       const keys = await AsyncStorage.getAllKeys();
-      const userKeys = keys.filter(key => key.includes(userId));
+      const userKeys = keys.filter((key) => key.includes(userId));
       await AsyncStorage.multiRemove(userKeys);
     } catch (error) {
       console.error('Clear all rate limits failed:', error);
@@ -222,15 +216,15 @@ export class RateLimitService {
   static formatTimeUntilReset(resetTime: number): string {
     const now = Date.now();
     const diff = resetTime - now;
-    
+
     if (diff <= 0) {
       return 'Available now';
     }
-    
+
     const minutes = Math.floor(diff / (1000 * 60));
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
-    
+
     if (days > 0) {
       return `${days}d ${hours % 24}h`;
     } else if (hours > 0) {

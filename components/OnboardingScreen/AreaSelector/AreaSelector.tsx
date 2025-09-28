@@ -17,20 +17,16 @@ export default function AreaSelector({
 }: AreaSelectorProps) {
   const { t } = useTranslation();
 
-  console.log('AreaSelector render - selectedAreas:', selectedAreas);
-
   return (
     <View style={tw`mx-6 mb-4`}>
       <View style={tw`flex-row flex-wrap gap-2`}>
         {developmentAreas.map(({ label, value }) => {
           const isSelected = selectedAreas.includes(value);
-          console.log(`Area ${value}: isSelected = ${isSelected}`);
 
           return (
             <Pressable
               key={value}
               onPress={() => {
-                console.log(`Pressed area: ${value}`);
                 toggleArea(value);
               }}
               style={tw`mb-2`}
