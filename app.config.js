@@ -70,6 +70,7 @@ export default {
       'Nuroo helps parents support children with special needs through personalized AI-driven development plans, progress tracking, and expert guidance.',
     plugins: [
       'expo-router',
+      'expo-web-browser',
       [
         'expo-notifications',
         {
