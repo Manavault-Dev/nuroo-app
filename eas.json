@@ -17,7 +17,8 @@
     "preview": {
       "distribution": "internal",
       "ios": {
-        "simulator": true
+        "simulator": false,
+        "buildConfiguration": "Release"
       },
       "android": {
         "buildType": "apk"
@@ -29,7 +30,7 @@
         "autoIncrement": true
       },
       "android": {
-        "buildType": "aab"
+        "buildType": "app-bundle"
       }
     }
   },

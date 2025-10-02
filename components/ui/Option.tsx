@@ -1,5 +1,5 @@
 import tw from '@/lib/design/tw';
-import { Ionicons } from '@expo/vector-icons';
+// import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Pressable, Text, ViewStyle } from 'react-native';
 
@@ -24,7 +24,7 @@ const Option: React.FC<OptionProps> = ({
     ]}
   >
     <Text style={[tw`text-primary`, textStyle]}>{label}</Text>
-    <Ionicons name="chevron-forward" size={20} color="#A0AEC0" />
+    <Text style={tw`text-gray-400 font-bold text-lg`}>›</Text>
   </Pressable>
 );
 

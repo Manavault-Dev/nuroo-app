@@ -8,12 +8,12 @@ import {
   translateDevelopmentAreas,
   translateDiagnosis,
 } from '@/lib/utils/translationHelpers';
-import { Ionicons } from '@expo/vector-icons';
+// import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Globe } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 
@@ -200,11 +200,9 @@ const ProfileScreen = () => {
           <Pressable
             onPress={() => (isEditing ? handleSave() : setIsEditing(true))}
           >
-            <Ionicons
-              name={isEditing ? 'checkmark-outline' : 'create-outline'}
-              size={20}
-              color="#1D3557"
-            />
+            <Text style={tw`text-primary font-bold text-base`}>
+              {isEditing ? '✓' : '✏️'}
+            </Text>
           </Pressable>
         </View>
 

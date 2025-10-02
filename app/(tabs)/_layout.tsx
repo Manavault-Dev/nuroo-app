@@ -1,7 +1,7 @@
-import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/lib/design/tokens';
+import { Tabs } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { Text } from 'react-native';
 
 export default function TabsLayout() {
   const { t } = useTranslation();
@@ -25,7 +25,7 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.home'),
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" color={color} size={size} />
+            <Text style={{ color, fontSize: size }}>🏠</Text>
           ),
         }}
       />
@@ -34,7 +34,7 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.ask_nuroo'),
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="chatbubble-ellipses" color={color} size={size} />
+            <Text style={{ color, fontSize: size }}>💬</Text>
           ),
         }}
       />
@@ -43,7 +43,7 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.progress'),
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="trending-up" color={color} size={size} />
+            <Text style={{ color, fontSize: size }}>📈</Text>
           ),
         }}
       />
@@ -52,7 +52,7 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.profile'),
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" color={color} size={size} />
+            <Text style={{ color, fontSize: size }}>👤</Text>
           ),
         }}
       />
