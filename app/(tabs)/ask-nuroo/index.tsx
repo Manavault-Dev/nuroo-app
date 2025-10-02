@@ -1,7 +1,7 @@
 import { askNuroo } from '@/lib/api/openai';
 import tw from '@/lib/design/tw';
 import { auth, db } from '@/lib/firebase/firebase';
-// import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -259,7 +259,11 @@ export default function AskNurooScreen() {
                 {loading ? (
                   <ActivityIndicator size="small" color="white" />
                 ) : (
-                  <Text style={tw`text-white font-bold text-lg`}>→</Text>
+                  <Ionicons
+                    name="send"
+                    size={18}
+                    color={input.trim() ? 'white' : '#9CA3AF'}
+                  />
                 )}
               </Pressable>
             </View>

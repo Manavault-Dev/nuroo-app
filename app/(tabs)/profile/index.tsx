@@ -8,7 +8,7 @@ import {
   translateDevelopmentAreas,
   translateDiagnosis,
 } from '@/lib/utils/translationHelpers';
-// import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -200,9 +200,11 @@ const ProfileScreen = () => {
           <Pressable
             onPress={() => (isEditing ? handleSave() : setIsEditing(true))}
           >
-            <Text style={tw`text-primary font-bold text-base`}>
-              {isEditing ? '✓' : '✏️'}
-            </Text>
+            <Ionicons
+              name={isEditing ? 'checkmark-outline' : 'create-outline'}
+              size={20}
+              color="#1D3557"
+            />
           </Pressable>
         </View>
 
