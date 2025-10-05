@@ -1,6 +1,9 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TaskGenerationService } from './taskGenerationService';
+import { db } from '@/lib/firebase/firebase';
 import { ChildData } from '@/lib/home/home.types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NotificationService } from './notificationService';
+import { ProgressService } from './progressService';
+import { TaskGenerationService } from './taskGenerationService';
 
 export interface DailyMessageLimit {
   userId: string;
@@ -171,17 +174,37 @@ export class DailyLimitsService {
         return false;
       }
 
-      const generated = await TaskGenerationService.checkAndGenerateDailyTasks(
+      console.log('🌅 Time for morning task generation! Generating tasks...');
+
+      // Generate tasks directly without checking ProgressService.shouldGenerateTasks
+      // since we've already determined it's time for morning generation
+      const tasks = await TaskGenerationService.generatePersonalizedTasks(
         userId,
         childData,
         language,
       );
 
-      if (generated) {
-        console.log('🌅 Morning tasks generated successfully at 9 AM');
+      if (tasks.length > 0) {
+        // Store tasks directly
+        await TaskGenerationService['storeDailyTasks'](
+          userId,
+          tasks,
+          childData,
+        );
+
+        // Update last task date
+        await ProgressService.updateLastTaskDate(userId);
+
+        // Send notification
+        await NotificationService.sendTaskGenerationNotification(tasks.length);
+
+        console.log(
+          `🌅 Morning tasks generated successfully: ${tasks.length} tasks`,
+        );
+        return true;
       }
 
-      return generated;
+      return false;
     } catch (error) {
       console.error('Error generating morning tasks:', error);
       return false;
@@ -347,6 +370,47 @@ export class DailyLimitsService {
     }
 
     return morningTime.getTime();
+  }
+
+  /**
+   * Check if user needs new tasks (completed all tasks or it's a new day)
+   */
+  static async shouldGenerateNewTasks(userId: string): Promise<boolean> {
+    try {
+      // Check if it's time for morning generation
+      const morningTime = await this.shouldGenerateMorningTasks(userId);
+      if (morningTime) {
+        return true;
+      }
+
+      // Check if user has completed all tasks and needs more
+      const today = new Date().toISOString().split('T')[0];
+      const { collection, query, where, getDocs } = await import(
+        'firebase/firestore'
+      );
+
+      const todayTasksQuery = query(
+        collection(db, 'tasks'),
+        where('userId', '==', userId),
+        where('dailyId', '==', today),
+      );
+
+      const todayTasksSnapshot = await getDocs(todayTasksQuery);
+      const tasks = todayTasksSnapshot.docs.map((doc) => doc.data());
+
+      if (tasks.length > 0) {
+        const allCompleted = tasks.every((task) => task.completed);
+        if (allCompleted) {
+          console.log('🔄 All tasks completed, generating new ones...');
+          return true;
+        }
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error checking if should generate new tasks:', error);
+      return false;
+    }
   }
 
   /**
