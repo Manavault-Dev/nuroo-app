@@ -1,12 +1,14 @@
 import { askNuroo } from '@/lib/api/openai';
 import tw from '@/lib/design/tw';
 import { auth, db } from '@/lib/firebase/firebase';
+import { DailyLimitsService } from '@/lib/services/dailyLimitsService';
 import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc } from 'firebase/firestore';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -36,6 +38,12 @@ export default function AskNurooScreen() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [childData, setChildData] = useState<ChildData | null>(null);
+  const [messageLimit, setMessageLimit] = useState({
+    remaining: 3,
+    resetTime: 0,
+  });
+  const [isAvailable, setIsAvailable] = useState(true);
+  const [availabilityReason, setAvailabilityReason] = useState<string>('');
   const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
@@ -52,11 +60,48 @@ export default function AskNurooScreen() {
   }, []);
 
   useEffect(() => {
+    const checkAvailability = async () => {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const availability = await DailyLimitsService.isAskNurooAvailable(
+          currentUser.uid,
+        );
+        setIsAvailable(availability.available);
+        setAvailabilityReason(availability.reason || '');
+
+        if (availability.available) {
+          const limit = await DailyLimitsService.canSendMessage(
+            currentUser.uid,
+          );
+          setMessageLimit({
+            remaining: limit.remaining,
+            resetTime: limit.resetTime,
+          });
+        }
+      }
+    };
+    checkAvailability();
+  }, []);
+
+  useEffect(() => {
     flatListRef.current?.scrollToEnd({ animated: true });
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (input.trim() === '' || loading) return;
+  const sendMessage = useCallback(async () => {
+    if (input.trim() === '' || loading || !isAvailable) return;
+
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+
+    const canSend = await DailyLimitsService.canSendMessage(currentUser.uid);
+    if (!canSend.allowed) {
+      Alert.alert(
+        'Daily Limit Reached',
+        canSend.message || 'You have reached your daily message limit.',
+        [{ text: 'OK' }],
+      );
+      return;
+    }
 
     setLoading(true);
     const userMessage = input.trim();
@@ -69,15 +114,26 @@ export default function AskNurooScreen() {
     setInput('');
 
     try {
+      await DailyLimitsService.recordMessageUsage(currentUser.uid);
+
       const reply = await askNuroo(
         userMessage,
         childData || undefined,
         i18n.language,
+        currentUser.uid,
       );
       setMessages((prev) => [
         ...prev,
         { from: 'nuroo', text: reply, timestamp: new Date() },
       ]);
+
+      const updatedLimit = await DailyLimitsService.canSendMessage(
+        currentUser.uid,
+      );
+      setMessageLimit({
+        remaining: updatedLimit.remaining,
+        resetTime: updatedLimit.resetTime,
+      });
     } catch (error: any) {
       console.error('Error in Ask Nuroo:', error);
       setMessages((prev) => [
@@ -93,7 +149,7 @@ export default function AskNurooScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [input, loading, isAvailable, childData, i18n.language, t]);
 
   const formatTime = (timestamp: Date) => {
     return timestamp.toLocaleTimeString([], {
@@ -106,12 +162,37 @@ export default function AskNurooScreen() {
     <SafeAreaView style={tw`flex-1 bg-white`}>
       <View style={tw`flex-1 bg-white`}>
         <View style={tw`pt-4 pb-4 px-4 border-b border-gray-200 bg-white`}>
-          <Text style={tw`text-2xl font-bold text-primary`}>
-            {t('ask_nuroo.title')}
-          </Text>
-          <Text style={tw`text-gray-500 text-sm mt-1`}>
-            {t('ask_nuroo.subtitle')}
-          </Text>
+          <View style={tw`flex-row justify-between items-center`}>
+            <View style={tw`flex-1`}>
+              <Text style={tw`text-2xl font-bold text-primary`}>
+                {t('ask_nuroo.title')}
+              </Text>
+              <Text style={tw`text-gray-500 text-sm mt-1`}>
+                {t('ask_nuroo.subtitle')}
+              </Text>
+            </View>
+            <View style={tw`items-end`}>
+              <View style={tw`bg-primary px-3 py-1 rounded-full`}>
+                <Text style={tw`text-white text-sm font-semibold`}>
+                  {messageLimit.remaining}/3
+                </Text>
+              </View>
+              <Text style={tw`text-gray-400 text-xs mt-1`}>messages today</Text>
+            </View>
+          </View>
+
+          {!isAvailable && (
+            <View
+              style={tw`mt-3 bg-orange-50 border border-orange-200 rounded-lg p-3`}
+            >
+              <View style={tw`flex-row items-center`}>
+                <Ionicons name="time-outline" size={16} color="#f97316" />
+                <Text style={tw`text-orange-700 text-sm ml-2 flex-1`}>
+                  {availabilityReason}
+                </Text>
+              </View>
+            </View>
+          )}
         </View>
 
         <KeyboardAvoidingView
@@ -234,19 +315,23 @@ export default function AskNurooScreen() {
             >
               <TextInput
                 style={tw`flex-1 text-base text-gray-800 min-h-[40px] max-h-24`}
-                placeholder={t('ask_nuroo.placeholder')}
+                placeholder={
+                  isAvailable
+                    ? t('ask_nuroo.placeholder')
+                    : 'Ask Nuroo is currently unavailable'
+                }
                 placeholderTextColor="#9CA3AF"
                 value={input}
                 onChangeText={setInput}
                 onSubmitEditing={sendMessage}
-                editable={!loading}
+                editable={!loading && isAvailable}
                 multiline
                 textAlignVertical="center"
               />
               <Pressable
                 style={({ pressed }) => [
                   tw`ml-3 w-10 h-10 rounded-full items-center justify-center shadow-sm flex-shrink-0`,
-                  loading
+                  loading || !isAvailable
                     ? tw`bg-gray-400`
                     : input.trim()
                       ? tw`bg-primary`
@@ -254,7 +339,7 @@ export default function AskNurooScreen() {
                   pressed && tw`scale-95`,
                 ]}
                 onPress={sendMessage}
-                disabled={loading || !input.trim()}
+                disabled={loading || !input.trim() || !isAvailable}
               >
                 {loading ? (
                   <ActivityIndicator size="small" color="white" />
@@ -262,7 +347,7 @@ export default function AskNurooScreen() {
                   <Ionicons
                     name="send"
                     size={18}
-                    color={input.trim() ? 'white' : '#9CA3AF'}
+                    color={input.trim() && isAvailable ? 'white' : '#9CA3AF'}
                   />
                 )}
               </Pressable>

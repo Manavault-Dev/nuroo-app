@@ -123,7 +123,11 @@
     "welcome_message_text": "Hi! I'm new to Nuroo. Can you give me some tips for getting started with my child's development?",
     "placeholder": "Ask Nuroo anything...",
     "send_button": "Send",
-    "error_message": "Sorry, an error occurred: {error}. Please check your OpenAI API key and try again."
+    "error_message": "Sorry, an error occurred: {error}. Please check your OpenAI API key and try again.",
+    "daily_limit_reached": "You've used all 3 messages for today. New messages will be available tomorrow at 9 AM.",
+    "time_restriction": "Ask Nuroo is available from 6 AM to 10 PM",
+    "messages_today": "messages today",
+    "morning_tasks_info": "New tasks are generated every morning at 9 AM"
   },
 
   "profile": {

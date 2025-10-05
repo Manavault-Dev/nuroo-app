@@ -8,8 +8,9 @@ import tw from '@/lib/design/tw';
 import { homeStyles } from '@/lib/home/home.styles';
 import { Task } from '@/lib/home/home.types';
 import { formatProgressPercentage } from '@/lib/home/home.utils';
+import { DailyLimitsService } from '@/lib/services/dailyLimitsService';
 import { ProgressService } from '@/lib/services/progressService';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import { HomeSkeleton } from './components/HomeSkeleton';
@@ -33,6 +34,24 @@ export default function HomeScreen() {
   );
 
   const [firebaseError, setFirebaseError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkMorningTasks = async () => {
+      if (user && childData) {
+        try {
+          await DailyLimitsService.generateMorningTasksIfNeeded(
+            user.uid,
+            childData,
+            t('language.code', { lng: 'en' }),
+          );
+        } catch (error) {
+          console.error('Error checking morning tasks:', error);
+        }
+      }
+    };
+
+    checkMorningTasks();
+  }, [user, childData, t]);
 
   useEffect(() => {}, [fetchTasks, toggleTaskCompletion, setLoadingState]);
 
