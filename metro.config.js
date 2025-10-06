@@ -19,9 +19,9 @@ config.resolver.assetExts
   // Add any additional asset extensions if needed
   ();
 
-// Exclude unused icon fonts from bundle
-config.resolver.blockList = [
-  /node_modules\/@expo\/vector-icons\/build\/vendor\/react-native-vector-icons\/Fonts\/(?!Ionicons).*\.ttf$/,
-];
+// Exclude unused icon fonts from bundle (commented out to fix font loading issues)
+// config.resolver.blockList = [
+//   /node_modules\/@expo\/vector-icons\/build\/vendor\/react-native-vector-icons\/Fonts\/(?!Ionicons).*\.ttf$/,
+// ];
 
 module.exports = config;

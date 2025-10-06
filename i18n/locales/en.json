@@ -107,7 +107,9 @@
     "all_tasks_completed": "🎉 All Tasks Completed!",
     "all_tasks_completed_message": "Amazing work! You've completed all your tasks today. Your dedication to your child's development is inspiring!",
     "generate_more_tasks": "🎁 Generate More Tasks",
-    "generate_more_tasks_help": "Keep the momentum going with additional personalized activities!"
+    "generate_more_tasks_help": "Keep the momentum going with additional personalized activities!",
+    "new_tasks_tomorrow": "New tasks will be available tomorrow at 9 AM",
+    "tasks_will_appear_automatically": "Tasks will appear automatically at 9 AM daily"
   },
 
   "ask_nuroo": {
@@ -222,6 +224,12 @@
     "close": "Close",
     "logout": "Logout",
     "logout_confirm": "Are you sure you want to logout?"
+  },
+
+  "timer": {
+    "next_tasks_in": "⏰ Next tasks in",
+    "calculating": "Calculating...",
+    "available_now": "Available now!"
   },
 
   "error": {

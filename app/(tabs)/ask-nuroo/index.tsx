@@ -177,7 +177,9 @@ export default function AskNurooScreen() {
                   {messageLimit.remaining}/3
                 </Text>
               </View>
-              <Text style={tw`text-gray-400 text-xs mt-1`}>messages today</Text>
+              <Text style={tw`text-gray-400 text-xs mt-1`}>
+                {t('ask_nuroo.messages_today')}
+              </Text>
             </View>
           </View>
 
