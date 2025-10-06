@@ -107,7 +107,9 @@
     "all_tasks_completed": "🎉 All Tasks Completed!",
     "all_tasks_completed_message": "Amazing work! You've completed all your tasks today. Your dedication to your child's development is inspiring!",
     "generate_more_tasks": "🎁 Generate More Tasks",
-    "generate_more_tasks_help": "Keep the momentum going with additional personalized activities!"
+    "generate_more_tasks_help": "Keep the momentum going with additional personalized activities!",
+    "new_tasks_tomorrow": "New tasks will be available tomorrow at 9 AM",
+    "tasks_will_appear_automatically": "Tasks will appear automatically at 9 AM daily"
   },
 
   "ask_nuroo": {
@@ -123,7 +125,11 @@
     "welcome_message_text": "Hi! I'm new to Nuroo. Can you give me some tips for getting started with my child's development?",
     "placeholder": "Ask Nuroo anything...",
     "send_button": "Send",
-    "error_message": "Sorry, an error occurred: {error}. Please check your OpenAI API key and try again."
+    "error_message": "Sorry, an error occurred: {error}. Please check your OpenAI API key and try again.",
+    "daily_limit_reached": "You've used all 3 messages for today. New messages will be available tomorrow at 9 AM.",
+    "time_restriction": "Ask Nuroo is available from 6 AM to 10 PM",
+    "messages_today": "messages today",
+    "morning_tasks_info": "New tasks are generated every morning at 9 AM"
   },
 
   "profile": {
@@ -218,6 +224,12 @@
     "close": "Close",
     "logout": "Logout",
     "logout_confirm": "Are you sure you want to logout?"
+  },
+
+  "timer": {
+    "next_tasks_in": "⏰ Next tasks in",
+    "calculating": "Calculating...",
+    "available_now": "Available now!"
   },
 
   "error": {

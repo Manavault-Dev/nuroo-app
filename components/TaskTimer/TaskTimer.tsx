@@ -1,5 +1,6 @@
 import tw from '@/lib/design/tw';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 
 interface TaskTimerProps {
@@ -7,7 +8,10 @@ interface TaskTimerProps {
 }
 
 export const TaskTimer: React.FC<TaskTimerProps> = ({ userId }) => {
-  const [timeUntilNext, setTimeUntilNext] = useState<string>('Calculating...');
+  const { t } = useTranslation();
+  const [timeUntilNext, setTimeUntilNext] = useState<string>(
+    t('timer.calculating'),
+  );
 
   useEffect(() => {
     const updateTimer = () => {
@@ -19,7 +23,7 @@ export const TaskTimer: React.FC<TaskTimerProps> = ({ userId }) => {
       const diffMs = tomorrow.getTime() - now.getTime();
 
       if (diffMs <= 0) {
-        setTimeUntilNext('Available now!');
+        setTimeUntilNext(t('timer.available_now'));
         return;
       }
 
@@ -45,7 +49,7 @@ export const TaskTimer: React.FC<TaskTimerProps> = ({ userId }) => {
     >
       <View style={tw`flex-row justify-between items-center`}>
         <Text style={tw`text-sm text-blue-700 font-medium`}>
-          ⏰ Next tasks in
+          {t('timer.next_tasks_in')}
         </Text>
         <Text style={tw`text-sm text-blue-700 font-bold`}>{timeUntilNext}</Text>
       </View>

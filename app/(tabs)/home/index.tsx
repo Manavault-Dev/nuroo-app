@@ -8,8 +8,9 @@ import tw from '@/lib/design/tw';
 import { homeStyles } from '@/lib/home/home.styles';
 import { Task } from '@/lib/home/home.types';
 import { formatProgressPercentage } from '@/lib/home/home.utils';
+import { DailyLimitsService } from '@/lib/services/dailyLimitsService';
 import { ProgressService } from '@/lib/services/progressService';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import { HomeSkeleton } from './components/HomeSkeleton';
@@ -34,7 +35,65 @@ export default function HomeScreen() {
 
   const [firebaseError, setFirebaseError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const checkMorningTasks = async () => {
+      if (user && childData) {
+        try {
+          console.log('🌅 Checking for morning task generation...');
+          const generated =
+            await DailyLimitsService.generateMorningTasksIfNeeded(
+              user.uid,
+              childData,
+              t('language.code', { lng: 'en' }),
+            );
+
+          if (generated) {
+            console.log('🌅 Morning tasks generated, refreshing task list...');
+            // Refresh tasks after generation
+            await fetchTasks(user.uid);
+          }
+        } catch (error: unknown) {
+          console.error('Error checking morning tasks:', error);
+        }
+      }
+    };
+
+    checkMorningTasks();
+  }, [user, childData, t, fetchTasks]);
+
   useEffect(() => {}, [fetchTasks, toggleTaskCompletion, setLoadingState]);
+
+  // Auto-generate new tasks when all tasks are completed
+  useEffect(() => {
+    const autoGenerateWhenCompleted = async () => {
+      if (user && childData && tasks.length > 0) {
+        const allCompleted = tasks.every((task) => task.completed);
+        if (allCompleted) {
+          try {
+            console.log('🔄 All tasks completed, auto-generating new ones...');
+            const generated =
+              await DailyLimitsService.generateMorningTasksIfNeeded(
+                user.uid,
+                childData,
+                t('language.code', { lng: 'en' }),
+              );
+
+            if (generated) {
+              console.log('🔄 New tasks auto-generated after completion');
+              await fetchTasks(user.uid);
+            }
+          } catch (error: unknown) {
+            console.error(
+              'Error auto-generating tasks after completion:',
+              error,
+            );
+          }
+        }
+      }
+    };
+
+    autoGenerateWhenCompleted();
+  }, [tasks, user, childData, t, fetchTasks]);
 
   const today = new Date().toLocaleDateString(t('date.locale'), {
     weekday: 'long',
