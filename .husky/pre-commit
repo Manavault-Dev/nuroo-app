@@ -1,3 +1,2 @@
 npm run typecheck
 npx lint-staged
-npm run format:check
