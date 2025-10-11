@@ -174,10 +174,15 @@ export class DailyLimitsService {
         return false;
       }
 
+      const hasTodayTasks = await ProgressService.shouldGenerateTasks(userId);
+
+      if (!hasTodayTasks) {
+        console.log('📋 Tasks for today already exist, skipping generation');
+        return false;
+      }
+
       console.log('🌅 Time for morning task generation! Generating tasks...');
 
-      // Generate tasks directly without checking ProgressService.shouldGenerateTasks
-      // since we've already determined it's time for morning generation
       const tasks = await TaskGenerationService.generatePersonalizedTasks(
         userId,
         childData,
@@ -185,17 +190,14 @@ export class DailyLimitsService {
       );
 
       if (tasks.length > 0) {
-        // Store tasks directly
         await TaskGenerationService['storeDailyTasks'](
           userId,
           tasks,
           childData,
         );
 
-        // Update last task date
         await ProgressService.updateLastTaskDate(userId);
 
-        // Send notification
         await NotificationService.sendTaskGenerationNotification(tasks.length);
 
         console.log(

@@ -7,7 +7,15 @@ import {
   Task,
   UserProgress,
 } from '@/lib/home/home.types';
-import { collection, doc, setDoc } from 'firebase/firestore';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  where,
+} from 'firebase/firestore';
 import { ProgressService } from './progressService';
 
 export class TaskGenerationService {
@@ -137,6 +145,25 @@ export class TaskGenerationService {
     try {
       const today = new Date().toISOString().split('T')[0];
       const progress = await ProgressService.getProgress(userId);
+
+      const tasksRef = collection(db, 'tasks');
+      const existingTasksQuery = query(
+        tasksRef,
+        where('userId', '==', userId),
+        where('dailyId', '==', today),
+        where('completed', '==', false),
+      );
+
+      const existingTasksSnapshot = await getDocs(existingTasksQuery);
+
+      const deletePromises = existingTasksSnapshot.docs.map((doc) =>
+        deleteDoc(doc.ref),
+      );
+      await Promise.all(deletePromises);
+
+      console.log(
+        `🗑️ Deleted ${existingTasksSnapshot.size} old incomplete tasks for today`,
+      );
 
       const dailyTaskSet: DailyTaskSet = {
         id: `daily-${userId}-${today}`,
