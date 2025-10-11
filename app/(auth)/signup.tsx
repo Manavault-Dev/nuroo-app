@@ -136,7 +136,7 @@ export default function SignUpScreen() {
           />
 
           <TouchableOpacity onPress={() => router.replace('/signin')}>
-            <Text style={tw`text-center text-teal-500 mt-6 text-base`}>
+            <Text style={tw`text-center text-primary mt-6 text-base`}>
               {t('signup.already_have_account')}{' '}
               <Text style={tw`underline`}>{t('signup.sign_in_link')}</Text>
             </Text>

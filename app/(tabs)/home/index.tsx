@@ -1,3 +1,5 @@
+import { HomeSkeleton } from '@/components/Home/HomeSkeleton';
+import { TaskItem } from '@/components/Home/TaskItem';
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import { TaskTimer } from '@/components/TaskTimer/TaskTimer';
 import { useAuth } from '@/features/auth/AuthContext';
@@ -10,11 +12,10 @@ import { Task } from '@/lib/home/home.types';
 import { formatProgressPercentage } from '@/lib/home/home.utils';
 import { DailyLimitsService } from '@/lib/services/dailyLimitsService';
 import { ProgressService } from '@/lib/services/progressService';
-import { useEffect, useState } from 'react';
+import * as Haptics from 'expo-haptics';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
-import { HomeSkeleton } from './components/HomeSkeleton';
-import { TaskItem } from './components/TaskItem';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
@@ -23,6 +24,8 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [hasIncompleteTasks, setHasIncompleteTasks] = useState(false);
+  const hasCheckedMorningTasks = useRef(false);
+  const lastCompletedCount = useRef(0);
 
   const { childData, fetchChildData } = useChildData();
   const { fetchTasks, toggleTaskCompletion, setLoadingState } =
@@ -37,7 +40,8 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const checkMorningTasks = async () => {
-      if (user && childData) {
+      if (user && childData && !hasCheckedMorningTasks.current) {
+        hasCheckedMorningTasks.current = true;
         try {
           console.log('🌅 Checking for morning task generation...');
           const generated =
@@ -49,7 +53,6 @@ export default function HomeScreen() {
 
           if (generated) {
             console.log('🌅 Morning tasks generated, refreshing task list...');
-            // Refresh tasks after generation
             await fetchTasks(user.uid);
           }
         } catch (error: unknown) {
@@ -59,16 +62,22 @@ export default function HomeScreen() {
     };
 
     checkMorningTasks();
-  }, [user, childData, t, fetchTasks]);
+  }, [user?.uid, childData?.name]);
 
   useEffect(() => {}, [fetchTasks, toggleTaskCompletion, setLoadingState]);
 
-  // Auto-generate new tasks when all tasks are completed
+  const displayedTasks = tasks.slice(0, 4);
+  const totalTasks = displayedTasks.length;
+  const completedTasks = displayedTasks.filter((task) => task.completed).length;
+  const progressPercentage =
+    totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
   useEffect(() => {
     const autoGenerateWhenCompleted = async () => {
       if (user && childData && tasks.length > 0) {
         const allCompleted = tasks.every((task) => task.completed);
-        if (allCompleted) {
+        if (allCompleted && lastCompletedCount.current !== completedTasks) {
+          lastCompletedCount.current = completedTasks;
           try {
             console.log('🔄 All tasks completed, auto-generating new ones...');
             const generated =
@@ -81,6 +90,7 @@ export default function HomeScreen() {
             if (generated) {
               console.log('🔄 New tasks auto-generated after completion');
               await fetchTasks(user.uid);
+              lastCompletedCount.current = 0;
             }
           } catch (error: unknown) {
             console.error(
@@ -93,7 +103,7 @@ export default function HomeScreen() {
     };
 
     autoGenerateWhenCompleted();
-  }, [tasks, user, childData, t, fetchTasks]);
+  }, [completedTasks, totalTasks]);
 
   const today = new Date().toLocaleDateString(t('date.locale'), {
     weekday: 'long',
@@ -101,11 +111,6 @@ export default function HomeScreen() {
     month: 'long',
     day: 'numeric',
   });
-
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter((task) => task.completed).length;
-  const progressPercentage =
-    totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
   useEffect(() => {
     if (user?.uid) {
@@ -138,7 +143,7 @@ export default function HomeScreen() {
     if (childData && user?.uid) {
       checkAndGenerateTasks();
     }
-  }, [childData, user?.uid, checkAndGenerateTasks]);
+  }, []);
 
   useEffect(() => {
     const checkIncompleteTasks = async () => {
@@ -165,13 +170,21 @@ export default function HomeScreen() {
   }, [loading, tasks.length, user?.uid, childData]);
 
   const handleRefresh = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    setLoading(true);
     setRefreshing(true);
     setFirebaseError(null);
+
     if (user?.uid) {
       try {
-        await fetchTasks(user.uid);
+        await Promise.all([fetchChildData(user.uid), fetchTasks(user.uid)]);
+
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } catch (error: unknown) {
         console.error('❌ Error refreshing tasks:', error);
+
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
 
         const errorMessage =
           error instanceof Error ? error.message : String(error);
@@ -187,6 +200,8 @@ export default function HomeScreen() {
         }
       }
     }
+
+    setLoading(false);
     setRefreshing(false);
   };
 
@@ -210,7 +225,15 @@ export default function HomeScreen() {
         style={tw`flex-1 bg-gray-50`}
         contentContainerStyle={homeStyles.taskList}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor="#4FD1C7"
+            colors={['#4FD1C7', '#1D2B64']}
+            progressBackgroundColor="#ffffff"
+            title={t('home.loading')}
+            titleColor="#6B7280"
+          />
         }
       >
         <View style={tw`p-4`}>
@@ -272,7 +295,7 @@ export default function HomeScreen() {
             </View>
           )}
           <View style={tw`py-4`}>
-            {tasks.map((task) => (
+            {displayedTasks.map((task) => (
               <TaskItem
                 key={task.id}
                 task={task}

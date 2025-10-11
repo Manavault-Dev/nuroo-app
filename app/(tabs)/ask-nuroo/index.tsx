@@ -161,7 +161,7 @@ export default function AskNurooScreen() {
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
       <View style={tw`flex-1 bg-white`}>
-        <View style={tw`pt-4 pb-4 px-4 border-b border-gray-200 bg-white`}>
+        <View style={tw`pt-12 pb-4 px-4 border-b border-gray-200 bg-white`}>
           <View style={tw`flex-row justify-between items-center`}>
             <View style={tw`flex-1`}>
               <Text style={tw`text-2xl font-bold text-primary`}>
