@@ -48,6 +48,7 @@ export default {
         'android.permission.RECEIVE_BOOT_COMPLETED',
         'android.permission.POST_NOTIFICATIONS',
       ],
+      softwareKeyboardLayoutMode: 'pan',
     },
     web: {
       favicon: './assets/images/favicon.png',
