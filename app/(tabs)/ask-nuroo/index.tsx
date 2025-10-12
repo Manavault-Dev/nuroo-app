@@ -18,6 +18,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface Message {
   from: 'user' | 'nuroo';
@@ -34,6 +35,7 @@ interface ChildData {
 
 export default function AskNurooScreen() {
   const { t, i18n } = useTranslation();
+  const insets = useSafeAreaInsets();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -204,9 +206,13 @@ export default function AskNurooScreen() {
         >
           {messages.length === 0 && (
             <View
-              style={tw`absolute inset-0 justify-center items-center px-8 z-0`}
+              style={[
+                tw`absolute inset-0 justify-center items-center px-8`,
+                { zIndex: 1 },
+              ]}
+              pointerEvents="box-none"
             >
-              <View style={tw`items-center`}>
+              <View style={tw`items-center`} pointerEvents="auto">
                 <View style={tw`space-y-3 mb-8`}>
                   <View style={tw`flex-row items-center`}>
                     <View
@@ -276,7 +282,7 @@ export default function AskNurooScreen() {
             onContentSizeChange={() =>
               flatListRef.current?.scrollToEnd({ animated: true })
             }
-            style={tw`flex-1`}
+            style={[tw`flex-1`, { zIndex: 0 }]}
             renderItem={({ item }) => (
               <View
                 style={[
@@ -314,7 +320,18 @@ export default function AskNurooScreen() {
             )}
           />
 
-          <View style={tw`px-4 pt-4 pb-20 bg-white border-t border-gray-200`}>
+          <View
+            style={[
+              tw`px-4 pt-4 bg-white border-t border-gray-200`,
+              {
+                paddingBottom:
+                  Platform.OS === 'android'
+                    ? 70 + Math.max(insets.bottom + 2, 12)
+                    : 80,
+                zIndex: 10,
+              },
+            ]}
+          >
             <View
               style={tw`flex-row items-center bg-gray-50 rounded-2xl px-4 py-3 border border-gray-200 shadow-sm`}
             >
