@@ -198,11 +198,14 @@ export default function AskNurooScreen() {
         </View>
 
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior="padding"
           style={tw`flex-1`}
+          keyboardVerticalOffset={Platform.OS === 'android' ? 0 : 0}
         >
           {messages.length === 0 && (
-            <View style={tw`flex-1  justify-center items-center px-8`}>
+            <View
+              style={tw`absolute inset-0 justify-center items-center px-8 z-0`}
+            >
               <View style={tw`items-center`}>
                 <View style={tw`space-y-3 mb-8`}>
                   <View style={tw`flex-row items-center`}>
