@@ -1,22 +1,46 @@
 import { colors } from '@/lib/design/tokens';
 import { Ionicons } from '@expo/vector-icons';
+import * as NavigationBar from 'expo-navigation-bar';
 import { Tabs } from 'expo-router';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabsLayout() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      NavigationBar.setBackgroundColorAsync('#ffffff00');
+      NavigationBar.setButtonStyleAsync('dark');
+      NavigationBar.setPositionAsync('absolute');
+    }
+  }, []);
+
+  const tabBarHeight = Platform.OS === 'android' ? 70 : 80;
+  const tabBarPaddingBottom =
+    Platform.OS === 'android' ? Math.max(insets.bottom + 8, 16) : 8;
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
+        tabBarHideOnKeyboard: Platform.OS === 'android',
         tabBarStyle: {
           borderTopWidth: 0,
           position: 'absolute',
-          elevation: 0,
-          height: 80,
-          paddingBottom: 8,
+          elevation: 8,
+          height: tabBarHeight + tabBarPaddingBottom,
+          paddingBottom: tabBarPaddingBottom,
+          paddingTop: 8,
+          backgroundColor: '#ffffff',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
         },
       }}
     >
