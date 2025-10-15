@@ -7,7 +7,7 @@ export default {
     scheme: 'nuroo',
     version: '1.0.0',
     orientation: 'portrait',
-    icon: './assets/images/icon.png',
+    icon: './assets/images/logo-bg.png',
     userInterfaceStyle: 'light',
     splash: {
       image: './assets/images/splash-icon.png',
@@ -51,7 +51,7 @@ export default {
       softwareKeyboardLayoutMode: 'pan',
     },
     web: {
-      favicon: './assets/images/favicon.png',
+      favicon: './assets/images/logo-bg.png',
       bundler: 'metro',
     },
     owner: 'tilecho',
