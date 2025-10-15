@@ -284,7 +284,7 @@ export class DailyLimitsService {
   }
 
   /**
-   * Check if Ask Nuroo is available (time-based restrictions)
+   * Check if Ask Nuroo is available (no time restrictions - available 24/7)
    */
   static async isAskNurooAvailable(userId: string): Promise<{
     available: boolean;
@@ -292,41 +292,7 @@ export class DailyLimitsService {
     nextAvailableTime?: string;
   }> {
     try {
-      const now = new Date();
-      const currentHour = now.getHours();
-
-      // Ask Nuroo is available from 6 AM to 10 PM
-      if (currentHour < 6 || currentHour >= 22) {
-        const nextAvailable =
-          currentHour < 6
-            ? new Date(
-                now.getFullYear(),
-                now.getMonth(),
-                now.getDate(),
-                6,
-                0,
-                0,
-              )
-            : new Date(
-                now.getFullYear(),
-                now.getMonth(),
-                now.getDate() + 1,
-                6,
-                0,
-                0,
-              );
-
-        return {
-          available: false,
-          reason: 'Ask Nuroo is available from 6 AM to 10 PM',
-          nextAvailableTime: nextAvailable.toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
-        };
-      }
-
-      // Check daily message limit
+      // Ask Nuroo is available 24/7 - only check message limit
       const messageLimit = await this.canSendMessage(userId);
 
       if (!messageLimit.allowed) {

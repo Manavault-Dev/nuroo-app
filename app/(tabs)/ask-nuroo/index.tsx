@@ -44,8 +44,6 @@ export default function AskNurooScreen() {
     remaining: 3,
     resetTime: 0,
   });
-  const [isAvailable, setIsAvailable] = useState(true);
-  const [availabilityReason, setAvailabilityReason] = useState<string>('');
   const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
@@ -77,39 +75,28 @@ export default function AskNurooScreen() {
   useEffect(() => {
     let isMounted = true;
 
-    const checkAvailability = async () => {
+    const checkMessageLimit = async () => {
       const currentUser = auth.currentUser;
       if (currentUser && isMounted) {
         try {
-          const availability = await DailyLimitsService.isAskNurooAvailable(
+          const limit = await DailyLimitsService.canSendMessage(
             currentUser.uid,
           );
-
           if (isMounted) {
-            setIsAvailable(availability.available);
-            setAvailabilityReason(availability.reason || '');
-          }
-
-          if (availability.available && isMounted) {
-            const limit = await DailyLimitsService.canSendMessage(
-              currentUser.uid,
-            );
-            if (isMounted) {
-              setMessageLimit({
-                remaining: limit.remaining,
-                resetTime: limit.resetTime,
-              });
-            }
+            setMessageLimit({
+              remaining: limit.remaining,
+              resetTime: limit.resetTime,
+            });
           }
         } catch (error) {
           if (isMounted) {
-            console.error('Error checking availability:', error);
+            console.error('Error checking message limit:', error);
           }
         }
       }
     };
 
-    checkAvailability();
+    checkMessageLimit();
 
     return () => {
       isMounted = false;
@@ -121,7 +108,7 @@ export default function AskNurooScreen() {
   }, [messages]);
 
   const sendMessage = useCallback(async () => {
-    if (input.trim() === '' || loading || !isAvailable) return;
+    if (input.trim() === '' || loading) return;
 
     const currentUser = auth.currentUser;
     if (!currentUser) return;
@@ -182,7 +169,7 @@ export default function AskNurooScreen() {
     } finally {
       setLoading(false);
     }
-  }, [input, loading, isAvailable, childData, i18n.language, t]);
+  }, [input, loading, childData, i18n.language, t]);
 
   const formatTime = (timestamp: Date) => {
     return timestamp.toLocaleTimeString([], {
@@ -215,19 +202,6 @@ export default function AskNurooScreen() {
               </Text>
             </View>
           </View>
-
-          {!isAvailable && (
-            <View
-              style={tw`mt-3 bg-orange-50 border border-orange-200 rounded-lg p-3`}
-            >
-              <View style={tw`flex-row items-center`}>
-                <Ionicons name="time-outline" size={16} color="#f97316" />
-                <Text style={tw`text-orange-700 text-sm ml-2 flex-1`}>
-                  {availabilityReason}
-                </Text>
-              </View>
-            </View>
-          )}
         </View>
 
         <KeyboardAvoidingView
@@ -368,23 +342,19 @@ export default function AskNurooScreen() {
             >
               <TextInput
                 style={tw`flex-1 text-base text-gray-800 min-h-[40px] max-h-24`}
-                placeholder={
-                  isAvailable
-                    ? t('ask_nuroo.placeholder')
-                    : 'Ask Nuroo is currently unavailable'
-                }
+                placeholder={t('ask_nuroo.placeholder')}
                 placeholderTextColor="#9CA3AF"
                 value={input}
                 onChangeText={setInput}
                 onSubmitEditing={sendMessage}
-                editable={!loading && isAvailable}
+                editable={!loading}
                 multiline
                 textAlignVertical="center"
               />
               <Pressable
                 style={({ pressed }) => [
                   tw`ml-3 w-10 h-10 rounded-full items-center justify-center shadow-sm flex-shrink-0`,
-                  loading || !isAvailable
+                  loading
                     ? tw`bg-gray-400`
                     : input.trim()
                       ? tw`bg-primary`
@@ -392,7 +362,7 @@ export default function AskNurooScreen() {
                   pressed && tw`scale-95`,
                 ]}
                 onPress={sendMessage}
-                disabled={loading || !input.trim() || !isAvailable}
+                disabled={loading || !input.trim()}
               >
                 {loading ? (
                   <ActivityIndicator size="small" color="white" />
@@ -400,7 +370,7 @@ export default function AskNurooScreen() {
                   <Ionicons
                     name="send"
                     size={18}
-                    color={input.trim() && isAvailable ? 'white' : '#9CA3AF'}
+                    color={input.trim() ? 'white' : '#9CA3AF'}
                   />
                 )}
               </Pressable>
