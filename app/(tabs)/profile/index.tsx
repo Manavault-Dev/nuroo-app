@@ -46,13 +46,15 @@ const ProfileScreen = () => {
   const { rateApp, shareFeedback, openPrivacy, openHelp } = useLinks();
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchProfile = async () => {
       try {
         const currentUser = auth.currentUser;
         if (!currentUser) return;
 
         const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-        if (userDoc.exists()) {
+        if (userDoc.exists() && isMounted) {
           const userData = userDoc.data() as ProfileData;
 
           const fullName = userData.fullName || '';
@@ -70,11 +72,17 @@ const ProfileScreen = () => {
           });
         }
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        if (isMounted) {
+          console.error('Error fetching profile:', error);
+        }
       }
     };
 
     fetchProfile();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {

@@ -1,5 +1,25 @@
 import 'dotenv/config';
 
+// Validate required environment variables
+const requiredEnvVars = [
+  'EXPO_PUBLIC_FIREBASE_API_KEY',
+  'EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN',
+  'EXPO_PUBLIC_FIREBASE_PROJECT_ID',
+  'EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET',
+  'EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
+  'EXPO_PUBLIC_FIREBASE_APP_ID',
+];
+
+const missingEnvVars = requiredEnvVars.filter(
+  (varName) => !process.env[varName],
+);
+if (missingEnvVars.length > 0 && process.env.NODE_ENV !== 'development') {
+  console.warn(
+    '⚠️  Missing required environment variables:',
+    missingEnvVars.join(', '),
+  );
+}
+
 export default {
   expo: {
     name: 'Nuroo',
@@ -7,17 +27,17 @@ export default {
     scheme: 'nuroo',
     version: '1.0.0',
     orientation: 'portrait',
-    icon: './assets/images/icon.png',
+    icon: './assets/images/logo-bg.png',
     userInterfaceStyle: 'light',
     splash: {
-      image: './assets/images/splash-icon.png',
+      image: './assets/images/logo-bg.png',
       resizeMode: 'contain',
       backgroundColor: '#ffffff',
     },
     assetBundlePatterns: ['**/*'],
     ios: {
       bundleIdentifier: 'com.nuroo.app',
-      buildNumber: '1',
+      buildNumber: '2',
       supportsTablet: true,
       infoPlist: {
         NSUserTrackingUsageDescription:
@@ -35,9 +55,9 @@ export default {
     },
     android: {
       package: 'com.nuroo.app',
-      versionCode: 1,
+      versionCode: 2,
       adaptiveIcon: {
-        foregroundImage: './assets/images/adaptive-icon.png',
+        foregroundImage: './assets/images/logo-bg.png',
         backgroundColor: '#ffffff',
       },
       permissions: [
@@ -48,7 +68,7 @@ export default {
         'android.permission.RECEIVE_BOOT_COMPLETED',
         'android.permission.POST_NOTIFICATIONS',
       ],
-      softwareKeyboardLayoutMode: 'pan',
+      softwareKeyboardLayoutMode: 'resize',
     },
     web: {
       favicon: './assets/images/favicon.png',
@@ -75,9 +95,8 @@ export default {
       [
         'expo-notifications',
         {
-          icon: './assets/images/notification-icon.png',
+          icon: './assets/images/logo-bg.png',
           color: '#ffffff',
-          sounds: ['./assets/sounds/notification.wav'],
         },
       ],
     ],
