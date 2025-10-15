@@ -2,7 +2,7 @@ import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import { Button } from '@/components/ui/Button';
 import tw from '@/lib/design/tw';
 import { Image } from 'expo-image';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
@@ -50,16 +50,20 @@ export default function OnboardingScreen() {
   } = useModalPicker(setDiagnosis);
 
   useEffect(() => {
+    let isMounted = true;
+
     const checkOnboardingStatus = async () => {
       try {
         const currentUser = auth.currentUser;
         if (!currentUser) {
-          setLoading(false);
+          if (isMounted) {
+            setLoading(false);
+          }
           return;
         }
 
         const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-        if (userDoc.exists()) {
+        if (userDoc.exists() && isMounted) {
           const userData = userDoc.data();
 
           if (userData.name) setChildName(userData.name);
@@ -69,13 +73,21 @@ export default function OnboardingScreen() {
             setSelectedAreas(userData.developmentAreas);
         }
       } catch (error) {
-        console.error('Error checking onboarding status:', error);
+        if (isMounted) {
+          console.error('Error checking onboarding status:', error);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     checkOnboardingStatus();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleOpenAgeModal = () => openAgeModal(ageOptions);

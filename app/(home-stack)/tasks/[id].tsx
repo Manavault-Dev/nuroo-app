@@ -35,13 +35,20 @@ export default function TaskPage() {
   const router = useRouter();
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchTask = async () => {
       try {
         const currentUser = auth.currentUser;
-        if (!currentUser || !id) return;
+        if (!currentUser || !id) {
+          if (isMounted) {
+            setLoading(false);
+          }
+          return;
+        }
 
         const taskDoc = await getDoc(doc(db, 'tasks', String(id)));
-        if (taskDoc.exists()) {
+        if (taskDoc.exists() && isMounted) {
           const taskData = taskDoc.data();
           setTask({
             ...taskData,
@@ -50,14 +57,22 @@ export default function TaskPage() {
           } as Task);
         }
       } catch (error) {
-        console.error('Error fetching task:', error);
-        Alert.alert(t('common.error'), t('tasks.task_not_found'));
+        if (isMounted) {
+          console.error('Error fetching task:', error);
+          Alert.alert(t('common.error'), t('tasks.task_not_found'));
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchTask();
+
+    return () => {
+      isMounted = false;
+    };
   }, [id, t]);
 
   const markTaskComplete = async () => {

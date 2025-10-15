@@ -39,8 +39,10 @@ export default function HomeScreen() {
   const [firebaseError, setFirebaseError] = useState<string | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     const checkMorningTasks = async () => {
-      if (user && childData && !hasCheckedMorningTasks.current) {
+      if (user && childData && !hasCheckedMorningTasks.current && isMounted) {
         hasCheckedMorningTasks.current = true;
         try {
           console.log('🌅 Checking for morning task generation...');
@@ -51,20 +53,24 @@ export default function HomeScreen() {
               t('language.code', { lng: 'en' }),
             );
 
-          if (generated) {
+          if (generated && isMounted) {
             console.log('🌅 Morning tasks generated, refreshing task list...');
             await fetchTasks(user.uid);
           }
         } catch (error: unknown) {
-          console.error('Error checking morning tasks:', error);
+          if (isMounted) {
+            console.error('Error checking morning tasks:', error);
+          }
         }
       }
     };
 
     checkMorningTasks();
-  }, [user?.uid, childData?.name]);
 
-  useEffect(() => {}, [fetchTasks, toggleTaskCompletion, setLoadingState]);
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.uid, childData?.name, fetchTasks, t]);
 
   const displayedTasks = tasks.slice(0, 4);
   const totalTasks = displayedTasks.length;
@@ -73,8 +79,10 @@ export default function HomeScreen() {
     totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
   useEffect(() => {
+    let isMounted = true;
+
     const autoGenerateWhenCompleted = async () => {
-      if (user && childData && tasks.length > 0) {
+      if (user && childData && tasks.length > 0 && isMounted) {
         const allCompleted = tasks.every((task) => task.completed);
         if (allCompleted && lastCompletedCount.current !== completedTasks) {
           lastCompletedCount.current = completedTasks;
@@ -87,23 +95,29 @@ export default function HomeScreen() {
                 t('language.code', { lng: 'en' }),
               );
 
-            if (generated) {
+            if (generated && isMounted) {
               console.log('🔄 New tasks auto-generated after completion');
               await fetchTasks(user.uid);
               lastCompletedCount.current = 0;
             }
           } catch (error: unknown) {
-            console.error(
-              'Error auto-generating tasks after completion:',
-              error,
-            );
+            if (isMounted) {
+              console.error(
+                'Error auto-generating tasks after completion:',
+                error,
+              );
+            }
           }
         }
       }
     };
 
     autoGenerateWhenCompleted();
-  }, [completedTasks, totalTasks]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [completedTasks, totalTasks, user, childData, fetchTasks, t]);
 
   const today = new Date().toLocaleDateString(t('date.locale'), {
     weekday: 'long',
@@ -119,8 +133,12 @@ export default function HomeScreen() {
   }, [user?.uid, fetchChildData]);
 
   useEffect(() => {
+    let isMounted = true;
+
     if (user?.uid && childData) {
       fetchTasks(user.uid).catch((error: unknown) => {
+        if (!isMounted) return;
+
         console.error('❌ Error fetching tasks:', error);
 
         const errorMessage =
@@ -137,27 +155,47 @@ export default function HomeScreen() {
         }
       });
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [user?.uid, childData, fetchTasks]);
 
   useEffect(() => {
-    if (childData && user?.uid) {
+    let isMounted = true;
+
+    if (childData && user?.uid && isMounted) {
       checkAndGenerateTasks();
     }
-  }, []);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [childData, user?.uid, checkAndGenerateTasks]);
 
   useEffect(() => {
+    let isMounted = true;
+
     const checkIncompleteTasks = async () => {
-      if (user?.uid) {
+      if (user?.uid && isMounted) {
         try {
           const incomplete = await ProgressService.hasIncompleteTasks(user.uid);
-          setHasIncompleteTasks(incomplete);
+          if (isMounted) {
+            setHasIncompleteTasks(incomplete);
+          }
         } catch (error) {
-          console.error('Error checking incomplete tasks:', error);
+          if (isMounted) {
+            console.error('Error checking incomplete tasks:', error);
+          }
         }
       }
     };
 
     checkIncompleteTasks();
+
+    return () => {
+      isMounted = false;
+    };
   }, [user?.uid, tasks]);
 
   useEffect(() => {

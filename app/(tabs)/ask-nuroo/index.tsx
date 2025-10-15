@@ -49,40 +49,71 @@ export default function AskNurooScreen() {
   const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchChildData = async () => {
       const currentUser = auth.currentUser;
-      if (currentUser) {
-        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-        if (userDoc.exists()) {
-          setChildData(userDoc.data() as ChildData);
+      if (currentUser && isMounted) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+          if (userDoc.exists() && isMounted) {
+            setChildData(userDoc.data() as ChildData);
+          }
+        } catch (error) {
+          if (isMounted) {
+            console.error('Error fetching child data:', error);
+          }
         }
       }
     };
+
     fetchChildData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
+
     const checkAvailability = async () => {
       const currentUser = auth.currentUser;
-      if (currentUser) {
-        const availability = await DailyLimitsService.isAskNurooAvailable(
-          currentUser.uid,
-        );
-        setIsAvailable(availability.available);
-        setAvailabilityReason(availability.reason || '');
-
-        if (availability.available) {
-          const limit = await DailyLimitsService.canSendMessage(
+      if (currentUser && isMounted) {
+        try {
+          const availability = await DailyLimitsService.isAskNurooAvailable(
             currentUser.uid,
           );
-          setMessageLimit({
-            remaining: limit.remaining,
-            resetTime: limit.resetTime,
-          });
+
+          if (isMounted) {
+            setIsAvailable(availability.available);
+            setAvailabilityReason(availability.reason || '');
+          }
+
+          if (availability.available && isMounted) {
+            const limit = await DailyLimitsService.canSendMessage(
+              currentUser.uid,
+            );
+            if (isMounted) {
+              setMessageLimit({
+                remaining: limit.remaining,
+                resetTime: limit.resetTime,
+              });
+            }
+          }
+        } catch (error) {
+          if (isMounted) {
+            console.error('Error checking availability:', error);
+          }
         }
       }
     };
+
     checkAvailability();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
