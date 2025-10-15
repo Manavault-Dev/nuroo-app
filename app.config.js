@@ -17,7 +17,7 @@ export default {
     assetBundlePatterns: ['**/*'],
     ios: {
       bundleIdentifier: 'com.nuroo.app',
-      buildNumber: '1',
+      buildNumber: '1.0.1',
       supportsTablet: true,
       infoPlist: {
         NSUserTrackingUsageDescription:
