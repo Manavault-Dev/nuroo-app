@@ -92,6 +92,7 @@ export default {
     plugins: [
       'expo-router',
       'expo-web-browser',
+      'expo-font',
       [
         'expo-notifications',
         {
