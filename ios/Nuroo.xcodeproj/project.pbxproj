@@ -8,10 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		20C0BB6C67168B089562162B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 82D45AA798BB9A7CC4B22E25 /* PrivacyInfo.xcprivacy */; };
+		235F7477E7686FCB98B9D283 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2FB888D63972899C8EE8FA1 /* ExpoModulesProvider.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		916B871DB46C1F624F524262 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A097E2D157BD3167A67BEAB8 /* PrivacyInfo.xcprivacy */; };
-		AAEFEB786D74F01E3A896CF1 /* libPods-Nuroo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A81C50F1A2CAA56F2E9D858 /* libPods-Nuroo.a */; };
-		B44CFE5892B885F5DAB116D6 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A411C06E927D34594192AB2 /* ExpoModulesProvider.swift */; };
+		704C9DB018FCA2132E695CAD /* libPods-Nuroo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 706BFAB116A4B26940263B33 /* libPods-Nuroo.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
@@ -20,12 +20,12 @@
 		13B07F961A680F5B00A75B9A /* Nuroo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nuroo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Nuroo/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Nuroo/Info.plist; sourceTree = "<group>"; };
-		3A81C50F1A2CAA56F2E9D858 /* libPods-Nuroo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Nuroo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		3B63C7E4F801A2B8F3DD1E78 /* Pods-Nuroo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Nuroo.release.xcconfig"; path = "Target Support Files/Pods-Nuroo/Pods-Nuroo.release.xcconfig"; sourceTree = "<group>"; };
-		60AC13BB8422EB0F715E3317 /* Pods-Nuroo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Nuroo.debug.xcconfig"; path = "Target Support Files/Pods-Nuroo/Pods-Nuroo.debug.xcconfig"; sourceTree = "<group>"; };
-		6A411C06E927D34594192AB2 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Nuroo/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		A097E2D157BD3167A67BEAB8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Nuroo/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		706BFAB116A4B26940263B33 /* libPods-Nuroo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Nuroo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		82D45AA798BB9A7CC4B22E25 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = Nuroo/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		A358EB0B838F34B226CB121C /* Pods-Nuroo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Nuroo.release.xcconfig"; path = "Target Support Files/Pods-Nuroo/Pods-Nuroo.release.xcconfig"; sourceTree = "<group>"; };
+		A90E3577AF4378620C982ACF /* Pods-Nuroo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Nuroo.debug.xcconfig"; path = "Target Support Files/Pods-Nuroo/Pods-Nuroo.debug.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = Nuroo/SplashScreen.storyboard; sourceTree = "<group>"; };
+		B2FB888D63972899C8EE8FA1 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Nuroo/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Nuroo/AppDelegate.swift; sourceTree = "<group>"; };
@@ -37,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AAEFEB786D74F01E3A896CF1 /* libPods-Nuroo.a in Frameworks */,
+				704C9DB018FCA2132E695CAD /* libPods-Nuroo.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,7 +53,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				A097E2D157BD3167A67BEAB8 /* PrivacyInfo.xcprivacy */,
+				82D45AA798BB9A7CC4B22E25 /* PrivacyInfo.xcprivacy */,
 			);
 			name = Nuroo;
 			sourceTree = "<group>";
@@ -62,17 +62,9 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				3A81C50F1A2CAA56F2E9D858 /* libPods-Nuroo.a */,
+				706BFAB116A4B26940263B33 /* libPods-Nuroo.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		71D0894C80C9619FC700F4FE /* Nuroo */ = {
-			isa = PBXGroup;
-			children = (
-				6A411C06E927D34594192AB2 /* ExpoModulesProvider.swift */,
-			);
-			name = Nuroo;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -89,8 +81,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				B05DF2CEA4C75FA04BE3A5AB /* Pods */,
-				A7AFEE369FADBE6E2EA3FCC0 /* ExpoModulesProviders */,
+				948C9F64E807FB5DA8017B16 /* Pods */,
+				B13EB6D0D4D18A88A8BEB4E7 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -105,21 +97,22 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A7AFEE369FADBE6E2EA3FCC0 /* ExpoModulesProviders */ = {
+		948C9F64E807FB5DA8017B16 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				71D0894C80C9619FC700F4FE /* Nuroo */,
+				A90E3577AF4378620C982ACF /* Pods-Nuroo.debug.xcconfig */,
+				A358EB0B838F34B226CB121C /* Pods-Nuroo.release.xcconfig */,
 			);
-			name = ExpoModulesProviders;
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
-		B05DF2CEA4C75FA04BE3A5AB /* Pods */ = {
+		B13EB6D0D4D18A88A8BEB4E7 /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				60AC13BB8422EB0F715E3317 /* Pods-Nuroo.debug.xcconfig */,
-				3B63C7E4F801A2B8F3DD1E78 /* Pods-Nuroo.release.xcconfig */,
+				DA9F361DFB2D6063F3500D09 /* Nuroo */,
 			);
-			path = Pods;
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -131,6 +124,14 @@
 			path = Nuroo/Supporting;
 			sourceTree = "<group>";
 		};
+		DA9F361DFB2D6063F3500D09 /* Nuroo */ = {
+			isa = PBXGroup;
+			children = (
+				B2FB888D63972899C8EE8FA1 /* ExpoModulesProvider.swift */,
+			);
+			name = Nuroo;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -139,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Nuroo" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				CA234D526A016C3171D9FBD9 /* [Expo] Configure project */,
+				F5AD55FEB4250B381A9E8D67 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				0BE27C2A39CBB92891787C90 /* [CP] Embed Pods Frameworks */,
+				24519925513D01B3C0AEFFE1 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -195,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				916B871DB46C1F624F524262 /* PrivacyInfo.xcprivacy in Resources */,
+				20C0BB6C67168B089562162B /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -241,7 +242,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		0BE27C2A39CBB92891787C90 /* [CP] Embed Pods Frameworks */ = {
+		24519925513D01B3C0AEFFE1 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -303,7 +304,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Nuroo/Pods-Nuroo-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		CA234D526A016C3171D9FBD9 /* [Expo] Configure project */ = {
+		F5AD55FEB4250B381A9E8D67 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -335,7 +336,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				B44CFE5892B885F5DAB116D6 /* ExpoModulesProvider.swift in Sources */,
+				235F7477E7686FCB98B9D283 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -344,13 +345,12 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 60AC13BB8422EB0F715E3317 /* Pods-Nuroo.debug.xcconfig */;
+			baseConfigurationReference = A90E3577AF4378620C982ACF /* Pods-Nuroo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Nuroo/Nuroo.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = R2T5338ATS;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -369,7 +369,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = nuroo.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nuroo.app;
 				PRODUCT_NAME = Nuroo;
 				SWIFT_OBJC_BRIDGING_HEADER = "Nuroo/Nuroo-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -381,13 +381,12 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3B63C7E4F801A2B8F3DD1E78 /* Pods-Nuroo.release.xcconfig */;
+			baseConfigurationReference = A358EB0B838F34B226CB121C /* Pods-Nuroo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Nuroo/Nuroo.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = R2T5338ATS;
 				INFOPLIST_FILE = Nuroo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -401,7 +400,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = nuroo.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nuroo.app;
 				PRODUCT_NAME = Nuroo;
 				SWIFT_OBJC_BRIDGING_HEADER = "Nuroo/Nuroo-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
