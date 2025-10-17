@@ -39,6 +39,7 @@ export default {
       bundleIdentifier: 'nuroo.app',
       buildNumber: '3',
       supportsTablet: true,
+      jsEngine: 'jsc',
       infoPlist: {
         NSUserTrackingUsageDescription:
           'This app uses data to provide personalized development plans for your child.',
