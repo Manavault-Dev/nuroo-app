@@ -25,7 +25,7 @@ export default {
     name: 'Nuroo',
     slug: 'nuroo',
     scheme: 'nuroo',
-    version: '1.0.3',
+    version: '1.0.5',
     orientation: 'portrait',
     icon: './assets/images/logo-bg.png',
     userInterfaceStyle: 'light',
@@ -36,7 +36,7 @@ export default {
     },
     assetBundlePatterns: ['**/*'],
     ios: {
-      bundleIdentifier: 'com.nuroo.app',
+      bundleIdentifier: 'nuroo.app',
       buildNumber: '3',
       supportsTablet: true,
       infoPlist: {
