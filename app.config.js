@@ -25,7 +25,7 @@ export default {
     name: 'Nuroo',
     slug: 'nuroo',
     scheme: 'nuroo',
-    version: '1.0.0',
+    version: '1.0.5',
     orientation: 'portrait',
     icon: './assets/images/logo-bg.png',
     userInterfaceStyle: 'light',
@@ -36,8 +36,8 @@ export default {
     },
     assetBundlePatterns: ['**/*'],
     ios: {
-      bundleIdentifier: 'com.nuroo.app',
-      buildNumber: '2',
+      bundleIdentifier: 'nuroo.app',
+      buildNumber: '3',
       supportsTablet: true,
       infoPlist: {
         NSUserTrackingUsageDescription:
@@ -55,7 +55,7 @@ export default {
     },
     android: {
       package: 'com.nuroo.app',
-      versionCode: 2,
+      versionCode: 3,
       adaptiveIcon: {
         foregroundImage: './assets/images/logo-bg.png',
         backgroundColor: '#ffffff',
@@ -92,6 +92,7 @@ export default {
     plugins: [
       'expo-router',
       'expo-web-browser',
+      'expo-font',
       [
         'expo-notifications',
         {
