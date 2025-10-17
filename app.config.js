@@ -54,7 +54,7 @@ export default {
       },
     },
     android: {
-      package: 'com.nuroo.app',
+      package: 'nuroo.app',
       versionCode: 3,
       adaptiveIcon: {
         foregroundImage: './assets/images/logo-bg.png',
