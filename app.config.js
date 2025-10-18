@@ -1,5 +1,15 @@
 import 'dotenv/config';
 
+// Helper function to get environment variable
+// Tries multiple sources: EAS env vars, process.env, and direct access
+const getEnvVar = (key) => {
+  // For EAS builds, check if the value is available directly
+  if (process.env[key]) {
+    return process.env[key];
+  }
+  return undefined;
+};
+
 const requiredEnvVars = [
   'EXPO_PUBLIC_FIREBASE_API_KEY',
   'EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN',
@@ -9,15 +19,21 @@ const requiredEnvVars = [
   'EXPO_PUBLIC_FIREBASE_APP_ID',
 ];
 
-const missingEnvVars = requiredEnvVars.filter(
-  (varName) => !process.env[varName],
-);
+const missingEnvVars = requiredEnvVars.filter((varName) => !getEnvVar(varName));
+
 if (missingEnvVars.length > 0 && process.env.NODE_ENV !== 'development') {
   console.warn(
     '⚠️  Missing required environment variables:',
     missingEnvVars.join(', '),
   );
 }
+
+// Log Firebase config status (without exposing actual values)
+console.log('🔧 Firebase config status:');
+requiredEnvVars.forEach((varName) => {
+  const value = getEnvVar(varName);
+  console.log(`  ${varName}: ${value ? '✓ Set' : '✗ Missing'}`);
+});
 
 export default {
   expo: {
@@ -104,28 +120,33 @@ export default {
 
     extra: {
       // OPEN AI
-      OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-      OPENAI_PROJECT_ID: process.env.OPENAI_PROJECT_ID,
+      OPENAI_API_KEY: getEnvVar('OPENAI_API_KEY'),
+      OPENAI_PROJECT_ID: getEnvVar('OPENAI_PROJECT_ID'),
 
       // FIREBASE
-      EXPO_PUBLIC_FIREBASE_API_KEY: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
-      EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN:
-        process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
-      EXPO_PUBLIC_FIREBASE_PROJECT_ID:
-        process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
-      EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET:
-        process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
-      EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID:
-        process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-      EXPO_PUBLIC_FIREBASE_APP_ID: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
-      EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID:
-        process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
+      EXPO_PUBLIC_FIREBASE_API_KEY: getEnvVar('EXPO_PUBLIC_FIREBASE_API_KEY'),
+      EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN: getEnvVar(
+        'EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN',
+      ),
+      EXPO_PUBLIC_FIREBASE_PROJECT_ID: getEnvVar(
+        'EXPO_PUBLIC_FIREBASE_PROJECT_ID',
+      ),
+      EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET: getEnvVar(
+        'EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET',
+      ),
+      EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: getEnvVar(
+        'EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
+      ),
+      EXPO_PUBLIC_FIREBASE_APP_ID: getEnvVar('EXPO_PUBLIC_FIREBASE_APP_ID'),
+      EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID: getEnvVar(
+        'EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID',
+      ),
 
       // Custom URLs and email for ProfileScreen
-      APP_STORE_URL: process.env.APP_STORE_URL,
-      FEEDBACK_EMAIL: process.env.FEEDBACK_EMAIL,
-      PRIVACY_URL: process.env.PRIVACY_URL,
-      HELP_URL: process.env.HELP_URL,
+      APP_STORE_URL: getEnvVar('APP_STORE_URL'),
+      FEEDBACK_EMAIL: getEnvVar('FEEDBACK_EMAIL'),
+      PRIVACY_URL: getEnvVar('PRIVACY_URL'),
+      HELP_URL: getEnvVar('HELP_URL'),
 
       eas: {
         projectId: '195d92c9-ef3a-4c31-ab02-bddee8cc627d',
