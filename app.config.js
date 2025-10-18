@@ -1,6 +1,5 @@
 import 'dotenv/config';
 
-// Validate required environment variables
 const requiredEnvVars = [
   'EXPO_PUBLIC_FIREBASE_API_KEY',
   'EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN',
@@ -25,7 +24,7 @@ export default {
     name: 'Nuroo',
     slug: 'nuroo',
     scheme: 'nuroo',
-    version: '1.0.5',
+    version: '1.0.6',
     orientation: 'portrait',
     icon: './assets/images/logo-bg.png',
     userInterfaceStyle: 'light',
@@ -37,7 +36,7 @@ export default {
     assetBundlePatterns: ['**/*'],
     ios: {
       bundleIdentifier: 'nuroo.app',
-      buildNumber: '3',
+      buildNumber: '4',
       supportsTablet: true,
       jsEngine: 'jsc',
       infoPlist: {
