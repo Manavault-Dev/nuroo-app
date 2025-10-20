@@ -29,10 +29,10 @@ ENV_VARS=(
     "EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID"
 )
 
-echo "📝 Setting Firebase environment variables for production, preview, and development..."
+echo "📝 Setting Firebase environment variables for preview and production environments..."
 echo ""
 
-# Set environment variables for each build profile
+# Set environment variables for both preview and production environments
 for ENV_VAR in "${ENV_VARS[@]}"; do
     VALUE="${!ENV_VAR}"
     
@@ -43,16 +43,13 @@ for ENV_VAR in "${ENV_VARS[@]}"; do
     
     echo "Setting $ENV_VAR..."
     
-    # Set for production
-    echo "$VALUE" | eas env:create --name "$ENV_VAR" --value - --environment production --scope project --visibility plaintext --force --non-interactive 2>/dev/null || true
+    # Set for preview environment (TestFlight)
+    eas env:create --name "$ENV_VAR" --value "$VALUE" --environment preview --scope project --visibility plaintext --force --non-interactive
     
-    # Set for preview
-    echo "$VALUE" | eas env:create --name "$ENV_VAR" --value - --environment preview --scope project --visibility plaintext --force --non-interactive 2>/dev/null || true
+    # Set for production environment
+    eas env:create --name "$ENV_VAR" --value "$VALUE" --environment production --scope project --visibility plaintext --force --non-interactive
     
-    # Set for development  
-    echo "$VALUE" | eas env:create --name "$ENV_VAR" --value - --environment development --scope project --visibility plaintext --force --non-interactive 2>/dev/null || true
-    
-    echo "  ✓ Set for all environments"
+    echo "  ✓ Set for preview and production environments"
 done
 
 echo ""
@@ -62,5 +59,6 @@ echo "You can now build your app for TestFlight using:"
 echo "  npm run build:preview:ios"
 echo ""
 echo "To view all environment variables, run:"
-echo "  eas env:list"
+echo "  eas env:list --environment preview"
+echo "  eas env:list --environment production"
 echo ""
