@@ -10,12 +10,12 @@ const diagnosisValueToKey: Record<string, string> = {
 };
 
 const developmentAreaValueToKey: Record<string, string> = {
-  speech: 'onboarding.development_areas.speech',
-  social: 'onboarding.development_areas.social',
-  motor: 'onboarding.development_areas.motor',
-  cognitive: 'onboarding.development_areas.cognitive',
-  sensory: 'onboarding.development_areas.sensory',
-  behavior: 'onboarding.development_areas.behavior',
+  speech: 'onboarding.development_areas_options.speech',
+  social: 'onboarding.development_areas_options.social',
+  motor: 'onboarding.development_areas_options.motor',
+  cognitive: 'onboarding.development_areas_options.cognitive',
+  sensory: 'onboarding.development_areas_options.sensory',
+  behavior: 'onboarding.development_areas_options.behavior',
 };
 
 export const translateDiagnosis = (diagnosis: string, t: TFunction): string => {

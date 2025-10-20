@@ -1,8 +1,8 @@
+import { ErrorHandlingService } from '@/lib/services/errorHandlingService';
+import { RateLimitService } from '@/lib/services/rateLimitService';
+import { InputSanitizer } from '@/lib/utils/sanitization';
 import axios from 'axios';
 import Constants from 'expo-constants';
-import { InputSanitizer, InputValidator } from '@/lib/utils/sanitization';
-import { RateLimitService } from '@/lib/services/rateLimitService';
-import { ErrorHandlingService } from '@/lib/services/errorHandlingService';
 
 const API_URL = 'https://api.openai.com/v1/chat/completions';
 
@@ -126,8 +126,8 @@ export const askNuroo = async (
     };
   }
 
-  const apiKey = Constants.expoConfig?.extra?.OPENAI_API_KEY;
-  const projectId = Constants.expoConfig?.extra?.OPENAI_PROJECT_ID;
+  const apiKey = Constants.expoConfig?.extra?.EXPO_PUBLIC_OPENAI_API_KEY;
+  const projectId = Constants.expoConfig?.extra?.EXPO_PUBLIC_OPENAI_PROJECT_ID;
 
   if (!apiKey) {
     throw new Error(

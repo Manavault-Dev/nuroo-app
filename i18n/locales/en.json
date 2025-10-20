@@ -68,7 +68,7 @@
       "autism": "Autism Spectrum Disorder",
       "speech_delay": "Speech Delay"
     },
-    "development_areas": {
+    "development_areas_options": {
       "speech": "Speech & Language",
       "social": "Social Skills",
       "motor": "Motor Skills",

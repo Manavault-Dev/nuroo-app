@@ -1,14 +1,6 @@
 import 'dotenv/config';
 
-// Helper function to get environment variable
-// Tries multiple sources: EAS env vars, process.env, and direct access
-const getEnvVar = (key) => {
-  // For EAS builds, check if the value is available directly
-  if (process.env[key]) {
-    return process.env[key];
-  }
-  return undefined;
-};
+const getEnvVar = (key) => process.env[key] ?? undefined;
 
 const requiredEnvVars = [
   'EXPO_PUBLIC_FIREBASE_API_KEY',
@@ -19,21 +11,10 @@ const requiredEnvVars = [
   'EXPO_PUBLIC_FIREBASE_APP_ID',
 ];
 
-const missingEnvVars = requiredEnvVars.filter((varName) => !getEnvVar(varName));
-
+const missingEnvVars = requiredEnvVars.filter((v) => !getEnvVar(v));
 if (missingEnvVars.length > 0 && process.env.NODE_ENV !== 'development') {
-  console.warn(
-    '⚠️  Missing required environment variables:',
-    missingEnvVars.join(', '),
-  );
+  console.warn('⚠️ Missing Firebase env vars:', missingEnvVars.join(', '));
 }
-
-// Log Firebase config status (without exposing actual values)
-console.log('🔧 Firebase config status:');
-requiredEnvVars.forEach((varName) => {
-  const value = getEnvVar(varName);
-  console.log(`  ${varName}: ${value ? '✓ Set' : '✗ Missing'}`);
-});
 
 export default {
   expo: {
@@ -50,80 +31,37 @@ export default {
       backgroundColor: '#ffffff',
     },
     assetBundlePatterns: ['**/*'],
+
     ios: {
       bundleIdentifier: 'nuroo.app',
-      buildNumber: '6',
-      supportsTablet: true,
+      buildNumber: '8',
       jsEngine: 'jsc',
-      infoPlist: {
-        NSUserTrackingUsageDescription:
-          'This app uses data to provide personalized development plans for your child.',
-        NSCameraUsageDescription: 'Camera access is not required for this app.',
-        NSMicrophoneUsageDescription:
-          'Microphone access is not required for this app.',
-        NSLocationWhenInUseUsageDescription:
-          'Location access is not required for this app.',
-        NSContactsUsageDescription:
-          'Contacts access is not required for this app.',
-        NSPhotoLibraryUsageDescription:
-          'Photo library access is not required for this app.',
-      },
+      supportsTablet: true,
+      infoPlist: { ITSAppUsesNonExemptEncryption: false },
     },
+
     android: {
       package: 'nuroo.app',
-      versionCode: 3,
+      versionCode: 8,
       adaptiveIcon: {
         foregroundImage: './assets/images/logo-bg.png',
         backgroundColor: '#ffffff',
       },
-      permissions: [
-        'android.permission.INTERNET',
-        'android.permission.ACCESS_NETWORK_STATE',
-        'android.permission.WAKE_LOCK',
-        'android.permission.VIBRATE',
-        'android.permission.RECEIVE_BOOT_COMPLETED',
-        'android.permission.POST_NOTIFICATIONS',
-      ],
       softwareKeyboardLayoutMode: 'resize',
     },
-    web: {
-      favicon: './assets/images/favicon.png',
-      bundler: 'metro',
-    },
-    owner: 'tilecho',
-    privacy: 'public',
-    category: 'education',
-    keywords: [
-      'children',
-      'development',
-      'special needs',
-      'autism',
-      'ADHD',
-      'parenting',
-      'education',
-      'therapy',
-    ],
-    description:
-      'Nuroo helps parents support children with special needs through personalized AI-driven development plans, progress tracking, and expert guidance.',
+
     plugins: [
       'expo-router',
-      'expo-web-browser',
-      'expo-font',
       [
         'expo-notifications',
-        {
-          icon: './assets/images/logo-bg.png',
-          color: '#ffffff',
-        },
+        { icon: './assets/images/logo-bg.png', color: '#ffffff' },
       ],
     ],
 
     extra: {
-      // OPEN AI
-      OPENAI_API_KEY: getEnvVar('OPENAI_API_KEY'),
-      OPENAI_PROJECT_ID: getEnvVar('OPENAI_PROJECT_ID'),
+      eas: { projectId: '195d92c9-ef3a-4c31-ab02-bddee8cc627d' },
 
-      // FIREBASE
+      // Firebase configuration
       EXPO_PUBLIC_FIREBASE_API_KEY: getEnvVar('EXPO_PUBLIC_FIREBASE_API_KEY'),
       EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN: getEnvVar(
         'EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN',
@@ -142,15 +80,14 @@ export default {
         'EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID',
       ),
 
-      // Custom URLs and email for ProfileScreen
-      APP_STORE_URL: getEnvVar('APP_STORE_URL'),
-      FEEDBACK_EMAIL: getEnvVar('FEEDBACK_EMAIL'),
-      PRIVACY_URL: getEnvVar('PRIVACY_URL'),
-      HELP_URL: getEnvVar('HELP_URL'),
+      // App configuration
+      EXPO_PUBLIC_FEEDBACK_EMAIL: getEnvVar('EXPO_PUBLIC_FEEDBACK_EMAIL'),
+      EXPO_PUBLIC_PRIVACY_URL: getEnvVar('EXPO_PUBLIC_PRIVACY_URL'),
+      EXPO_PUBLIC_HELP_URL: getEnvVar('EXPO_PUBLIC_HELP_URL'),
 
-      eas: {
-        projectId: '195d92c9-ef3a-4c31-ab02-bddee8cc627d',
-      },
+      // OpenAI configuration
+      EXPO_PUBLIC_OPENAI_API_KEY: getEnvVar('OPENAI_API_KEY'),
+      EXPO_PUBLIC_OPENAI_PROJECT_ID: getEnvVar('OPENAI_PROJECT_ID'),
     },
   },
 };

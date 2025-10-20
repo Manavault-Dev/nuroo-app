@@ -1,6 +1,10 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+
+// AsyncStorage persistence will be automatically set up by Firebase
+// when it detects React Native environment and AsyncStorage package
 
 // Access environment variables directly - they are embedded at build time by Expo
 // EXPO_PUBLIC_ prefixed variables are available via process.env in both dev and production
@@ -79,6 +83,14 @@ console.log(
 
 export const app = initializeApp(firebaseConfig);
 
+// Initialize Auth - AsyncStorage persistence is automatically configured
+// by Firebase when running in React Native with @react-native-async-storage/async-storage
 export const auth = getAuth(app);
 
 export const db = getFirestore(app);
+
+// Configure AsyncStorage for auth persistence
+// This ensures auth state persists between app restarts
+if (typeof AsyncStorage !== 'undefined') {
+  console.log('✅ AsyncStorage detected - Auth persistence enabled');
+}

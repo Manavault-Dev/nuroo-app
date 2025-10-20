@@ -12,10 +12,18 @@ import { Task } from '@/lib/home/home.types';
 import { formatProgressPercentage } from '@/lib/home/home.utils';
 import { DailyLimitsService } from '@/lib/services/dailyLimitsService';
 import { ProgressService } from '@/lib/services/progressService';
+import { useFocusEffect } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { RefreshControl, ScrollView, Text, View } from 'react-native';
+import {
+  Animated,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
@@ -24,8 +32,11 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [hasIncompleteTasks, setHasIncompleteTasks] = useState(false);
+  const [hasNewTasks, setHasNewTasks] = useState(false);
   const hasCheckedMorningTasks = useRef(false);
   const lastCompletedCount = useRef(0);
+  const lastTaskCount = useRef(0);
+  const bannerOpacity = useRef(new Animated.Value(0)).current;
 
   const { childData, fetchChildData } = useChildData();
   const { fetchTasks, toggleTaskCompletion, setLoadingState } =
@@ -37,6 +48,67 @@ export default function HomeScreen() {
   );
 
   const [firebaseError, setFirebaseError] = useState<string | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      let isMounted = true;
+
+      const refreshOnFocus = async () => {
+        if (user?.uid && childData && isMounted) {
+          console.log('📱 Screen focused, checking for updates...');
+          try {
+            await fetchTasks(user.uid);
+          } catch (error) {
+            console.error('Error refreshing on focus:', error);
+          }
+        }
+      };
+
+      refreshOnFocus();
+
+      return () => {
+        isMounted = false;
+      };
+    }, [user?.uid, childData, fetchTasks]),
+  );
+
+  useEffect(() => {
+    const currentTaskCount = tasks.length;
+
+    if (lastTaskCount.current > 0 && currentTaskCount > lastTaskCount.current) {
+      setHasNewTasks(true);
+      showBanner();
+    }
+
+    lastTaskCount.current = currentTaskCount;
+  }, [tasks.length]);
+
+  // Animate banner in/out
+  const showBanner = () => {
+    Animated.sequence([
+      Animated.timing(bannerOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.delay(5000),
+      Animated.timing(bannerOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setHasNewTasks(false));
+  };
+
+  const handleBannerTap = async () => {
+    setHasNewTasks(false);
+    Animated.timing(bannerOpacity, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+    await handleRefresh();
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -259,126 +331,151 @@ export default function HomeScreen() {
 
   return (
     <LayoutWrapper>
-      <ScrollView
-        style={tw`flex-1 bg-gray-50`}
-        contentContainerStyle={homeStyles.taskList}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
-            tintColor="#4FD1C7"
-            colors={['#4FD1C7', '#1D2B64']}
-            progressBackgroundColor="#ffffff"
-            title={t('home.loading')}
-            titleColor="#6B7280"
-          />
-        }
-      >
-        <View style={tw`p-4`}>
-          <View style={tw`mb-6`}>
-            <Text style={homeStyles.headerTitle}>{t('home.title')}</Text>
-            <Text style={homeStyles.headerSubtitle}>{today}</Text>
-
-            {totalTasks > 0 && (
-              <View
-                style={tw`mt-4 bg-white rounded-lg p-4 shadow-sm border border-gray-100`}
-              >
-                <Text style={tw`text-lg font-semibold text-primary mb-2`}>
-                  {t('home.progress')}
+      <View style={tw`flex-1`}>
+        {/* New Tasks Banner - Instagram style */}
+        {hasNewTasks && (
+          <Animated.View
+            style={[
+              tw`absolute top-0 left-0 right-0 z-50`,
+              { opacity: bannerOpacity },
+            ]}
+          >
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={handleBannerTap}
+              style={tw`mx-4 mt-2 bg-primary rounded-full shadow-lg`}
+            >
+              <View style={tw`px-5 py-3 flex-row items-center justify-center`}>
+                <Text style={tw`text-white font-semibold mr-2`}>
+                  🎯 New tasks available
                 </Text>
-                <View style={tw`flex-row items-center justify-between mb-2`}>
-                  <Text style={tw`text-sm text-gray-600`}>
-                    {completedTasks} {t('home.of')} {totalTasks}{' '}
-                    {t('home.tasks_completed')}
+                <Text style={tw`text-white/80`}>— tap to refresh</Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+        )}
+
+        <ScrollView
+          style={tw`flex-1 bg-gray-50`}
+          contentContainerStyle={homeStyles.taskList}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor="#4FD1C7"
+              colors={['#4FD1C7', '#1D2B64']}
+              progressBackgroundColor="#ffffff"
+              title={t('home.loading')}
+              titleColor="#6B7280"
+            />
+          }
+        >
+          <View style={tw`p-4`}>
+            <View style={tw`mb-6`}>
+              <Text style={homeStyles.headerTitle}>{t('home.title')}</Text>
+              <Text style={homeStyles.headerSubtitle}>{today}</Text>
+
+              {totalTasks > 0 && (
+                <View
+                  style={tw`mt-4 bg-white rounded-lg p-4 shadow-sm border border-gray-100`}
+                >
+                  <Text style={tw`text-lg font-semibold text-primary mb-2`}>
+                    {t('home.progress')}
                   </Text>
-                  <Text style={tw`text-sm font-semibold text-primary`}>
-                    {formatProgressPercentage(completedTasks, totalTasks)}
-                  </Text>
+                  <View style={tw`flex-row items-center justify-between mb-2`}>
+                    <Text style={tw`text-sm text-gray-600`}>
+                      {completedTasks} {t('home.of')} {totalTasks}{' '}
+                      {t('home.tasks_completed')}
+                    </Text>
+                    <Text style={tw`text-sm font-semibold text-primary`}>
+                      {formatProgressPercentage(completedTasks, totalTasks)}
+                    </Text>
+                  </View>
+
+                  <View style={tw`w-full bg-gray-200 rounded-lg h-2`}>
+                    <View
+                      style={[
+                        tw`bg-primary h-2 rounded-lg`,
+                        { width: `${progressPercentage}%` },
+                      ]}
+                    />
+                  </View>
+                </View>
+              )}
+            </View>
+
+            {totalTasks === 0 && (
+              <View style={tw`mt-4`}>
+                <Text style={tw`text-sm text-gray-600 mb-3`}>
+                  📅 {t('home.no_tasks_title')}
+                </Text>
+                <Text style={tw`text-sm text-gray-500 text-center`}>
+                  {t('home.tasks_will_appear_automatically')}
+                </Text>
+              </View>
+            )}
+            <TaskTimer userId={user?.uid} />
+
+            {hasIncompleteTasks && totalTasks > 0 && (
+              <View
+                style={tw`mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg`}
+              >
+                <Text style={tw`text-yellow-700 text-sm font-medium mb-1`}>
+                  {t('home.complete_all_tasks_to_unlock')}
+                </Text>
+                <Text style={tw`text-yellow-600 text-xs`}>
+                  {t('home.complete_tasks_to_unlock_help')}
+                </Text>
+              </View>
+            )}
+            <View style={tw`py-4`}>
+              {displayedTasks.map((task) => (
+                <TaskItem
+                  key={task.id}
+                  task={task}
+                  onToggleComplete={async (taskId) => {
+                    try {
+                      await toggleTaskCompletion(taskId);
+                    } catch (error) {
+                      console.error(
+                        ' Home screen: Error toggling task completion:',
+                        error,
+                      );
+                    }
+                  }}
+                />
+              ))}
+            </View>
+
+            {totalTasks > 0 && completedTasks === totalTasks && (
+              <View style={tw`mt-6 mb-4`}>
+                <View
+                  style={tw`bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 border border-green-200 shadow-sm`}
+                >
+                  <View style={tw`items-center`}>
+                    <Text style={tw`text-4xl mb-2`}>🎉</Text>
+                    <Text
+                      style={tw`text-green-700 text-xl font-bold text-center mb-2`}
+                    >
+                      {t('home.all_tasks_completed')}
+                    </Text>
+                    <Text
+                      style={tw`text-green-600 text-center text-base leading-6`}
+                    >
+                      {t('home.all_tasks_completed_message')}
+                    </Text>
+                    <Text style={tw`text-green-500 text-center text-sm mt-2`}>
+                      {t('home.new_tasks_tomorrow')}
+                    </Text>
+                  </View>
                 </View>
 
-                <View style={tw`w-full bg-gray-200 rounded-lg h-2`}>
-                  <View
-                    style={[
-                      tw`bg-primary h-2 rounded-lg`,
-                      { width: `${progressPercentage}%` },
-                    ]}
-                  />
-                </View>
+                <View style={tw`mt-3`}></View>
               </View>
             )}
           </View>
-
-          {totalTasks === 0 && (
-            <View style={tw`mt-4`}>
-              <Text style={tw`text-sm text-gray-600 mb-3`}>
-                📅 {t('home.no_tasks_title')}
-              </Text>
-              <Text style={tw`text-sm text-gray-500 text-center`}>
-                {t('home.tasks_will_appear_automatically')}
-              </Text>
-            </View>
-          )}
-          <TaskTimer userId={user?.uid} />
-
-          {hasIncompleteTasks && totalTasks > 0 && (
-            <View
-              style={tw`mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg`}
-            >
-              <Text style={tw`text-yellow-700 text-sm font-medium mb-1`}>
-                {t('home.complete_all_tasks_to_unlock')}
-              </Text>
-              <Text style={tw`text-yellow-600 text-xs`}>
-                {t('home.complete_tasks_to_unlock_help')}
-              </Text>
-            </View>
-          )}
-          <View style={tw`py-4`}>
-            {displayedTasks.map((task) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                onToggleComplete={async (taskId) => {
-                  try {
-                    await toggleTaskCompletion(taskId);
-                  } catch (error) {
-                    console.error(
-                      ' Home screen: Error toggling task completion:',
-                      error,
-                    );
-                  }
-                }}
-              />
-            ))}
-          </View>
-
-          {totalTasks > 0 && completedTasks === totalTasks && (
-            <View style={tw`mt-6 mb-4`}>
-              <View
-                style={tw`bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 border border-green-200 shadow-sm`}
-              >
-                <View style={tw`items-center`}>
-                  <Text style={tw`text-4xl mb-2`}>🎉</Text>
-                  <Text
-                    style={tw`text-green-700 text-xl font-bold text-center mb-2`}
-                  >
-                    {t('home.all_tasks_completed')}
-                  </Text>
-                  <Text
-                    style={tw`text-green-600 text-center text-base leading-6`}
-                  >
-                    {t('home.all_tasks_completed_message')}
-                  </Text>
-                  <Text style={tw`text-green-500 text-center text-sm mt-2`}>
-                    {t('home.new_tasks_tomorrow')}
-                  </Text>
-                </View>
-              </View>
-
-              <View style={tw`mt-3`}></View>
-            </View>
-          )}
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
     </LayoutWrapper>
   );
 }
