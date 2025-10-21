@@ -6,6 +6,7 @@ import Constants from 'expo-constants';
 import type * as NotificationsTypes from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
 import { doc, getDoc } from 'firebase/firestore';
+import { NotificationEvents } from './notificationEventEmitter';
 import { ProgressService } from './progressService';
 import { TaskGenerationService } from './taskGenerationService';
 
@@ -180,7 +181,7 @@ export class NotificationService {
   }
 
   /**
-   * Handle notification response
+   * Handle notification response (when user taps a notification)
    */
   static async handleNotificationResponse(
     response: NotificationsTypes.NotificationResponse,
@@ -189,26 +190,73 @@ export class NotificationService {
       const { type, taskCount, taskTitle } = response.notification.request
         .content.data as any;
 
+      console.log(`📱 Notification tapped - Type: ${type}`);
+
       switch (type) {
         case 'daily_tasks':
+          console.log('📱 User tapped daily tasks notification');
+          // Trigger task refresh
+          NotificationEvents.emitRefreshTasks();
           break;
 
         case 'tasks_generated':
           console.log(
             `📱 User tapped tasks generated notification (${taskCount} tasks)`,
           );
-
+          // Trigger task refresh to show newly generated tasks
+          NotificationEvents.emitRefreshTasks();
           break;
 
         case 'task_completed':
           console.log(
             `📱 User tapped task completion notification: ${taskTitle}`,
           );
-
+          // Could navigate to specific task or refresh list
+          NotificationEvents.emitRefreshTasks();
           break;
+
+        default:
+          console.log(`📱 Unknown notification type: ${type}`);
+          // Default action: refresh tasks
+          NotificationEvents.emitRefreshTasks();
       }
     } catch (error) {
       console.error('❌ Error handling notification response:', error);
+    }
+  }
+
+  /**
+   * Setup notification listeners
+   * Call this when the app starts
+   */
+  static setupNotificationListeners(): (() => void) | null {
+    if (isExpoGo || !Notifications) {
+      console.warn(`⚠️ ${i18n.t('notifications.not_available_expo_go')}`);
+      return null;
+    }
+
+    try {
+      // Listen for notifications received while app is foregrounded
+      const foregroundSubscription =
+        Notifications!.addNotificationReceivedListener((notification) => {
+          console.log('📬 Notification received in foreground:', notification);
+        });
+
+      // Listen for user interactions with notifications
+      const responseSubscription =
+        Notifications!.addNotificationResponseReceivedListener((response) => {
+          console.log('📱 User interacted with notification');
+          this.handleNotificationResponse(response);
+        });
+
+      // Return cleanup function
+      return () => {
+        foregroundSubscription.remove();
+        responseSubscription.remove();
+      };
+    } catch (error) {
+      console.error('❌ Error setting up notification listeners:', error);
+      return null;
     }
   }
 

@@ -11,6 +11,7 @@ import { homeStyles } from '@/lib/home/home.styles';
 import { Task } from '@/lib/home/home.types';
 import { formatProgressPercentage } from '@/lib/home/home.utils';
 import { DailyLimitsService } from '@/lib/services/dailyLimitsService';
+import { NotificationEvents } from '@/lib/services/notificationEventEmitter';
 import { ProgressService } from '@/lib/services/progressService';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
@@ -278,6 +279,36 @@ export default function HomeScreen() {
       hasChildData: !!childData,
     });
   }, [loading, tasks.length, user?.uid, childData]);
+
+  // Listen for notification taps
+  useEffect(() => {
+    console.log('🔔 Setting up notification tap listener');
+
+    const unsubscribe = NotificationEvents.onTasksGeneratedTap(async () => {
+      console.log('📱 Notification tapped! Refreshing tasks...');
+
+      // Haptic feedback for better UX
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+      // Refresh tasks to show newly generated ones
+      if (user?.uid) {
+        try {
+          setLoading(true);
+          await Promise.all([fetchChildData(user.uid), fetchTasks(user.uid)]);
+          console.log('✅ Tasks refreshed after notification tap');
+        } catch (error) {
+          console.error('❌ Error refreshing tasks after notification:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    });
+
+    return () => {
+      console.log('🔔 Cleaning up notification tap listener');
+      unsubscribe();
+    };
+  }, [user?.uid, fetchTasks, fetchChildData]);
 
   const handleRefresh = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
