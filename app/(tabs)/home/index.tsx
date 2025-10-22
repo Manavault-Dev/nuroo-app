@@ -58,7 +58,8 @@ export default function HomeScreen() {
         if (user?.uid && childData && isMounted) {
           console.log('📱 Screen focused, checking for updates...');
           try {
-            await fetchTasks(user.uid);
+            // Force refresh to check for new day
+            await fetchTasks(user.uid, true);
           } catch (error) {
             console.error('Error refreshing on focus:', error);
           }
@@ -294,7 +295,11 @@ export default function HomeScreen() {
       if (user?.uid) {
         try {
           setLoading(true);
-          await Promise.all([fetchChildData(user.uid), fetchTasks(user.uid)]);
+          // Force refresh to get latest tasks
+          await Promise.all([
+            fetchChildData(user.uid),
+            fetchTasks(user.uid, true),
+          ]);
           console.log('✅ Tasks refreshed after notification tap');
         } catch (error) {
           console.error('❌ Error refreshing tasks after notification:', error);
@@ -319,7 +324,11 @@ export default function HomeScreen() {
 
     if (user?.uid) {
       try {
-        await Promise.all([fetchChildData(user.uid), fetchTasks(user.uid)]);
+        // Force refresh on manual refresh
+        await Promise.all([
+          fetchChildData(user.uid),
+          fetchTasks(user.uid, true),
+        ]);
 
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } catch (error: unknown) {
