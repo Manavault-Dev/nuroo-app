@@ -124,6 +124,18 @@ export const DevelopmentProgress: React.FC<DevelopmentProgressProps> = ({
     return colorMap[color] || colorMap.blue;
   };
 
+  const getProgressBarColor = (color: string): string => {
+    const colorMap: Record<string, string> = {
+      blue: '#3B82F6',
+      green: '#22C55E',
+      purple: '#A855F7',
+      yellow: '#EAB308',
+      pink: '#EC4899',
+      orange: '#F97316',
+    };
+    return colorMap[color] || colorMap.blue;
+  };
+
   return (
     <View style={tw`bg-white rounded-2xl shadow-sm border border-gray-100`}>
       <View
@@ -190,13 +202,10 @@ export const DevelopmentProgress: React.FC<DevelopmentProgressProps> = ({
                 <View
                   style={[
                     tw`h-3 rounded-full shadow-sm`,
-                    { width: `${progressValue}%` },
-                    color === 'blue' && tw`bg-blue-500`,
-                    color === 'green' && tw`bg-green-500`,
-                    color === 'purple' && tw`bg-purple-500`,
-                    color === 'yellow' && tw`bg-yellow-500`,
-                    color === 'pink' && tw`bg-pink-500`,
-                    color === 'orange' && tw`bg-orange-500`,
+                    {
+                      width: `${progressValue}%`,
+                      backgroundColor: getProgressBarColor(color),
+                    },
                   ]}
                 />
               </View>
