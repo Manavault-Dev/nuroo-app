@@ -86,11 +86,11 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
   };
 
   const getLevelColor = (level: number) => {
-    if (level <= 3) return 'bg-blue-500';
-    if (level <= 6) return 'bg-green-500';
-    if (level <= 9) return 'bg-yellow-500';
-    if (level <= 12) return 'bg-orange-500';
-    return 'bg-purple-500';
+    if (level <= 3) return '#3B82F6'; // blue-500
+    if (level <= 6) return '#22C55E'; // green-500
+    if (level <= 9) return '#EAB308'; // yellow-500
+    if (level <= 12) return '#F97316'; // orange-500
+    return '#A855F7'; // purple-500
   };
 
   return (
@@ -110,7 +110,7 @@ export const LevelProgress: React.FC<LevelProgressProps> = ({ progress }) => {
         <View
           style={[
             tw`w-24 h-24 rounded-full items-center justify-center mb-3`,
-            tw`${getLevelColor(currentLevel)}`,
+            { backgroundColor: getLevelColor(currentLevel || 0) },
           ]}
         >
           <Text style={tw`text-white text-3xl font-bold`}>{currentLevel}</Text>
