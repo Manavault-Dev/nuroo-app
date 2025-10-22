@@ -21,6 +21,7 @@ export const useTaskManagement = (
   const [loading, setLoading] = useState(true);
   const [lastFetchDate, setLastFetchDate] = useState<string | null>(null);
   const [cache, setCache] = useState<Map<string, Task[]>>(new Map());
+  const lastFetchDateRef = useRef<string | null>(null);
 
   const tasksRef = useRef<Task[]>([]);
   tasksRef.current = tasks;
@@ -84,11 +85,34 @@ export const useTaskManagement = (
   );
 
   const fetchTasks = useCallback(
-    async (userId: string) => {
+    async (userId: string, forceRefresh: boolean = false) => {
       try {
         const today = new Date().toISOString().split('T')[0];
 
-        if (lastFetchDate === today && tasks.length > 0) {
+        // Check if it's a new day - if so, clear old tasks immediately
+        const isNewDay =
+          lastFetchDateRef.current && lastFetchDateRef.current !== today;
+
+        if (isNewDay) {
+          console.log(
+            `📅 New day detected! Clearing old tasks from ${lastFetchDateRef.current}`,
+          );
+          // Immediately clear old tasks to avoid showing stale data
+          setTasksFunction([]);
+          setCache(new Map());
+          setLastFetchDate(null);
+          lastFetchDateRef.current = null;
+        }
+
+        // Skip fetch only if:
+        // 1. Same day as last fetch
+        // 2. We have tasks
+        // 3. Not forcing a refresh
+        if (
+          lastFetchDateRef.current === today &&
+          tasks.length > 0 &&
+          !forceRefresh
+        ) {
           console.log(
             '📅 Using existing tasks for today (local state preserved)',
           );
@@ -96,15 +120,22 @@ export const useTaskManagement = (
           return;
         }
 
+        // Define cache key for this fetch (needed throughout the function)
         const cacheKey = `${userId}-${today}`;
-        if (cache.has(cacheKey) && tasks.length === 0) {
-          const cachedTasks = cache.get(cacheKey)!;
-          setTasksFunction(cachedTasks);
-          setLastFetchDate(today);
-          setLoadingState(false);
-          return;
+
+        // Don't use cache on new day or forced refresh
+        if (!isNewDay && !forceRefresh) {
+          if (cache.has(cacheKey) && tasks.length === 0) {
+            const cachedTasks = cache.get(cacheKey)!;
+            setTasksFunction(cachedTasks);
+            setLastFetchDate(today);
+            lastFetchDateRef.current = today;
+            setLoadingState(false);
+            return;
+          }
         }
 
+        console.log(`🔄 Fetching fresh tasks for ${today}...`);
         setLoadingState(true);
 
         const timeoutPromise = new Promise((_, reject) => {
@@ -153,8 +184,10 @@ export const useTaskManagement = (
 
             setTasksFunction(mergedTasks);
             setLastFetchDate(today);
+            lastFetchDateRef.current = today;
             setCache((prev) => new Map(prev.set(cacheKey, mergedTasks)));
             setLoadingState(false);
+            console.log(`✅ Loaded ${mergedTasks.length} tasks for today`);
             return;
           }
 
@@ -185,13 +218,17 @@ export const useTaskManagement = (
 
             setTasksFunction(mergedTasks);
             setLastFetchDate(today);
+            lastFetchDateRef.current = today;
             setCache((prev) => new Map(prev.set(cacheKey, mergedTasks)));
             setLoadingState(false);
+            console.log(`✅ Loaded ${mergedTasks.length} recent tasks`);
             return;
           }
 
+          console.log('📭 No tasks found for today');
           setTasksFunction([]);
           setLastFetchDate(today);
+          lastFetchDateRef.current = today;
           setCache((prev) => new Map(prev.set(cacheKey, [])));
           setLoadingState(false);
         })();
@@ -224,6 +261,7 @@ export const useTaskManagement = (
 
               setTasksFunction(fallbackTasks);
               setLastFetchDate(today);
+              lastFetchDateRef.current = today;
             }
           } catch (fallbackError) {
             console.error('❌ Fallback fetching also failed:', fallbackError);
