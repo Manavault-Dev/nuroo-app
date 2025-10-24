@@ -89,7 +89,6 @@ export const useTaskManagement = (
       try {
         const today = new Date().toISOString().split('T')[0];
 
-        // Check if it's a new day - if so, clear old tasks immediately
         const isNewDay =
           lastFetchDateRef.current && lastFetchDateRef.current !== today;
 
@@ -97,17 +96,13 @@ export const useTaskManagement = (
           console.log(
             `📅 New day detected! Clearing old tasks from ${lastFetchDateRef.current}`,
           );
-          // Immediately clear old tasks to avoid showing stale data
+
           setTasksFunction([]);
           setCache(new Map());
           setLastFetchDate(null);
           lastFetchDateRef.current = null;
         }
 
-        // Skip fetch only if:
-        // 1. Same day as last fetch
-        // 2. We have tasks
-        // 3. Not forcing a refresh
         if (
           lastFetchDateRef.current === today &&
           tasks.length > 0 &&
@@ -123,7 +118,6 @@ export const useTaskManagement = (
         // Define cache key for this fetch (needed throughout the function)
         const cacheKey = `${userId}-${today}`;
 
-        // Don't use cache on new day or forced refresh
         if (!isNewDay && !forceRefresh) {
           if (cache.has(cacheKey) && tasks.length === 0) {
             const cachedTasks = cache.get(cacheKey)!;

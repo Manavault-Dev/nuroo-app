@@ -155,6 +155,7 @@ export class ProgressService {
 
   static async hasIncompleteTasks(userId: string): Promise<boolean> {
     try {
+      const today = new Date().toISOString().split('T')[0];
       const { collection, query, where, getDocs } = await import(
         'firebase/firestore'
       );
@@ -166,18 +167,25 @@ export class ProgressService {
       );
 
       const incompleteTasksSnapshot = await getDocs(incompleteTasksQuery);
-      const incompleteCount = incompleteTasksSnapshot.size;
+      let oldIncompleteCount = 0;
 
-      if (incompleteCount > 0) {
-        incompleteTasksSnapshot.forEach((doc) => {
-          const task = doc.data();
+      incompleteTasksSnapshot.forEach((doc) => {
+        const task = doc.data();
+        if (task.dailyId && task.dailyId < today) {
+          oldIncompleteCount++;
           console.log(
-            `📋 Incomplete task: "${task.title}" (Date: ${task.dailyId})`,
+            `📋 Old incomplete task: "${task.title}" (Date: ${task.dailyId})`,
           );
-        });
+        }
+      });
+
+      if (oldIncompleteCount > 0) {
+        console.log(
+          `⚠️ Found ${oldIncompleteCount} incomplete task(s) from previous days`,
+        );
       }
 
-      return incompleteCount > 0;
+      return oldIncompleteCount > 0;
     } catch (error) {
       console.error('❌ Error checking for incomplete tasks:', error);
       return false;
