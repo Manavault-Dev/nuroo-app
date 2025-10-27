@@ -1,3 +1,9 @@
+// External Imports
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { RefreshControl, ScrollView, Text, View } from 'react-native';
+
+// Internal Imports
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import { AchievementSystem } from '@/components/ProgressDevelopment/AchievementSystem';
 import { DevelopmentProgress } from '@/components/ProgressDevelopment/DevelopmentProgress';
@@ -5,9 +11,6 @@ import { LevelProgress } from '@/components/ProgressDevelopment/LevelProgress';
 import { WeeklyCalendar } from '@/components/ProgressDevelopment/WeeklyCalendar';
 import { useProgressTracking } from '@/hooks/progressHooks/useProgressTracking';
 import tw from '@/lib/design/tw';
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { RefreshControl, ScrollView, Text, View } from 'react-native';
 
 export default function ProgressScreen() {
   const { t } = useTranslation();

@@ -1,6 +1,9 @@
-import { auth } from '@/lib/firebase/firebase';
+// External Imports
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import React, { createContext, useContext, useEffect, useState } from 'react';
+
+// Internal Imports
+import { auth } from '@/lib/firebase/firebase';
 
 const AuthContext = createContext<{
   user: User | null;

@@ -1,7 +1,10 @@
-import tw from '@/lib/design/tw';
+// External Imports
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
+
+// Internal Imports
+import tw from '@/lib/design/tw';
 
 interface TaskTimerProps {
   userId?: string;

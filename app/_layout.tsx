@@ -1,11 +1,14 @@
-import ErrorBoundary from '@/components/ErrorBoundary/ErrorBoundary';
-import { AuthProvider } from '@/features/auth/AuthContext';
-import '@/i18n/i18n';
-import { NotificationService } from '@/lib/services/notificationService';
+// External Imports
 import Constants from 'expo-constants';
 import { Slot } from 'expo-router';
 import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+// Internal Imports
+import ErrorBoundary from '@/components/ErrorBoundary/ErrorBoundary';
+import { AuthProvider } from '@/features/auth/AuthContext';
+import '@/i18n/i18n';
+import { NotificationService } from '@/lib/services/notificationService';
 
 const isExpoGo = Constants.appOwnership === 'expo';
 

@@ -1,10 +1,13 @@
-import tw from '@/lib/design/tw';
-import { Task } from '@/lib/home/home.types';
+// External Imports
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+
+// Internal Imports
+import tw from '@/lib/design/tw';
+import { Task } from '@/lib/home/home.types';
 
 interface TaskItemProps {
   task: Task;

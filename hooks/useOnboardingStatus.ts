@@ -1,6 +1,10 @@
-import { auth, db } from '@/lib/firebase/firebase';
+// External Imports
 import { doc, getDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
+
+import { auth, db } from '@/lib/firebase/firebase';
+
+// Internal Imports
 
 interface OnboardingStatus {
   isCompleted: boolean;

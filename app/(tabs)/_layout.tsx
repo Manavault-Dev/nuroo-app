@@ -1,4 +1,4 @@
-import { colors } from '@/lib/design/tokens';
+// External Imports
 import { Ionicons } from '@expo/vector-icons';
 import * as NavigationBar from 'expo-navigation-bar';
 import { Tabs } from 'expo-router';
@@ -6,6 +6,9 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+// Internal Imports
+import { colors } from '@/lib/design/tokens';
 
 export default function TabsLayout() {
   const { t } = useTranslation();

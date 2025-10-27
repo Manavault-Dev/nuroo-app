@@ -1,8 +1,4 @@
-import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import tw from '@/lib/design/tw';
-import { auth, db } from '@/lib/firebase/firebase';
+// External Imports
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -18,6 +14,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
+// Internal Imports
+import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import tw from '@/lib/design/tw';
+import { auth, db } from '@/lib/firebase/firebase';
 
 export default function SignInScreen() {
   const { t } = useTranslation();

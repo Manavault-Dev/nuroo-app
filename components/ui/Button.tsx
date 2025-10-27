@@ -1,12 +1,15 @@
-import tw from '@/lib/design/tw';
+// External Imports
 import React from 'react';
 import {
-  TouchableOpacity,
-  Text,
-  TouchableOpacityProps,
   StyleProp,
+  Text,
   TextStyle,
+  TouchableOpacity,
+  TouchableOpacityProps,
 } from 'react-native';
+
+// Internal Imports
+import tw from '@/lib/design/tw';
 
 type ButtonProps = TouchableOpacityProps & {
   variant?: 'primary' | 'outline' | 'coral' | 'teal';

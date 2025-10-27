@@ -1,7 +1,4 @@
-import { askNuroo } from '@/lib/api/openai';
-import tw from '@/lib/design/tw';
-import { auth, db } from '@/lib/firebase/firebase';
-import { DailyLimitsService } from '@/lib/services/dailyLimitsService';
+// External Imports
 import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -19,6 +16,12 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+// Internal Imports
+import { askNuroo } from '@/lib/api/openai';
+import tw from '@/lib/design/tw';
+import { auth, db } from '@/lib/firebase/firebase';
+import { DailyLimitsService } from '@/lib/services/dailyLimitsService';
 
 interface Message {
   from: 'user' | 'nuroo';

@@ -1,5 +1,8 @@
-import { Linking } from 'react-native';
+// External Imports
 import Constants from 'expo-constants';
+import { Linking } from 'react-native';
+
+// Internal Imports
 
 const { APP_STORE_URL, FEEDBACK_EMAIL, HELP_URL, PRIVACY_URL } =
   Constants.expoConfig?.extra ?? {};

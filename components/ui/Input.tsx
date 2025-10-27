@@ -1,6 +1,9 @@
-import tw from '@/lib/design/tw';
+// External Imports
 import React from 'react';
 import { TextInput, TextInputProps } from 'react-native';
+
+// Internal Imports
+import tw from '@/lib/design/tw';
 
 type InputProps = TextInputProps & {
   variant?: 'default' | 'outlined';

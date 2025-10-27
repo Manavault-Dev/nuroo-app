@@ -1,8 +1,11 @@
+// External Imports
+import axios from 'axios';
+import Constants from 'expo-constants';
+
+// Internal Imports
 import { ErrorHandlingService } from '@/lib/services/errorHandlingService';
 import { RateLimitService } from '@/lib/services/rateLimitService';
 import { InputSanitizer } from '@/lib/utils/sanitization';
-import axios from 'axios';
-import Constants from 'expo-constants';
 
 const API_URL = 'https://api.openai.com/v1/chat/completions';
 

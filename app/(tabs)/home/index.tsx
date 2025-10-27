@@ -1,3 +1,18 @@
+// External Imports
+import { useFocusEffect } from '@react-navigation/native';
+import * as Haptics from 'expo-haptics';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  Animated,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
+// Internal Imports
 import { HomeSkeleton } from '@/components/Home/HomeSkeleton';
 import { TaskItem } from '@/components/Home/TaskItem';
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
@@ -13,18 +28,6 @@ import { formatProgressPercentage } from '@/lib/home/home.utils';
 import { DailyLimitsService } from '@/lib/services/dailyLimitsService';
 import { NotificationEvents } from '@/lib/services/notificationEventEmitter';
 import { ProgressService } from '@/lib/services/progressService';
-import { useFocusEffect } from '@react-navigation/native';
-import * as Haptics from 'expo-haptics';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import {
-  Animated,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
 
 export default function HomeScreen() {
   const { t } = useTranslation();

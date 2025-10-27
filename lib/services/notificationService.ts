@@ -1,11 +1,14 @@
-import i18n from '@/i18n/i18n';
-import { auth, db } from '@/lib/firebase/firebase';
-import { ChildData } from '@/lib/home/home.types';
+// External Imports
 import * as BackgroundFetch from 'expo-background-fetch';
 import Constants from 'expo-constants';
 import type * as NotificationsTypes from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
 import { doc, getDoc } from 'firebase/firestore';
+
+// Internal Imports
+import i18n from '@/i18n/i18n';
+import { auth, db } from '@/lib/firebase/firebase';
+import { ChildData } from '@/lib/home/home.types';
 import { NotificationEvents } from './notificationEventEmitter';
 import { ProgressService } from './progressService';
 import { TaskGenerationService } from './taskGenerationService';

@@ -1,5 +1,8 @@
-import React, { ReactNode } from 'react';
-import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+// External Imports
+import { ReactNode } from 'react';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+
+// Internal Imports
 import tw from '@/lib/design/tw';
 
 interface InfoCardProps {

@@ -1,6 +1,9 @@
+// External Imports
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+
+// Internal Imports
 import { db } from '@/lib/firebase/firebase';
 import { ChildData, UserProgress } from '@/lib/home/home.types';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
 export class ProgressService {
   static async initializeProgress(userId: string): Promise<UserProgress> {

@@ -1,6 +1,9 @@
+// External Imports
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Internal Imports
 import { db } from '@/lib/firebase/firebase';
 import { ChildData } from '@/lib/home/home.types';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NotificationService } from './notificationService';
 import { ProgressService } from './progressService';
 import { TaskGenerationService } from './taskGenerationService';

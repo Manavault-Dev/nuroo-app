@@ -1,7 +1,9 @@
-import React, { ReactNode } from 'react';
+// External Imports
+import { ReactNode } from 'react';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, StyleSheet, ViewStyle } from 'react-native';
 
+// Internal Imports
 import { colors, spacing } from '@/lib/design/tokens';
 
 interface LayoutWrapperProps {

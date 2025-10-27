@@ -1,19 +1,19 @@
-import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
-import { Button } from '@/components/ui/Button';
-import tw from '@/lib/design/tw';
+// External Imports
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
-import { auth, db } from '@/lib/firebase/firebase';
-import { useRouter } from 'expo-router';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-
-import AreaSelector from '@/components/OnboardingScreen/AreaSelector/AreaSelector';
-
+// Internal Imports
+import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import ModalPicker from '@/components/ModalPicker/ModalPicker';
+import AreaSelector from '@/components/OnboardingScreen/AreaSelector/AreaSelector';
+import { Button } from '@/components/ui/Button';
 import { useModalPicker } from '@/hooks/useModalPicker';
+import tw from '@/lib/design/tw';
+import { auth, db } from '@/lib/firebase/firebase';
 import { ProgressService } from '@/lib/services/progressService';
 import { diagnosisOptions } from '@/lib/types/onboarding/onboarding.types';
 

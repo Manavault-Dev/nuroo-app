@@ -1,7 +1,10 @@
-import tw from '@/lib/design/tw';
+// External Imports
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Pressable, Text, ViewStyle } from 'react-native';
+
+// Internal Imports
+import tw from '@/lib/design/tw';
 
 interface OptionProps {
   label: string;

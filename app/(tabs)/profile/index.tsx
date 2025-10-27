@@ -1,3 +1,14 @@
+// External Imports
+import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { Globe } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+
+// Internal Imports
 import ChildProfileForm from '@/components/ChildProfileForm/ChildProfileForm';
 import Option from '@/components/ui/Option';
 import { useAuth } from '@/features/auth/AuthContext';
@@ -8,14 +19,6 @@ import {
   translateDevelopmentAreas,
   translateDiagnosis,
 } from '@/lib/utils/translationHelpers';
-import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { Globe } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 
 interface ProfileData {
   fullName: string;

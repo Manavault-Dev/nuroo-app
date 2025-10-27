@@ -1,6 +1,4 @@
-import { auth, db } from '@/lib/firebase/firebase';
-import { Task, UserProgress } from '@/lib/home/home.types';
-import { ProgressService } from '@/lib/services/progressService';
+// External Imports
 import {
   collection,
   doc,
@@ -12,6 +10,11 @@ import {
 } from 'firebase/firestore';
 import { useCallback, useRef, useState } from 'react';
 import { Alert } from 'react-native';
+
+// Internal Imports
+import { auth, db } from '@/lib/firebase/firebase';
+import { Task, UserProgress } from '@/lib/home/home.types';
+import { ProgressService } from '@/lib/services/progressService';
 
 export const useTaskManagement = (
   externalSetTasks?: (tasks: Task[]) => void,

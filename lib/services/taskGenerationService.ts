@@ -1,12 +1,4 @@
-import i18n from '@/i18n/i18n';
-import { generateDevelopmentTask } from '@/lib/api/openai';
-import { db } from '@/lib/firebase/firebase';
-import {
-  ChildData,
-  DailyTaskSet,
-  Task,
-  UserProgress,
-} from '@/lib/home/home.types';
+// External Imports
 import {
   collection,
   deleteDoc,
@@ -16,6 +8,17 @@ import {
   setDoc,
   where,
 } from 'firebase/firestore';
+
+// Internal Imports
+import i18n from '@/i18n/i18n';
+import { generateDevelopmentTask } from '@/lib/api/openai';
+import { db } from '@/lib/firebase/firebase';
+import {
+  ChildData,
+  DailyTaskSet,
+  Task,
+  UserProgress,
+} from '@/lib/home/home.types';
 import { ProgressService } from './progressService';
 
 export class TaskGenerationService {

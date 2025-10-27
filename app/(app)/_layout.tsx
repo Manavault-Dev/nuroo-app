@@ -1,6 +1,9 @@
-import { useAuth } from '@/features/auth/AuthContext';
+// External Imports
 import { Redirect, Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+// Internal Imports
+import { useAuth } from '@/features/auth/AuthContext';
 
 export default function AppLayout() {
   const { user } = useAuth();

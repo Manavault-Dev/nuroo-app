@@ -1,13 +1,16 @@
+// External Imports
+import { Image } from 'expo-image';
+import { router } from 'expo-router';
+import { Globe } from 'lucide-react-native';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Pressable, Text, TouchableOpacity, View } from 'react-native';
+
+// Internal Imports
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import { Button } from '@/components/ui/Button';
 import InfoCard from '@/components/ui/InfoCard';
 import tw from '@/lib/design/tw';
-import { Image } from 'expo-image';
-import { router } from 'expo-router';
-import { Globe } from 'lucide-react-native';
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 
 const LANGUAGES = [
   { code: 'en', label: 'English', flag: '🇺🇸' },

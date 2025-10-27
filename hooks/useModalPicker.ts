@@ -1,4 +1,7 @@
+// External Imports
 import { useState } from 'react';
+
+// Internal Imports
 
 type Option = { label: string; value: string };
 
