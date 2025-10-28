@@ -110,18 +110,11 @@ export class ProgressService {
 
       if (lastTaskDate !== today) {
         console.log(
-          '📅 Last task date different from today, checking for incomplete tasks...',
+          '📅 Last task date different from today, generating new tasks...',
         );
 
-        const hasIncompleteTasks = await this.hasIncompleteTasks(userId);
-
-        if (hasIncompleteTasks) {
-          console.log(
-            '⚠️ Found incomplete tasks from previous days, NOT generating new tasks',
-          );
-          return false;
-        }
-
+        // Generate new tasks for today regardless of incomplete tasks
+        // Old incomplete tasks will be replaced with today's tasks
         return true;
       }
 

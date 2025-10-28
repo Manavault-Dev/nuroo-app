@@ -304,10 +304,15 @@ export const useTaskManagement = (
         setTasksFunction(updatedTasks);
         console.log('✅ Local state updated');
 
-        // Invalidate cache to prevent it from overriding local changes
-        setCache(new Map());
-        setLastFetchDate(null);
-        console.log('🗑️ Cache invalidated to preserve local changes');
+        // Update cache with the new tasks, don't clear it
+        const today = new Date().toISOString().split('T')[0];
+        const cacheKey = `${currentUser.uid}-${today}`;
+        setCache((prev) => {
+          const newCache = new Map(prev);
+          newCache.set(cacheKey, updatedTasks);
+          return newCache;
+        });
+        console.log('✅ Cache updated with new completion state');
 
         // Update Firebase
         const taskRef = doc(db, 'tasks', taskId);

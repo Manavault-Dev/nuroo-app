@@ -30,7 +30,7 @@ import { NotificationEvents } from '@/lib/services/notificationEventEmitter';
 import { ProgressService } from '@/lib/services/progressService';
 
 export default function HomeScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,8 +61,9 @@ export default function HomeScreen() {
         if (user?.uid && childData && isMounted) {
           console.log('📱 Screen focused, checking for updates...');
           try {
-            // Force refresh to check for new day
-            await fetchTasks(user.uid, true);
+            // Only force refresh if we don't have tasks yet, otherwise use cached/local state
+            const shouldForceRefresh = tasks.length === 0;
+            await fetchTasks(user.uid, shouldForceRefresh);
           } catch (error) {
             console.error('Error refreshing on focus:', error);
           }
@@ -74,7 +75,7 @@ export default function HomeScreen() {
       return () => {
         isMounted = false;
       };
-    }, [user?.uid, childData, fetchTasks]),
+    }, [user?.uid, childData, fetchTasks, tasks.length]),
   );
 
   useEffect(() => {
@@ -123,11 +124,15 @@ export default function HomeScreen() {
         hasCheckedMorningTasks.current = true;
         try {
           console.log('🌅 Checking for morning task generation...');
+          // Get user's preferred language or default to current i18n language
+          const userLanguage = childData?.preferredLanguage || i18n.language;
+          console.log('🌍 Using language for morning tasks:', userLanguage);
+
           const generated =
             await DailyLimitsService.generateMorningTasksIfNeeded(
               user.uid,
               childData,
-              t('language.code', { lng: 'en' }),
+              userLanguage,
             );
 
           if (generated && isMounted) {
@@ -213,24 +218,29 @@ export default function HomeScreen() {
     let isMounted = true;
 
     if (user?.uid && childData) {
-      fetchTasks(user.uid).catch((error: unknown) => {
-        if (!isMounted) return;
+      // Only fetch if we don't have tasks already (initial load)
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      const hasTasks = tasks.length > 0;
+      if (!hasTasks) {
+        fetchTasks(user.uid).catch((error: unknown) => {
+          if (!isMounted) return;
 
-        console.error('❌ Error fetching tasks:', error);
+          console.error('❌ Error fetching tasks:', error);
 
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
 
-        if (errorMessage.includes('requires an index')) {
-          setFirebaseError(
-            'Database configuration is being updated. Please wait a moment and refresh.',
-          );
-        } else {
-          setFirebaseError(
-            'Unable to load tasks. Please check your connection and try again.',
-          );
-        }
-      });
+          if (errorMessage.includes('requires an index')) {
+            setFirebaseError(
+              'Database configuration is being updated. Please wait a moment and refresh.',
+            );
+          } else {
+            setFirebaseError(
+              'Unable to load tasks. Please check your connection and try again.',
+            );
+          }
+        });
+      }
     }
 
     return () => {
@@ -478,7 +488,7 @@ export default function HomeScreen() {
                   task={task}
                   onToggleComplete={async (taskId) => {
                     try {
-                      await toggleTaskCompletion(taskId);
+                      await toggleTaskCompletion(taskId, user?.uid);
                     } catch (error) {
                       console.error(
                         ' Home screen: Error toggling task completion:',

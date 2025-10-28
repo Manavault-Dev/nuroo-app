@@ -96,9 +96,24 @@ const ProfileScreen = () => {
     }
   }, [profile]);
 
-  const handleLanguageChange = (lang: string) => {
+  const handleLanguageChange = async (lang: string) => {
     i18n.changeLanguage(lang);
     setShowLanguageDropdown(false);
+
+    // Save language preference to Firebase
+    try {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        await setDoc(
+          doc(db, 'users', currentUser.uid),
+          { preferredLanguage: lang },
+          { merge: true },
+        );
+        console.log('🌍 Language preference saved:', lang);
+      }
+    } catch (error) {
+      console.error('Error saving language preference:', error);
+    }
   };
 
   const handleLogout = async () => {

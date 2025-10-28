@@ -1,156 +1,17 @@
-import { db } from '@/lib/firebase/firebase';
-import { ChildData, Task, UserProgress } from '@/lib/home/home.types';
-import { ProgressService } from '@/lib/services/progressService';
-import { TaskGenerationService } from '@/lib/services/taskGenerationService';
-import { doc, getDoc } from 'firebase/firestore';
+// External Imports
+import { doc, setDoc } from 'firebase/firestore';
 import { Alert } from 'react-native';
 
+// Internal Imports
+import { auth, db } from '@/lib/firebase/firebase';
+import { Task, UserProgress } from '@/lib/home/home.types';
+import { ProgressService } from './progressService';
+import { TaskFetchingService } from './taskFetchingService';
+
 export class TaskCompletionService {
-  static async handleAllTasksCompleted(
-    userId: string,
-    completedTasks: Task[],
-    onNewTasksGenerated?: (tasks: Task[]) => void,
-    language: string = 'en',
-  ): Promise<void> {
-    try {
-      const userDoc = await getDoc(doc(db, 'users', userId));
-      if (!userDoc.exists()) {
-        console.error('❌ User data not found');
-        return;
-      }
-
-      const childData = userDoc.data() as ChildData;
-
-      await this.showCompletionCelebration(completedTasks.length, language);
-      await this.updateProgressForCompletion(userId, completedTasks);
-
-      const bonusTasks = await this.generateBonusTasks(
-        userId,
-        childData,
-        language,
-      );
-
-      if (bonusTasks.length > 0 && onNewTasksGenerated) {
-        onNewTasksGenerated(bonusTasks);
-        await this.showBonusTasksNotification(bonusTasks.length, language);
-      }
-    } catch (error) {
-      console.error('❌ Error handling task completion:', error);
-    }
-  }
-
-  private static async showCompletionCelebration(
-    taskCount: number,
-    language: string,
-  ): Promise<void> {
-    const messages = {
-      en: {
-        title: '🎉 Amazing Work!',
-        message: `Congratulations! You've completed all ${taskCount} tasks today! Your dedication to your child's development is inspiring.`,
-        bonus: 'Bonus tasks are being generated to keep the momentum going!',
-      },
-      ru: {
-        title: '🎉 Отличная работа!',
-        message: `Поздравляем! Вы выполнили все ${taskCount} задач сегодня! Ваша преданность развитию вашего ребёнка вдохновляет.`,
-        bonus: 'Генерируются бонусные задачи, чтобы сохранить импульс!',
-      },
-    };
-
-    const msg = messages[language as keyof typeof messages] || messages.en;
-
-    Alert.alert(msg.title, `${msg.message}\n\n${msg.bonus}`, [
-      { text: 'Continue', style: 'default' },
-    ]);
-  }
-
-  private static async updateProgressForCompletion(
-    userId: string,
-    completedTasks: Task[],
-  ): Promise<void> {
-    try {
-      const progress = await ProgressService.getProgress(userId);
-      if (!progress) return;
-
-      const developmentAreas = [
-        ...new Set(completedTasks.map((task) => task.developmentArea)),
-      ];
-
-      for (const area of developmentAreas) {
-        const progressField = this.mapDevelopmentAreaToProgress(area);
-        if (progressField) {
-          const currentValue = progress[progressField];
-          const bonusProgress = Math.min(100, currentValue + 5);
-          await ProgressService.updateProgress(
-            userId,
-            progressField,
-            bonusProgress,
-          );
-          console.log(
-            `🎯 Bonus progress: ${progressField} increased to ${bonusProgress}/100`,
-          );
-        }
-      }
-    } catch (error) {
-      console.error('❌ Error updating completion progress:', error);
-    }
-  }
-
-  private static async generateBonusTasks(
-    userId: string,
-    childData: ChildData,
-    language: string,
-  ): Promise<Task[]> {
-    try {
-      const bonusTasks = await TaskGenerationService.generatePersonalizedTasks(
-        userId,
-        childData,
-        language,
-      );
-
-      if (bonusTasks.length > 0) {
-        const bonusDailyId = `bonus_${new Date().toISOString().split('T')[0]}`;
-
-        const bonusTasksWithId = bonusTasks.map((task) => ({
-          ...task,
-          dailyId: bonusDailyId,
-        }));
-
-        await TaskGenerationService['storeDailyTasks'](
-          userId,
-          bonusTasksWithId,
-          childData,
-        );
-      }
-
-      return bonusTasks;
-    } catch (error) {
-      console.error('❌ Error generating bonus tasks:', error);
-      return [];
-    }
-  }
-
-  private static async showBonusTasksNotification(
-    taskCount: number,
-    language: string,
-  ): Promise<void> {
-    const messages = {
-      en: {
-        title: '🎁 Bonus Tasks Ready!',
-        message: `${taskCount} new bonus tasks have been generated to keep you engaged!`,
-      },
-      ru: {
-        title: '🎁 Бонусные задачи готовы!',
-        message: `Сгенерировано ${taskCount} новых бонусных задач для продолжения работы!`,
-      },
-    };
-
-    const msg = messages[language as keyof typeof messages] || messages.en;
-
-    Alert.alert(msg.title, msg.message, [
-      { text: 'View Tasks', style: 'default' },
-    ]);
-  }
-
+  /**
+   * Map development area to progress field
+   */
   private static mapDevelopmentAreaToProgress(
     developmentArea: string,
   ): keyof UserProgress | null {
@@ -165,68 +26,110 @@ export class TaskCompletionService {
       behavior: 'behavior',
     };
 
-    return areaMap[developmentArea.toLowerCase()] || null;
+    const result = areaMap[developmentArea.toLowerCase()];
+    return result || null;
   }
 
-  static async offerMoreTasks(
+  /**
+   * Update progress for completed task
+   */
+  private static async updateProgressForTask(
+    developmentArea: string,
     userId: string,
-    childData: ChildData,
-    language: string = 'en',
-    onNewTasksGenerated?: (tasks: Task[]) => void,
   ): Promise<void> {
-    const messages = {
-      en: {
-        title: 'Keep Going?',
-        message:
-          "Would you like to generate more tasks to continue your child's development journey?",
-        yes: 'Yes, Generate More',
-        no: 'Maybe Later',
-      },
-      ru: {
-        title: 'Продолжить?',
-        message:
-          'Хотите сгенерировать больше задач для продолжения развития вашего ребёнка?',
-        yes: 'Да, сгенерировать',
-        no: 'Может быть позже',
-      },
-    };
+    try {
+      const progressField = this.mapDevelopmentAreaToProgress(developmentArea);
 
-    const msg = messages[language as keyof typeof messages] || messages.en;
+      if (progressField) {
+        const currentProgress = await ProgressService.getProgress(userId);
+        if (currentProgress) {
+          const currentValue = currentProgress[progressField];
+          const newProgress = Math.min(100, currentValue + 2);
+          await ProgressService.updateProgress(
+            userId,
+            progressField,
+            newProgress,
+          );
+          console.log(
+            `✅ Progress updated: ${progressField} increased to ${newProgress}/100`,
+          );
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error updating progress:', error);
+    }
+  }
 
-    Alert.alert(msg.title, msg.message, [
-      { text: msg.no, style: 'cancel' },
-      {
-        text: msg.yes,
-        style: 'default',
-        onPress: async () => {
-          try {
-            const newTasks =
-              await TaskGenerationService.generatePersonalizedTasks(
-                userId,
-                childData,
-                language,
-              );
+  /**
+   * Toggle task completion status
+   */
+  static async toggleTaskCompletion(
+    taskId: string,
+    currentTasks: Task[],
+  ): Promise<{ success: boolean; updatedTasks: Task[]; error?: string }> {
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        return {
+          success: false,
+          updatedTasks: currentTasks,
+          error: 'No current user found',
+        };
+      }
 
-            if (newTasks.length > 0) {
-              await TaskGenerationService['storeDailyTasks'](
-                userId,
-                newTasks,
-                childData,
-              );
-              if (onNewTasksGenerated) {
-                onNewTasksGenerated(newTasks);
-              }
-              Alert.alert('Success', `${newTasks.length} new tasks generated!`);
-            }
-          } catch (error) {
-            console.error('Error generating more tasks:', error);
-            Alert.alert(
-              'Error',
-              'Failed to generate more tasks. Please try again.',
-            );
-          }
-        },
-      },
-    ]);
+      // Find the task in local state
+      let currentTask: Task | undefined = currentTasks.find(
+        (t) => t.id === taskId,
+      );
+
+      // If not found locally, fetch from Firebase
+      if (!currentTask) {
+        const fetchedTask = await TaskFetchingService.fetchTaskById(taskId);
+        currentTask = fetchedTask ?? undefined;
+      }
+
+      if (!currentTask) {
+        Alert.alert('Error', 'Task not found. Please refresh and try again.');
+        return {
+          success: false,
+          updatedTasks: currentTasks,
+          error: 'Task not found',
+        };
+      }
+
+      const newCompletedState = !currentTask.completed;
+
+      // Update local tasks
+      const updatedTasks = currentTasks.map((task) =>
+        task.id === taskId ? { ...task, completed: newCompletedState } : task,
+      );
+
+      // Update Firebase
+      const taskRef = doc(db, 'tasks', taskId);
+      await setDoc(taskRef, { completed: newCompletedState }, { merge: true });
+
+      // Update progress if task is completed
+      if (newCompletedState) {
+        try {
+          await this.updateProgressForTask(
+            currentTask.developmentArea,
+            currentUser.uid,
+          );
+        } catch (error) {
+          console.error('❌ Error updating progress:', error);
+        }
+      }
+
+      return { success: true, updatedTasks };
+    } catch (error: any) {
+      console.error('❌ Error toggling task completion:', error);
+      Alert.alert('Error', 'Failed to update task. Please try again.');
+
+      return {
+        success: false,
+        updatedTasks: currentTasks,
+        error: error.message || 'Unknown error',
+      };
+    }
   }
 }

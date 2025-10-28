@@ -33,10 +33,14 @@ export const useAutoTaskGeneration = (
       if (shouldGenerate) {
         setAutoGenerating(true);
 
+        // Use user's preferred language from childData or fall back to i18n language
+        const userLanguage = childData.preferredLanguage || i18n.language;
+        console.log('🌍 Auto-generating tasks in language:', userLanguage);
+
         const newTasks = await TaskGenerationService.generatePersonalizedTasks(
           currentUser.uid,
           childData,
-          i18n.language,
+          userLanguage,
         );
 
         if (newTasks.length > 0) {
