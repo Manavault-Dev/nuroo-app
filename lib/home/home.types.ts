@@ -22,6 +22,7 @@ export interface ChildData {
   lastTaskDate?: string;
   onboardingCompleted?: boolean;
   onboardingCompletedAt?: Date;
+  preferredLanguage?: string;
 }
 
 export interface UserProgress {

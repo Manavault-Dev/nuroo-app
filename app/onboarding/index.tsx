@@ -18,7 +18,7 @@ import { ProgressService } from '@/lib/services/progressService';
 import { diagnosisOptions } from '@/lib/types/onboarding/onboarding.types';
 
 export default function OnboardingScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
 
   const [childName, setChildName] = useState('');
@@ -145,6 +145,7 @@ export default function OnboardingScreen() {
         developmentAreas: selectedAreas,
         onboardingCompleted: true,
         onboardingCompletedAt: new Date(),
+        preferredLanguage: i18n.language, // Save current language preference
       };
 
       await setDoc(doc(db, 'users', currentUser.uid), userData, {

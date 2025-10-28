@@ -1,20 +1,11 @@
 // External Imports
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  setDoc,
-  where,
-} from 'firebase/firestore';
 import { useCallback, useRef, useState } from 'react';
-import { Alert } from 'react-native';
 
 // Internal Imports
-import { auth, db } from '@/lib/firebase/firebase';
-import { Task, UserProgress } from '@/lib/home/home.types';
-import { ProgressService } from '@/lib/services/progressService';
+import { Task } from '@/lib/home/home.types';
+import { TaskCacheService } from '@/lib/services/taskCacheService';
+import { TaskCompletionService } from '@/lib/services/taskCompletionService';
+import { TaskFetchingService } from '@/lib/services/taskFetchingService';
 
 export const useTaskManagement = (
   externalSetTasks?: (tasks: Task[]) => void,
@@ -22,10 +13,8 @@ export const useTaskManagement = (
 ) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const [lastFetchDate, setLastFetchDate] = useState<string | null>(null);
-  const [cache, setCache] = useState<Map<string, Task[]>>(new Map());
-  const lastFetchDateRef = useRef<string | null>(null);
 
+  const cacheService = useRef(new TaskCacheService());
   const tasksRef = useRef<Task[]>([]);
   tasksRef.current = tasks;
 
@@ -41,98 +30,50 @@ export const useTaskManagement = (
     [externalSetLoading],
   );
 
-  const mapDevelopmentAreaToProgress = useCallback(
-    (developmentArea: string): keyof UserProgress | null => {
-      const areaMap: Record<string, keyof UserProgress> = {
-        speech: 'communication',
-        language: 'communication',
-        communication: 'communication',
-        social: 'social',
-        motor: 'motor_skills',
-        cognitive: 'cognitive',
-        sensory: 'sensory',
-        behavior: 'behavior',
-      };
-
-      const result = areaMap[developmentArea.toLowerCase()];
-      return result || null;
-    },
-    [],
-  );
-
-  const updateProgressForTask = useCallback(
-    async (developmentArea: string, userId: string) => {
-      try {
-        const progressField = mapDevelopmentAreaToProgress(developmentArea);
-
-        if (progressField) {
-          const currentProgress = await ProgressService.getProgress(userId);
-          if (currentProgress) {
-            const currentValue = currentProgress[progressField];
-            const newProgress = Math.min(100, currentValue + 2);
-            await ProgressService.updateProgress(
-              userId,
-              progressField,
-              newProgress,
-            );
-            console.log(
-              `✅ Progress updated: ${progressField} increased to ${newProgress}/100`,
-            );
-          }
-        }
-      } catch (error) {
-        console.error('❌ Error updating progress:', error);
-      }
-    },
-    [mapDevelopmentAreaToProgress],
-  );
-
+  /**
+   * Fetch tasks for the user
+   */
   const fetchTasks = useCallback(
     async (userId: string, forceRefresh: boolean = false) => {
       try {
         const today = new Date().toISOString().split('T')[0];
+        const cacheKey = `${userId}-${today}`;
 
-        // Check if it's a new day - if so, clear old tasks immediately
-        const isNewDay =
-          lastFetchDateRef.current && lastFetchDateRef.current !== today;
-
-        if (isNewDay) {
-          console.log(
-            `📅 New day detected! Clearing old tasks from ${lastFetchDateRef.current}`,
-          );
-          // Immediately clear old tasks to avoid showing stale data
+        // Check if it's a new day
+        if (cacheService.current.isNewDay(today)) {
+          console.log(`📅 New day detected! Clearing old tasks...`);
           setTasksFunction([]);
-          setCache(new Map());
-          setLastFetchDate(null);
-          lastFetchDateRef.current = null;
+          cacheService.current.clearCache();
         }
 
-        // Skip fetch only if:
-        // 1. Same day as last fetch
-        // 2. We have tasks
-        // 3. Not forcing a refresh
+        // Skip fetch if we already have today's tasks (unless force refresh)
         if (
-          lastFetchDateRef.current === today &&
-          tasks.length > 0 &&
-          !forceRefresh
+          cacheService.current.shouldSkipFetch(
+            today,
+            tasksRef.current.length,
+            forceRefresh,
+          )
         ) {
+          console.log('📅 Using existing tasks for today');
+          setLoadingState(false);
+          return;
+        }
+
+        // If we have local tasks and no force refresh, prefer local over remote
+        if (!forceRefresh && tasksRef.current.length > 0) {
           console.log(
-            '📅 Using existing tasks for today (local state preserved)',
+            '📋 Using local tasks state (preserving completion status)',
           );
           setLoadingState(false);
           return;
         }
 
-        // Define cache key for this fetch (needed throughout the function)
-        const cacheKey = `${userId}-${today}`;
-
-        // Don't use cache on new day or forced refresh
-        if (!isNewDay && !forceRefresh) {
-          if (cache.has(cacheKey) && tasks.length === 0) {
-            const cachedTasks = cache.get(cacheKey)!;
+        // Check cache first
+        if (!forceRefresh) {
+          const cachedTasks = cacheService.current.getCachedTasks(cacheKey);
+          if (cachedTasks && tasksRef.current.length === 0) {
             setTasksFunction(cachedTasks);
-            setLastFetchDate(today);
-            lastFetchDateRef.current = today;
+            cacheService.current.setLastFetchDate(today);
             setLoadingState(false);
             return;
           }
@@ -141,248 +82,97 @@ export const useTaskManagement = (
         console.log(`🔄 Fetching fresh tasks for ${today}...`);
         setLoadingState(true);
 
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Task fetching timeout')), 5000);
+        const fetchedTasks = await TaskFetchingService.fetchTodayTasks({
+          userId,
+          cacheKey,
+          forceRefresh,
+          lastFetchDate: cacheService.current.getLastFetchDate(),
+          localTasks: tasksRef.current,
         });
 
-        const fetchPromise = (async () => {
-          const today = new Date().toISOString().split('T')[0];
-          const todayAlt = new Date().toDateString();
-
-          let todayTasksQuery = query(
-            collection(db, 'tasks'),
-            where('userId', '==', userId),
-            where('dailyId', '==', today),
+        // Only update if we got tasks, or if we explicitly need to clear them
+        if (fetchedTasks.length > 0 || forceRefresh) {
+          console.log(`✅ Loaded ${fetchedTasks.length} tasks for today`);
+          setTasksFunction(fetchedTasks);
+          cacheService.current.setLastFetchDate(today);
+          cacheService.current.setCachedTasks(cacheKey, fetchedTasks);
+        } else {
+          console.log(
+            `⚠️ No tasks fetched, preserving existing ${tasksRef.current.length} tasks`,
           );
-
-          let todayTasksSnapshot = await getDocs(todayTasksQuery);
-
-          if (todayTasksSnapshot.empty) {
-            todayTasksQuery = query(
-              collection(db, 'tasks'),
-              where('userId', '==', userId),
-              where('dailyId', '==', todayAlt),
-            );
-            todayTasksSnapshot = await getDocs(todayTasksQuery);
-          }
-
-          if (!todayTasksSnapshot.empty) {
-            const existingTasks = todayTasksSnapshot.docs.map((doc) => {
-              const data = doc.data();
-              return {
-                ...data,
-                id: doc.id,
-                createdAt: data.createdAt?.toDate() || new Date(),
-              };
-            }) as Task[];
-
-            const mergedTasks = existingTasks.map((existingTask) => {
-              const localTask = tasksRef.current.find(
-                (t) => t.id === existingTask.id,
-              );
-              return localTask
-                ? { ...existingTask, completed: localTask.completed }
-                : existingTask;
-            });
-
-            setTasksFunction(mergedTasks);
-            setLastFetchDate(today);
-            lastFetchDateRef.current = today;
-            setCache((prev) => new Map(prev.set(cacheKey, mergedTasks)));
-            setLoadingState(false);
-            console.log(`✅ Loaded ${mergedTasks.length} tasks for today`);
-            return;
-          }
-
-          const allTasksQuery = query(
-            collection(db, 'tasks'),
-            where('userId', '==', userId),
-          );
-
-          const allTasksSnapshot = await getDocs(allTasksQuery);
-          if (!allTasksSnapshot.empty) {
-            const recentTasks = allTasksSnapshot.docs
-              .map((doc) => ({
-                ...doc.data(),
-                id: doc.id,
-                createdAt: doc.data().createdAt?.toDate() || new Date(),
-              }))
-              .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()) // Sort locally
-              .slice(0, 4) as Task[];
-
-            const mergedTasks = recentTasks.map((recentTask) => {
-              const localTask = tasksRef.current.find(
-                (t) => t.id === recentTask.id,
-              );
-              return localTask
-                ? { ...recentTask, completed: localTask.completed }
-                : recentTask;
-            });
-
-            setTasksFunction(mergedTasks);
-            setLastFetchDate(today);
-            lastFetchDateRef.current = today;
-            setCache((prev) => new Map(prev.set(cacheKey, mergedTasks)));
-            setLoadingState(false);
-            console.log(`✅ Loaded ${mergedTasks.length} recent tasks`);
-            return;
-          }
-
-          console.log('📭 No tasks found for today');
-          setTasksFunction([]);
-          setLastFetchDate(today);
-          lastFetchDateRef.current = today;
-          setCache((prev) => new Map(prev.set(cacheKey, [])));
-          setLoadingState(false);
-        })();
-
-        await Promise.race([fetchPromise, timeoutPromise]);
+        }
+        setLoadingState(false);
       } catch (error: any) {
         console.error('❌ Error fetching tasks:', error);
 
         if (error.message && error.message.includes('requires an index')) {
-          console.error(
-            '🔧 Firebase index required. Please create the index in Firebase Console.',
-          );
-          console.error('📋 Index details:', error.message);
-
-          try {
-            const today = new Date().toISOString().split('T')[0];
-            const simpleQuery = query(
-              collection(db, 'tasks'),
-              where('userId', '==', userId),
-            );
-            const simpleSnapshot = await getDocs(simpleQuery);
-            if (!simpleSnapshot.empty) {
-              const fallbackTasks = simpleSnapshot.docs
-                .map((doc) => ({
-                  ...doc.data(),
-                  id: doc.id,
-                  createdAt: doc.data().createdAt?.toDate() || new Date(),
-                }))
-                .slice(0, 4) as Task[];
-
-              setTasksFunction(fallbackTasks);
-              setLastFetchDate(today);
-              lastFetchDateRef.current = today;
-            }
-          } catch (fallbackError) {
-            console.error('❌ Fallback fetching also failed:', fallbackError);
-          }
+          console.error('🔧 Firebase index required');
         }
 
         setLoadingState(false);
       }
     },
-    [setTasksFunction, setLoadingState, lastFetchDate, tasks.length, cache],
+    [setTasksFunction, setLoadingState],
   );
 
+  /**
+   * Toggle task completion status
+   */
   const toggleTaskCompletion = useCallback(
-    async (taskId: string) => {
+    async (taskId: string, userId?: string) => {
       try {
-        const currentTasks = tasksRef.current;
-        console.log(
-          '📋 Available tasks:',
-          currentTasks.map((t) => ({
-            id: t.id,
-            title: t.title,
-            completed: t.completed,
-          })),
+        const result = await TaskCompletionService.toggleTaskCompletion(
+          taskId,
+          tasksRef.current,
         );
 
-        const currentUser = auth.currentUser;
-        if (!currentUser) {
-          console.error('❌ No current user found');
-          return;
-        }
+        if (result.success) {
+          console.log('📋 Updated tasks count:', result.updatedTasks.length);
+          console.log(
+            '📋 Updated tasks:',
+            result.updatedTasks.map((t) => ({
+              id: t.id,
+              title: t.title,
+              completed: t.completed,
+            })),
+          );
+          setTasksFunction(result.updatedTasks);
 
-        let currentTask = currentTasks.find((t) => t.id === taskId);
+          // Update cache with the new completion state
+          if (userId) {
+            const today = new Date().toISOString().split('T')[0];
+            const cacheKey = `${userId}-${today}`;
 
-        if (!currentTask) {
-          try {
-            const taskDoc = await getDoc(doc(db, 'tasks', taskId));
-            if (taskDoc.exists()) {
-              const taskData = taskDoc.data();
-              currentTask = {
-                ...taskData,
-                id: taskDoc.id,
-                createdAt: taskData.createdAt?.toDate() || new Date(),
-              } as Task;
-            }
-          } catch (fetchError) {
-            console.error('❌ Error fetching task from Firebase:', fetchError);
-          }
-        }
-
-        if (!currentTask) {
-          console.error('❌ Task not found locally or in Firebase:', taskId);
-          Alert.alert('Error', 'Task not found. Please refresh and try again.');
-          return;
-        }
-
-        const newCompletedState = !currentTask.completed;
-
-        const updatedTasks = currentTasks.map((task) =>
-          task.id === taskId ? { ...task, completed: newCompletedState } : task,
-        );
-        setTasksFunction(updatedTasks);
-
-        setCache(new Map());
-        setLastFetchDate(null);
-
-        const taskRef = doc(db, 'tasks', taskId);
-        await setDoc(
-          taskRef,
-          { completed: newCompletedState },
-          { merge: true },
-        );
-
-        if (newCompletedState) {
-          try {
+            // Store the updated tasks in cache to prevent refetch from overriding it
+            cacheService.current.setCachedTasks(cacheKey, result.updatedTasks);
+            cacheService.current.setLastFetchDate(today);
+            console.log('✅ Cache updated to preserve completion state');
             console.log(
-              '📈 Updating progress for completed task:',
-              currentTask.developmentArea,
+              '📊 Tasks in state after update:',
+              tasksRef.current.length,
             );
-            await updateProgressForTask(
-              currentTask.developmentArea,
-              currentUser.uid,
-            );
-
-            const allTasksComplete = updatedTasks.every(
-              (task) => task.completed,
-            );
-          } catch (error) {
-            console.error('❌ Error updating progress:', error);
           }
         }
       } catch (error) {
-        console.error('❌ Error updating task:', error);
-
-        const currentTasks = tasksRef.current;
-        const currentTask = currentTasks.find((t) => t.id === taskId);
-        if (currentTask) {
-          const revertedTasks = currentTasks.map((task) =>
-            task.id === taskId
-              ? { ...task, completed: currentTask.completed }
-              : task,
-          );
-          setTasksFunction(revertedTasks);
-        }
-
-        Alert.alert('Error', 'Failed to update task. Please try again.');
+        console.error('❌ Error in toggleTaskCompletion:', error);
         throw error;
       }
     },
-    [setTasksFunction, updateProgressForTask],
+    [setTasksFunction],
   );
 
+  /**
+   * Clear all tasks
+   */
   const clearTasks = useCallback(() => {
     setTasksFunction([]);
   }, [setTasksFunction]);
 
+  /**
+   * Invalidate cache
+   */
   const invalidateCache = useCallback(() => {
-    setCache(new Map());
-    setLastFetchDate(null);
+    cacheService.current.clearCache();
   }, []);
 
   return {

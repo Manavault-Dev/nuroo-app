@@ -149,23 +149,20 @@ export class TaskGenerationService {
       const today = new Date().toISOString().split('T')[0];
       const progress = await ProgressService.getProgress(userId);
 
+      // Delete ALL old tasks for this user (both completed and incomplete)
+      // This ensures fresh tasks are generated every day
       const tasksRef = collection(db, 'tasks');
-      const existingTasksQuery = query(
-        tasksRef,
-        where('userId', '==', userId),
-        where('dailyId', '==', today),
-        where('completed', '==', false),
-      );
+      const allUserTasksQuery = query(tasksRef, where('userId', '==', userId));
 
-      const existingTasksSnapshot = await getDocs(existingTasksQuery);
+      const allUserTasksSnapshot = await getDocs(allUserTasksQuery);
 
-      const deletePromises = existingTasksSnapshot.docs.map((doc) =>
+      const deletePromises = allUserTasksSnapshot.docs.map((doc) =>
         deleteDoc(doc.ref),
       );
       await Promise.all(deletePromises);
 
       console.log(
-        `🗑️ Deleted ${existingTasksSnapshot.size} old incomplete tasks for today`,
+        `🗑️ Deleted ${allUserTasksSnapshot.size} old tasks to make room for new tasks`,
       );
 
       const dailyTaskSet: DailyTaskSet = {

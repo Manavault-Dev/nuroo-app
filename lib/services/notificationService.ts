@@ -8,7 +8,6 @@ import { doc, getDoc } from 'firebase/firestore';
 // Internal Imports
 import i18n from '@/i18n/i18n';
 import { auth, db } from '@/lib/firebase/firebase';
-import { ChildData } from '@/lib/home/home.types';
 import { NotificationEvents } from './notificationEventEmitter';
 import { ProgressService } from './progressService';
 import { TaskGenerationService } from './taskGenerationService';
@@ -140,7 +139,11 @@ export class NotificationService {
             return BackgroundFetch.BackgroundFetchResult.NoData;
           }
 
-          const userData = userDoc.data() as ChildData;
+          const userData = userDoc.data() as any;
+
+          // Get user's language preference or default to 'en'
+          const userLanguage = userData.preferredLanguage || 'en';
+          console.log('🌍 Background task: Using language:', userLanguage);
 
           const shouldGenerate = await ProgressService.shouldGenerateTasks(
             currentUser.uid,
@@ -150,6 +153,7 @@ export class NotificationService {
             const tasks = await TaskGenerationService.generatePersonalizedTasks(
               currentUser.uid,
               userData,
+              userLanguage,
             );
 
             if (tasks.length > 0) {
