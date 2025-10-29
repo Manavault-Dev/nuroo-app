@@ -21,7 +21,7 @@ export default {
     name: 'Nuroo',
     slug: 'nuroo',
     scheme: 'nuroo',
-    version: '1.0.8',
+    version: '1.0.9',
     orientation: 'portrait',
     icon: './assets/images/logo-bg.png',
     userInterfaceStyle: 'light',
