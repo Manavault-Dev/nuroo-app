@@ -1,10 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, initializeAuth, type Persistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { Platform } from 'react-native';
 
-// AsyncStorage persistence will be automatically set up by Firebase
-// when it detects React Native environment and AsyncStorage package
+// Environment detection
+const isExpoGo = Constants.appOwnership === 'expo';
+const isDevelopment = __DEV__;
 
 // Access environment variables directly - they are embedded at build time by Expo
 // EXPO_PUBLIC_ prefixed variables are available via process.env in both dev and production
@@ -83,14 +86,117 @@ console.log(
 
 export const app = initializeApp(firebaseConfig);
 
-// Initialize Auth - AsyncStorage persistence is automatically configured
-// by Firebase when running in React Native with @react-native-async-storage/async-storage
-export const auth = getAuth(app);
+declare global {
+  // eslint-disable-next-line no-var
+  var __firebaseAuth: ReturnType<typeof initializeAuth> | undefined;
+  var __firebaseAuthInitialized: boolean | undefined;
+}
+
+// Try to get React Native persistence helper or create our own
+let getReactNativePersistenceFn:
+  | ((storage: typeof AsyncStorage) => Persistence)
+  | null = null;
+
+try {
+  // Try dynamic import to check if getReactNativePersistence is available
+  const authModule = require('firebase/auth');
+  if (typeof authModule.getReactNativePersistence === 'function') {
+    getReactNativePersistenceFn = authModule.getReactNativePersistence;
+    console.log('✅ Found getReactNativePersistence in firebase/auth');
+  }
+} catch (e) {
+  console.log('⚠️ Could not access firebase/auth module:', e);
+}
+
+// Fallback: Create React Native persistence that matches Firebase's expected interface
+if (!getReactNativePersistenceFn) {
+  console.log('🔧 Using fallback persistence implementation');
+  getReactNativePersistenceFn = (storage: typeof AsyncStorage): Persistence => {
+    return {
+      type: 'LOCAL' as const,
+      async _isAvailable() {
+        try {
+          await storage.setItem('__firebase_availability_check__', '1');
+          await storage.removeItem('__firebase_availability_check__');
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      async _set(key: string, value: unknown) {
+        await storage.setItem(key, JSON.stringify(value));
+      },
+      async _get<T>(key: string) {
+        const json = await storage.getItem(key);
+        return json ? (JSON.parse(json) as T) : null;
+      },
+      async _remove(key: string) {
+        await storage.removeItem(key);
+      },
+      _addListener() {
+        // Not supported in React Native
+      },
+      _removeListener() {
+        // Not supported in React Native
+      },
+    } as Persistence;
+  };
+}
+
+// Single initialization function - prevents duplicate instances
+const initializeReactNativeAuth = () => {
+  // Prevent multiple initializations
+  if (globalThis.__firebaseAuthInitialized && globalThis.__firebaseAuth) {
+    console.log('♻️ Reusing existing Firebase Auth instance');
+    return globalThis.__firebaseAuth;
+  }
+
+  try {
+    // Always use initializeAuth with persistence for React Native
+    const persistence = getReactNativePersistenceFn!(AsyncStorage);
+    globalThis.__firebaseAuth = initializeAuth(app, {
+      persistence,
+    });
+    globalThis.__firebaseAuthInitialized = true;
+    console.log('🔐 Firebase persistence active');
+    console.log(`📍 Environment: ${isExpoGo ? 'Expo Go' : 'EAS Build'}`);
+    return globalThis.__firebaseAuth;
+  } catch (error: any) {
+    // If already initialized, try to get the existing instance
+    if (
+      error.code === 'auth/already-initialized' ||
+      error.message?.includes('already-initialized') ||
+      error.message?.includes('INTERNAL ASSERTION')
+    ) {
+      console.log(
+        '⚠️ Auth already initialized, attempting to get existing instance',
+      );
+
+      // Try to get existing auth instance
+      try {
+        // Check if auth.currentUser exists (means instance was created)
+        const existingAuth = getAuth(app);
+        globalThis.__firebaseAuth = existingAuth as ReturnType<
+          typeof initializeAuth
+        >;
+        globalThis.__firebaseAuthInitialized = true;
+        console.log(
+          '⚠️ Using fallback: getAuth (may have limited persistence)',
+        );
+        return globalThis.__firebaseAuth;
+      } catch (getError: any) {
+        console.error('❌ Could not get existing auth instance:', getError);
+        throw error;
+      }
+    } else {
+      console.error('❌ Error initializing Firebase Auth:', error);
+      throw error;
+    }
+  }
+};
+
+// Export single auth instance - prevents duplicates
+export const auth =
+  Platform.OS === 'web' ? getAuth(app) : initializeReactNativeAuth();
 
 export const db = getFirestore(app);
-
-// Configure AsyncStorage for auth persistence
-// This ensures auth state persists between app restarts
-if (typeof AsyncStorage !== 'undefined') {
-  console.log('✅ AsyncStorage detected - Auth persistence enabled');
-}
