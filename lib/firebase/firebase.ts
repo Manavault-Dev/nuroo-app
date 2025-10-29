@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, initializeAuth, type Persistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { Platform } from 'react-native';
 
 // AsyncStorage persistence will be automatically set up by Firebase
 // when it detects React Native environment and AsyncStorage package
@@ -83,14 +84,100 @@ console.log(
 
 export const app = initializeApp(firebaseConfig);
 
-// Initialize Auth - AsyncStorage persistence is automatically configured
-// by Firebase when running in React Native with @react-native-async-storage/async-storage
-export const auth = getAuth(app);
+declare global {
+  // eslint-disable-next-line no-var
+  var __firebaseAuth:
+    | ReturnType<typeof initializeAuth>
+    | ReturnType<typeof getAuth>
+    | undefined;
+}
+
+// Try to get React Native persistence helper or create our own
+let getReactNativePersistenceFn:
+  | ((storage: typeof AsyncStorage) => Persistence)
+  | null = null;
+
+try {
+  // Try to import from firebase/auth (may not be available in v12)
+  const authModule = require('firebase/auth');
+  if (authModule.getReactNativePersistence) {
+    getReactNativePersistenceFn = authModule.getReactNativePersistence;
+    console.log('✅ Found getReactNativePersistence in firebase/auth');
+  }
+} catch {
+  // Continue with fallback
+}
+
+// Fallback: Create React Native persistence that matches Firebase's expected interface
+if (!getReactNativePersistenceFn) {
+  getReactNativePersistenceFn = (storage: typeof AsyncStorage): Persistence => {
+    return {
+      type: 'LOCAL' as const,
+      async _isAvailable() {
+        try {
+          await storage.setItem('__firebase_availability_check__', '1');
+          await storage.removeItem('__firebase_availability_check__');
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      async _set(key: string, value: unknown) {
+        await storage.setItem(key, JSON.stringify(value));
+      },
+      async _get<T>(key: string) {
+        const json = await storage.getItem(key);
+        return json ? (JSON.parse(json) as T) : null;
+      },
+      async _remove(key: string) {
+        await storage.removeItem(key);
+      },
+      _addListener() {
+        // Not supported in React Native
+      },
+      _removeListener() {
+        // Not supported in React Native
+      },
+    } as Persistence;
+  };
+}
+
+const getReactNativeAuth = () => {
+  if (!globalThis.__firebaseAuth) {
+    try {
+      // Initialize Auth with AsyncStorage persistence for React Native
+      const persistence = getReactNativePersistenceFn!(AsyncStorage);
+      globalThis.__firebaseAuth = initializeAuth(app, {
+        persistence,
+      });
+      console.log('✅ Auth initialized with AsyncStorage persistence');
+    } catch (error: any) {
+      // If already initialized (e.g., hot reload during development), use getAuth
+      if (
+        error.code === 'auth/already-initialized' ||
+        error.message?.includes('already-initialized')
+      ) {
+        console.log('⚠️ Auth already initialized (hot reload), using getAuth');
+        globalThis.__firebaseAuth = getAuth(app);
+      } else {
+        console.error('❌ Error initializing auth:', error);
+        // Fallback to getAuth if initialization fails
+        try {
+          globalThis.__firebaseAuth = getAuth(app);
+          console.log(
+            '⚠️ Fallback: Using getAuth (persistence may be limited)',
+          );
+        } catch (fallbackError) {
+          console.error('❌ Fallback also failed:', fallbackError);
+          throw error;
+        }
+      }
+    }
+  }
+
+  return globalThis.__firebaseAuth;
+};
+
+export const auth = Platform.OS === 'web' ? getAuth(app) : getReactNativeAuth();
 
 export const db = getFirestore(app);
-
-// Configure AsyncStorage for auth persistence
-// This ensures auth state persists between app restarts
-if (typeof AsyncStorage !== 'undefined') {
-  console.log('✅ AsyncStorage detected - Auth persistence enabled');
-}
