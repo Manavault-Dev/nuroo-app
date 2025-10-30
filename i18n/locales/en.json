@@ -21,7 +21,14 @@
     "signing_in": "Signing in...",
     "no_account": "Don't have an account?",
     "sign_up_link": "Sign up",
-    "login_failed": "Login failed"
+    "login_failed": "Login failed",
+    "error": "Error",
+    "fill_all_fields": "Please fill in all fields",
+    "invalid_credentials": "Invalid email or password. Please try again.",
+    "invalid_email": "Please enter a valid email address",
+    "account_disabled": "This account has been disabled",
+    "too_many_attempts": "Too many failed attempts. Please try again later.",
+    "network_error": "Network error. Please check your connection and try again."
   },
 
   "signup": {

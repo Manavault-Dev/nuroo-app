@@ -26,13 +26,14 @@ export default function WelcomeScreen() {
   const [selectedLang, setSelectedLang] = useState(i18n.language);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // Redirect authenticated users
   useEffect(() => {
     const checkAuth = async () => {
       if (loading) return;
 
       if (user) {
-        console.log('✅ User already authenticated - checking onboarding...');
+        if (__DEV__) {
+          console.log('✅ User already authenticated - checking onboarding...');
+        }
         try {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
@@ -44,15 +45,21 @@ export default function WelcomeScreen() {
               userData.diagnosis &&
               userData.developmentAreas
             ) {
-              console.log('✅ Onboarding complete - redirecting to home');
+              if (__DEV__) {
+                console.log('✅ Onboarding complete - redirecting to home');
+              }
               router.replace('/(tabs)/home');
               return;
             }
           }
-          console.log('⚠️ Onboarding incomplete - redirecting to onboarding');
+          if (__DEV__) {
+            console.log('⚠️ Onboarding incomplete - redirecting to onboarding');
+          }
           router.replace('/onboarding');
         } catch (error) {
-          console.error('❌ Error checking user data:', error);
+          if (__DEV__) {
+            console.error('❌ Error checking user data:', error);
+          }
         }
       }
     };

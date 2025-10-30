@@ -11,43 +11,79 @@ import { useAuthDebug } from '@/hooks/useAuthDebug';
 import '@/i18n/i18n';
 import { NotificationService } from '@/lib/services/notificationService';
 
-const isExpoGo = Constants.appOwnership === 'expo';
+const isExpoGo = (() => {
+  try {
+    if (
+      Constants.ExecutionEnvironment &&
+      Constants.executionEnvironment ===
+        Constants.ExecutionEnvironment.StoreClient
+    ) {
+      return true;
+    }
+  } catch {}
+
+  try {
+    if (Constants.appOwnership === 'expo') {
+      return true;
+    }
+  } catch {}
+
+  return false;
+})();
 
 export default function RootLayout() {
-  // Enable auth debugging in development
   useAuthDebug();
 
   useEffect(() => {
-    // Log environment info
-    console.log('📱 App Environment:', {
-      isExpoGo,
-      isDevelopment: __DEV__,
-      platform: Constants.platform?.ios
-        ? 'iOS'
-        : Constants.platform?.android
-          ? 'Android'
-          : 'Web',
-    });
+    try {
+      const globalAny = global as any;
+      if (
+        globalAny.ErrorUtils &&
+        typeof globalAny.ErrorUtils.setGlobalHandler === 'function'
+      ) {
+        globalAny.ErrorUtils.setGlobalHandler(
+          (error: unknown, isFatal?: boolean) => {
+            if (__DEV__) {
+              console.error('🔥 GLOBAL JS ERROR:', error, 'fatal:', !!isFatal);
+            }
+          },
+        );
+      }
+    } catch {}
+
+    if (__DEV__) {
+      console.log('📱 App Environment:', {
+        isExpoGo,
+        isDevelopment: __DEV__,
+        platform: Constants.platform?.ios
+          ? 'iOS'
+          : Constants.platform?.android
+            ? 'Android'
+            : 'Web',
+      });
+    }
 
     const initializeApp = async () => {
       try {
-        console.log('🚀 Initializing app services...');
+        if (__DEV__) console.log('🚀 Initializing app services...');
         await NotificationService.requestPermissions();
         await NotificationService.scheduleDailyNotification();
-        console.log('✅ App services initialized');
+        if (__DEV__) console.log('✅ App services initialized');
       } catch (error) {
-        console.error('❌ Error initializing app services:', error);
+        if (__DEV__)
+          console.error('❌ Error initializing app services:', error);
       }
     };
 
     initializeApp();
 
-    console.log('🔔 Setting up notification listeners...');
+    if (__DEV__) {
+      console.log('🔔 Setting up notification listeners...');
+    }
     const cleanupNotificationListeners =
       NotificationService.setupNotificationListeners();
 
     return () => {
-      console.log('🔔 Cleaning up notification listeners...');
       if (cleanupNotificationListeners) {
         cleanupNotificationListeners();
       }

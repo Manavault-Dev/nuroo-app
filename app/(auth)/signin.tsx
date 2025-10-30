@@ -28,9 +28,34 @@ export default function SignInScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const getErrorMessage = (errorCode: string): string => {
+    switch (errorCode) {
+      case 'auth/invalid-credential':
+      case 'auth/wrong-password':
+      case 'auth/user-not-found':
+        return t('auth.invalid_credentials');
+      case 'auth/invalid-email':
+        return t('auth.invalid_email');
+      case 'auth/user-disabled':
+        return t('auth.account_disabled');
+      case 'auth/too-many-requests':
+        return t('auth.too_many_attempts');
+      case 'auth/network-request-failed':
+        return t('auth.network_error');
+      default:
+        return t('auth.login_failed');
+    }
+  };
+
   const handleSignIn = async () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert(t('auth.error'), t('auth.fill_all_fields'));
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      Alert.alert(t('auth.error'), t('auth.invalid_email'));
       return;
     }
 
@@ -38,7 +63,7 @@ export default function SignInScreen() {
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
-        email,
+        email.trim(),
         password,
       );
       const user = userCredential.user;
@@ -63,13 +88,11 @@ export default function SignInScreen() {
           router.replace('/onboarding');
         }
       } catch (error) {
-        console.error('Error checking user data:', error);
-
         router.replace('/onboarding');
       }
     } catch (error: any) {
-      console.error('Login error', error);
-      Alert.alert(t('auth.login_failed'), error.message);
+      const errorMessage = getErrorMessage(error.code || error.message);
+      Alert.alert(t('auth.login_failed'), errorMessage);
     } finally {
       setLoading(false);
     }

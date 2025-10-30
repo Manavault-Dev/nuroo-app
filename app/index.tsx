@@ -5,15 +5,9 @@ import { ActivityIndicator, View } from 'react-native';
 // Internal Imports
 import { useAuth } from '@/features/auth/AuthContext';
 
-/**
- * Root index screen - handles initial routing based on auth state
- * - If user is authenticated: (app) layout will handle onboarding check and routing
- * - If user is not authenticated: redirect to welcome screen
- */
 export default function Index() {
   const { user, loading } = useAuth();
 
-  // Show loading while checking auth
   if (loading) {
     return (
       <View
@@ -29,13 +23,15 @@ export default function Index() {
     );
   }
 
-  // If user is authenticated, (app) layout will check onboarding and route appropriately
   if (user) {
-    console.log('✅ User authenticated - routing to app');
+    if (__DEV__) {
+      console.log('✅ User authenticated - routing to app');
+    }
     return <Redirect href="/(app)" />;
   }
 
-  // No user - show welcome screen
-  console.log('👤 No user - routing to welcome');
+  if (__DEV__) {
+    console.log('👤 No user - routing to welcome');
+  }
   return <Redirect href="/welcome" />;
 }

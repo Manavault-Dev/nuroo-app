@@ -1,5 +1,5 @@
 // External Imports
-import { Redirect } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { doc, getDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
@@ -11,14 +11,30 @@ import { db } from '@/lib/firebase/firebase';
 
 export default function AppLayout() {
   const { user, loading } = useAuth();
+  const router = useRouter();
   const [checkingOnboarding, setCheckingOnboarding] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useState<
     boolean | null
   >(null);
 
   useEffect(() => {
+    if (!loading && !user) {
+      if (__DEV__) {
+        console.log('🔄 No user after loading - redirecting to welcome');
+      }
+      router.replace('/welcome');
+      return;
+    }
+  }, [user, loading, router]);
+
+  useEffect(() => {
     const checkOnboarding = async () => {
-      if (loading || !user) return;
+      if (loading) return;
+
+      if (!user) {
+        router.replace('/welcome');
+        return;
+      }
 
       setCheckingOnboarding(true);
       try {
@@ -33,26 +49,38 @@ export default function AppLayout() {
             userData.developmentAreas;
 
           setOnboardingCompleted(isCompleted);
-          console.log(
-            '📋 Onboarding status:',
-            isCompleted ? 'completed' : 'incomplete',
-          );
+          if (__DEV__) {
+            console.log(
+              '📋 Onboarding status:',
+              isCompleted ? 'completed' : 'incomplete',
+            );
+          }
+
+          if (isCompleted) {
+            router.replace('/(tabs)/home');
+          } else {
+            router.replace('/onboarding');
+          }
         } else {
           setOnboardingCompleted(false);
-          console.log('📋 User document not found');
+          if (__DEV__) {
+            console.log('📋 User document not found');
+          }
+          router.replace('/onboarding');
         }
       } catch (error) {
-        console.error('❌ Error checking onboarding:', error);
+        if (__DEV__) {
+          console.error('❌ Error checking onboarding:', error);
+        }
         setOnboardingCompleted(false);
+        router.replace('/onboarding');
       } finally {
         setCheckingOnboarding(false);
       }
     };
 
-    if (user) {
-      checkOnboarding();
-    }
-  }, [user, loading]);
+    checkOnboarding();
+  }, [user, loading, router]);
 
   if (loading || checkingOnboarding) {
     return (
@@ -71,35 +99,15 @@ export default function AppLayout() {
     );
   }
 
-  if (!user) {
-    return <Redirect href="/signin" />;
-  }
-
-  // If onboarding not completed, redirect to onboarding
-  if (onboardingCompleted === false) {
-    console.log('🔄 Redirecting to onboarding');
-    return <Redirect href="/onboarding" />;
-  }
-
-  // If onboarding is completed, redirect to home (tabs)
-  if (onboardingCompleted === true) {
-    console.log('🔄 Redirecting to home');
-    return <Redirect href="/(tabs)/home" />;
-  }
-
-  // Still checking onboarding - show loading
   return (
     <SafeAreaProvider>
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: '#FFFFFF',
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          gestureEnabled: true,
+          gestureDirection: 'horizontal',
         }}
-      >
-        <ActivityIndicator size="large" color="#1E266D" />
-      </View>
+      />
     </SafeAreaProvider>
   );
 }
