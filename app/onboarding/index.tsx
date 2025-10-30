@@ -52,6 +52,14 @@ export default function OnboardingScreen() {
   useEffect(() => {
     let isMounted = true;
 
+    const hasCompletedOnboarding = (userData: any) =>
+      userData?.onboardingCompleted &&
+      userData?.name &&
+      userData?.age &&
+      userData?.diagnosis &&
+      userData?.developmentAreas &&
+      userData.developmentAreas.length > 0;
+
     const checkOnboardingStatus = async () => {
       try {
         const currentUser = auth.currentUser;
@@ -65,6 +73,12 @@ export default function OnboardingScreen() {
         const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
         if (userDoc.exists() && isMounted) {
           const userData = userDoc.data();
+
+          if (hasCompletedOnboarding(userData)) {
+            setLoading(false);
+            router.replace('/(tabs)/home');
+            return;
+          }
 
           if (userData.name) setChildName(userData.name);
           if (userData.age) setChildAge(userData.age);
