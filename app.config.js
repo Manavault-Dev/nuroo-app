@@ -21,7 +21,7 @@ export default {
     name: 'Nuroo',
     slug: 'nuroo',
     scheme: 'nuroo',
-    version: '1.0.9',
+    version: '1.0.10',
     orientation: 'portrait',
     icon: './assets/images/logo-bg.png',
     userInterfaceStyle: 'light',
@@ -59,7 +59,7 @@ export default {
     ],
 
     extra: {
-      eas: { projectId: '195d92c9-ef3a-4c31-ab02-bddee8cc627d' },
+      eas: { projectId: '6568faf4-bdab-41fb-bc31-d5d1523767b2' },
 
       // Firebase configuration
       EXPO_PUBLIC_FIREBASE_API_KEY: getEnvVar('EXPO_PUBLIC_FIREBASE_API_KEY'),
