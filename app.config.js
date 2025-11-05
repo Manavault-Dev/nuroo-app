@@ -21,7 +21,7 @@ export default {
     name: 'Nuroo',
     slug: 'nuroo',
     scheme: 'nuroo',
-    version: '1.0.10',
+    version: '1.0.26',
     orientation: 'portrait',
     icon: './assets/images/logo-bg.png',
     userInterfaceStyle: 'light',
@@ -34,15 +34,21 @@ export default {
 
     ios: {
       bundleIdentifier: 'nuroo.app',
-      buildNumber: '8',
+      buildNumber: '26',
       jsEngine: 'jsc',
       supportsTablet: true,
-      infoPlist: { ITSAppUsesNonExemptEncryption: false },
+      infoPlist: {
+        ITSAppUsesNonExemptEncryption: false,
+        NSUserNotificationUsageDescription:
+          'Nuroo sends reminders and helpful nudges so you never miss your daily growth tasks.',
+        NSLocalNotificationUsageDescription:
+          'Nuroo sends reminders and helpful nudges so you never miss your daily growth tasks.',
+      },
     },
 
     android: {
       package: 'nuroo.app',
-      versionCode: 8,
+      versionCode: 26,
       adaptiveIcon: {
         foregroundImage: './assets/images/logo-bg.png',
         backgroundColor: '#ffffff',
@@ -52,16 +58,22 @@ export default {
 
     plugins: [
       'expo-router',
+      'expo-mail-composer',
       [
         'expo-notifications',
-        { icon: './assets/images/logo-bg.png', color: '#ffffff' },
+        {
+          icon: './assets/images/logo-bg.png',
+          color: '#ffffff',
+        },
       ],
     ],
 
     extra: {
-      eas: { projectId: '6568faf4-bdab-41fb-bc31-d5d1523767b2' },
+      eas: {
+        projectId: '6568faf4-bdab-41fb-bc31-d5d1523767b2',
+      },
 
-      // Firebase configuration
+      // Firebase
       EXPO_PUBLIC_FIREBASE_API_KEY: getEnvVar('EXPO_PUBLIC_FIREBASE_API_KEY'),
       EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN: getEnvVar(
         'EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN',
@@ -80,12 +92,15 @@ export default {
         'EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID',
       ),
 
-      // App configuration
-      EXPO_PUBLIC_FEEDBACK_EMAIL: getEnvVar('EXPO_PUBLIC_FEEDBACK_EMAIL'),
-      EXPO_PUBLIC_PRIVACY_URL: getEnvVar('EXPO_PUBLIC_PRIVACY_URL'),
-      EXPO_PUBLIC_HELP_URL: getEnvVar('EXPO_PUBLIC_HELP_URL'),
+      // App config
+      APP_STORE_URL: getEnvVar('APP_STORE_URL'),
+      FEEDBACK_EMAIL:
+        getEnvVar('FEEDBACK_EMAIL') || getEnvVar('EXPO_PUBLIC_FEEDBACK_EMAIL'),
+      PRIVACY_URL:
+        getEnvVar('PRIVACY_URL') || getEnvVar('EXPO_PUBLIC_PRIVACY_URL'),
+      HELP_URL: getEnvVar('HELP_URL') || getEnvVar('EXPO_PUBLIC_HELP_URL'),
 
-      // OpenAI configuration
+      // OpenAI
       EXPO_PUBLIC_OPENAI_API_KEY: getEnvVar('OPENAI_API_KEY'),
       EXPO_PUBLIC_OPENAI_PROJECT_ID: getEnvVar('OPENAI_PROJECT_ID'),
     },
