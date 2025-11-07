@@ -10,25 +10,32 @@ import ErrorBoundary from '@/components/ErrorBoundary/ErrorBoundary';
 import { AuthProvider } from '@/features/auth/AuthContext';
 import { NotificationService } from '@/lib/services/notificationService';
 
+console.log('🚀 [ROOT] Module loading started...');
+
 // Safely load i18n
 try {
+  console.log('📚 [ROOT] Loading i18n...');
   require('@/i18n/i18n');
+  console.log('✅ [ROOT] i18n loaded successfully');
 } catch (error) {
-  console.warn('⚠️ i18n failed to load:', error);
+  console.error('❌ [ROOT] i18n failed to load:', error);
 }
 
 // Safely check for Expo Go
 let isExpoGo = false;
 try {
+  console.log('🔍 [ROOT] Checking environment...');
   isExpoGo =
     Constants?.appOwnership === 'expo' ||
     Constants?.executionEnvironment === 'storeClient';
+  console.log('✅ [ROOT] Environment check done. isExpoGo:', isExpoGo);
 } catch (error) {
-  console.warn('⚠️ Constants check failed:', error);
+  console.error('❌ [ROOT] Constants check failed:', error);
 }
 
 // Set up global error handler IMMEDIATELY
 try {
+  console.log('🛡️ [ROOT] Setting up global error handler...');
   const globalAny = global as any;
   if (
     globalAny.ErrorUtils &&
@@ -36,27 +43,40 @@ try {
   ) {
     globalAny.ErrorUtils.setGlobalHandler(
       (error: unknown, isFatal?: boolean) => {
-        console.error('🔥 CAUGHT GLOBAL ERROR:', error);
-        console.error('   Fatal:', !!isFatal);
-        console.error('   Stack:', (error as any)?.stack);
+        console.error('🔥🔥🔥 CAUGHT GLOBAL ERROR 🔥🔥🔥');
+        console.error('Error:', error);
+        console.error('Fatal:', !!isFatal);
+        console.error('Message:', (error as any)?.message);
+        console.error('Stack:', (error as any)?.stack);
+        console.error('🔥🔥🔥 END ERROR LOG 🔥🔥🔥');
 
         // DON'T crash the app - just log
-        return;
+        // Returning nothing prevents the crash
       },
     );
+    console.log('✅ [ROOT] Global error handler installed successfully');
+  } else {
+    console.warn('⚠️ [ROOT] ErrorUtils not available');
   }
 } catch (error) {
-  console.error('⚠️ Failed to set global error handler:', error);
+  console.error('❌ [ROOT] Failed to set global error handler:', error);
 }
 
+console.log('✅ [ROOT] Module initialization complete');
+
 export default function RootLayout() {
+  console.log('🏁 [ROOT] RootLayout component starting...');
+
   const [appReady, setAppReady] = useState(false);
   const [initError, setInitError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('⚡ [ROOT] useEffect triggered');
+
     const initApp = async () => {
       try {
-        console.log('📱 App Environment:', {
+        console.log('📱 [INIT] Starting app initialization...');
+        console.log('📱 [INIT] Environment:', {
           isExpoGo,
           isDevelopment: __DEV__,
           platform: Constants?.platform?.ios
@@ -66,57 +86,85 @@ export default function RootLayout() {
               : 'Web',
         });
 
-        // Small delay to ensure everything is ready
+        console.log('⏱️ [INIT] Waiting 100ms for modules to settle...');
         await new Promise((resolve) => setTimeout(resolve, 100));
+        console.log('✅ [INIT] Initial delay complete');
 
         if (!isExpoGo) {
           try {
-            console.log('🚀 Initializing app services...');
-
-            // Add delay to ensure all modules are loaded
+            console.log('🚀 [INIT] Initializing app services (not Expo Go)...');
+            console.log('⏱️ [INIT] Waiting 500ms for notification modules...');
             await new Promise((resolve) => setTimeout(resolve, 500));
-
+            console.log('✅ [INIT] Notification delay complete');
+            console.log('🔔 [INIT] Requesting notification permissions...');
             await NotificationService.requestPermissions();
+            console.log('✅ [INIT] Permissions requested');
+            console.log('📅 [INIT] Scheduling daily notification...');
             await NotificationService.scheduleDailyNotification();
-            console.log('✅ App services initialized');
+            console.log('✅ [INIT] Daily notification scheduled');
+            console.log('✅ [INIT] App services initialized successfully');
           } catch (error) {
-            console.warn('⚠️ Non-critical error with notifications:', error);
+            console.error(
+              '⚠️ [INIT] Non-critical error with notifications:',
+              error,
+            );
+            console.error('   Error message:', (error as any)?.message);
           }
+        } else {
+          console.log('⏭️ [INIT] Skipping notifications (Expo Go)');
         }
 
+        console.log('✅ [INIT] Setting appReady to true...');
         setAppReady(true);
+        console.log('✅ [INIT] App initialization complete!');
       } catch (error) {
-        console.error('❌ App initialization error:', error);
+        console.error('❌ [INIT] CRITICAL: App initialization error:', error);
+        console.error('   Error message:', (error as any)?.message);
+        console.error('   Error stack:', (error as any)?.stack);
         setInitError((error as any)?.message || 'Unknown initialization error');
         // Still mark as ready to show something to the user
         setAppReady(true);
       }
     };
 
+    console.log('🏃 [ROOT] Calling initApp...');
     initApp();
 
     let cleanupNotificationListeners: (() => void) | null = null;
 
     if (!isExpoGo) {
       try {
-        console.log('🔔 Setting up notification listeners...');
+        console.log('🔔 [ROOT] Setting up notification listeners...');
         cleanupNotificationListeners =
           NotificationService.setupNotificationListeners();
+        console.log('✅ [ROOT] Notification listeners set up');
       } catch (error) {
-        console.warn('⚠️ Error setting up notification listeners:', error);
+        console.error(
+          '⚠️ [ROOT] Error setting up notification listeners:',
+          error,
+        );
       }
     }
 
     return () => {
+      console.log('🧹 [ROOT] Cleanup function called');
       if (cleanupNotificationListeners) {
         try {
           cleanupNotificationListeners();
+          console.log('✅ [ROOT] Cleaned up notification listeners');
         } catch (error) {
-          console.warn('⚠️ Error cleaning up:', error);
+          console.error('⚠️ [ROOT] Error cleaning up:', error);
         }
       }
     };
   }, []);
+
+  console.log(
+    '🎨 [ROOT] Rendering... appReady:',
+    appReady,
+    'initError:',
+    !!initError,
+  );
 
   if (!appReady) {
     return (

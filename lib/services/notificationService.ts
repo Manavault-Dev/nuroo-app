@@ -1,7 +1,6 @@
 // External Imports
 import * as BackgroundFetch from 'expo-background-fetch';
 import Constants from 'expo-constants';
-import type * as NotificationsTypes from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
 import { doc, getDoc } from 'firebase/firestore';
 
@@ -11,23 +10,38 @@ import { NotificationEvents } from './notificationEventEmitter';
 import { ProgressService } from './progressService';
 import { TaskGenerationService } from './taskGenerationService';
 
+console.log('📦 [NOTIF_SERVICE] Module loading...');
+
 // Check if running in Expo Go (not a production build)
 const isExpoGo =
   Constants.appOwnership === 'expo' ||
   Constants.executionEnvironment === 'storeClient';
 
+console.log('🔍 [NOTIF_SERVICE] isExpoGo:', isExpoGo);
+
 // Conditionally import notifications only if not in Expo Go
-let Notifications: typeof NotificationsTypes | null = null;
+// DO NOT use 'import type' - it can still cause issues!
+let Notifications: any = null;
 let notificationsInitialized = false;
 
 const initializeNotifications = () => {
   if (notificationsInitialized || isExpoGo) {
+    console.log(
+      '⏭️ [NOTIF_SERVICE] Skipping notifications init. Already initialized or Expo Go.',
+    );
     return;
   }
 
   try {
+    console.log('🔔 [NOTIF_SERVICE] Loading expo-notifications module...');
+
+    // Dynamic require - only loads when called, not at module load time
     Notifications = require('expo-notifications');
-    if (Notifications) {
+
+    console.log('✅ [NOTIF_SERVICE] expo-notifications loaded');
+
+    if (Notifications && Notifications.setNotificationHandler) {
+      console.log('🔧 [NOTIF_SERVICE] Setting notification handler...');
       Notifications.setNotificationHandler({
         handleNotification: async () => ({
           shouldShowAlert: true,
@@ -38,14 +52,15 @@ const initializeNotifications = () => {
         }),
       });
       notificationsInitialized = true;
-      if (__DEV__) {
-        console.log('✅ Notifications initialized successfully');
-      }
+      console.log('✅ [NOTIF_SERVICE] Notifications initialized successfully');
     }
   } catch (error) {
-    console.warn('⚠️ Notifications not available:', error);
+    console.error('❌ [NOTIF_SERVICE] Notifications not available:', error);
+    console.error('   Error details:', (error as any)?.message);
   }
 };
+
+console.log('✅ [NOTIF_SERVICE] Module loaded (notifications NOT loaded yet)');
 
 export class NotificationService {
   private static BACKGROUND_TASK_NAME = 'background-task-generation';
@@ -238,9 +253,7 @@ export class NotificationService {
   /**
    * Handle notification response (when user taps a notification)
    */
-  static async handleNotificationResponse(
-    response: NotificationsTypes.NotificationResponse,
-  ): Promise<void> {
+  static async handleNotificationResponse(response: any): Promise<void> {
     try {
       const { type, taskCount, taskTitle } = response.notification.request
         .content.data as any;
@@ -302,16 +315,18 @@ export class NotificationService {
     try {
       // Listen for notifications received while app is foregrounded
       const foregroundSubscription =
-        Notifications.addNotificationReceivedListener((notification) => {
+        Notifications.addNotificationReceivedListener((notification: any) => {
           console.log('📬 Notification received in foreground:', notification);
         });
 
       // Listen for user interactions with notifications
       const responseSubscription =
-        Notifications.addNotificationResponseReceivedListener((response) => {
-          console.log('📱 User interacted with notification');
-          this.handleNotificationResponse(response);
-        });
+        Notifications.addNotificationResponseReceivedListener(
+          (response: any) => {
+            console.log('📱 User interacted with notification');
+            this.handleNotificationResponse(response);
+          },
+        );
 
       // Return cleanup function
       return () => {

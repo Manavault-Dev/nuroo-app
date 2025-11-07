@@ -5,23 +5,34 @@ import { getAuth, initializeAuth, type Persistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { Platform } from 'react-native';
 
+console.log('🔥 [FIREBASE] Module loading started...');
+
 const isExpoGo = (() => {
+  console.log('🔍 [FIREBASE] Checking if Expo Go...');
+  let result = false;
   try {
     if (
       Constants.ExecutionEnvironment &&
       Constants.executionEnvironment ===
         Constants.ExecutionEnvironment.StoreClient
     ) {
+      console.log('✅ [FIREBASE] Detected Expo Go (StoreClient)');
       return true;
     }
-  } catch {}
+  } catch (e) {
+    console.log('⚠️ [FIREBASE] ExecutionEnvironment check failed');
+  }
 
   try {
     if (Constants.appOwnership === 'expo') {
+      console.log('✅ [FIREBASE] Detected Expo Go (appOwnership)');
       return true;
     }
-  } catch {}
+  } catch (e) {
+    console.log('⚠️ [FIREBASE] appOwnership check failed');
+  }
 
+  console.log('✅ [FIREBASE] Not Expo Go - production mode');
   return false;
 })();
 const EXPO_PUBLIC_FIREBASE_API_KEY = process.env.EXPO_PUBLIC_FIREBASE_API_KEY;
@@ -38,6 +49,8 @@ const EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID =
   process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID;
 
 const validateFirebaseConfig = () => {
+  console.log('🔍 [FIREBASE] Validating Firebase config...');
+
   const requiredFields = {
     apiKey: EXPO_PUBLIC_FIREBASE_API_KEY,
     projectId: EXPO_PUBLIC_FIREBASE_PROJECT_ID,
@@ -48,27 +61,35 @@ const validateFirebaseConfig = () => {
     .filter(([_, value]) => !value)
     .map(([key]) => key);
 
+  console.log('🔍 [FIREBASE] Config check:', {
+    apiKey: EXPO_PUBLIC_FIREBASE_API_KEY
+      ? `${EXPO_PUBLIC_FIREBASE_API_KEY.substring(0, 10)}...`
+      : 'MISSING',
+    authDomain: EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || 'MISSING',
+    projectId: EXPO_PUBLIC_FIREBASE_PROJECT_ID || 'MISSING',
+    storageBucket: EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || 'MISSING',
+    messagingSenderId: EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || 'MISSING',
+    appId: EXPO_PUBLIC_FIREBASE_APP_ID
+      ? `${EXPO_PUBLIC_FIREBASE_APP_ID.substring(0, 15)}...`
+      : 'MISSING',
+    measurementId: EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || 'MISSING',
+  });
+
   if (missingFields.length > 0) {
     const errorMessage = `❌ Firebase configuration error: Missing required fields: ${missingFields.join(', ')}. Please check your environment variables in EAS secrets or eas.json.`;
-    console.error(errorMessage);
-    console.error('All env vars:', {
-      apiKey: EXPO_PUBLIC_FIREBASE_API_KEY
-        ? `${EXPO_PUBLIC_FIREBASE_API_KEY.substring(0, 10)}...`
-        : 'MISSING',
-      authDomain: EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || 'MISSING',
-      projectId: EXPO_PUBLIC_FIREBASE_PROJECT_ID || 'MISSING',
-      storageBucket: EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || 'MISSING',
-      messagingSenderId: EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || 'MISSING',
-      appId: EXPO_PUBLIC_FIREBASE_APP_ID
-        ? `${EXPO_PUBLIC_FIREBASE_APP_ID.substring(0, 15)}...`
-        : 'MISSING',
-      measurementId: EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || 'MISSING',
-    });
+    console.error('❌ [FIREBASE]', errorMessage);
     throw new Error(errorMessage);
   }
+
+  console.log('✅ [FIREBASE] Config validation passed');
 };
 
-validateFirebaseConfig();
+try {
+  validateFirebaseConfig();
+} catch (error) {
+  console.error('❌ [FIREBASE] CRITICAL: Config validation failed!', error);
+  throw error;
+}
 
 const firebaseConfig = {
   apiKey: EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -80,24 +101,35 @@ const firebaseConfig = {
   measurementId: EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-if (__DEV__) {
-  console.log('🔥 Initializing Firebase...');
-  console.log('  Project ID:', EXPO_PUBLIC_FIREBASE_PROJECT_ID);
-  console.log(
-    '  API Key:',
-    EXPO_PUBLIC_FIREBASE_API_KEY
-      ? `${EXPO_PUBLIC_FIREBASE_API_KEY.substring(0, 10)}...`
-      : 'MISSING',
-  );
-  console.log(
-    '  App ID:',
-    EXPO_PUBLIC_FIREBASE_APP_ID
-      ? `${EXPO_PUBLIC_FIREBASE_APP_ID.substring(0, 15)}...`
-      : 'MISSING',
-  );
-}
+console.log('🔥 [FIREBASE] Initializing Firebase app...');
+console.log('  Project ID:', EXPO_PUBLIC_FIREBASE_PROJECT_ID);
+console.log(
+  '  API Key:',
+  EXPO_PUBLIC_FIREBASE_API_KEY
+    ? `${EXPO_PUBLIC_FIREBASE_API_KEY.substring(0, 10)}...`
+    : 'MISSING',
+);
+console.log(
+  '  App ID:',
+  EXPO_PUBLIC_FIREBASE_APP_ID
+    ? `${EXPO_PUBLIC_FIREBASE_APP_ID.substring(0, 15)}...`
+    : 'MISSING',
+);
 
-export const app = initializeApp(firebaseConfig);
+export const app = (() => {
+  try {
+    console.log('📦 [FIREBASE] Calling initializeApp...');
+    const appInstance = initializeApp(firebaseConfig);
+    console.log('✅ [FIREBASE] Firebase app initialized successfully');
+    return appInstance;
+  } catch (error) {
+    console.error(
+      '❌ [FIREBASE] CRITICAL: Failed to initialize Firebase!',
+      error,
+    );
+    throw error;
+  }
+})();
 
 declare global {
   // eslint-disable-next-line no-var
@@ -232,7 +264,31 @@ const initializeReactNativeAuth = () => {
     }
   }
 };
-export const auth =
-  Platform.OS === 'web' ? getAuth(app) : initializeReactNativeAuth();
+console.log('🔐 [FIREBASE] Initializing auth...');
+console.log('   Platform:', Platform.OS);
 
-export const db = getFirestore(app);
+export const auth: ReturnType<typeof initializeAuth> = (() => {
+  try {
+    const authInstance =
+      Platform.OS === 'web' ? getAuth(app) : initializeReactNativeAuth();
+    console.log('✅ [FIREBASE] Auth initialized and exported');
+    return authInstance as ReturnType<typeof initializeAuth>;
+  } catch (error) {
+    console.error('❌ [FIREBASE] CRITICAL: Auth init failed!', error);
+    throw error;
+  }
+})();
+
+console.log('📊 [FIREBASE] Initializing Firestore...');
+export const db = (() => {
+  try {
+    const dbInstance = getFirestore(app);
+    console.log('✅ [FIREBASE] Firestore initialized');
+    return dbInstance;
+  } catch (error) {
+    console.error('❌ [FIREBASE] Firestore init failed!', error);
+    throw error;
+  }
+})();
+
+console.log('✅✅✅ [FIREBASE] MODULE FULLY LOADED ✅✅✅');

@@ -21,7 +21,7 @@ export default {
     name: 'Nuroo',
     slug: 'nuroo',
     scheme: 'nuroo',
-    version: '1.0.26',
+    version: '1.0.28',
     orientation: 'portrait',
     icon: './assets/images/logo-bg.png',
     userInterfaceStyle: 'light',
@@ -31,11 +31,12 @@ export default {
       backgroundColor: '#ffffff',
     },
     assetBundlePatterns: ['**/*'],
+    newArchEnabled: true,
 
     ios: {
       bundleIdentifier: 'nuroo.app',
-      buildNumber: '26',
-      jsEngine: 'jsc',
+      buildNumber: '28',
+      jsEngine: 'hermes',
       supportsTablet: true,
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
@@ -48,7 +49,7 @@ export default {
 
     android: {
       package: 'nuroo.app',
-      versionCode: 26,
+      versionCode: 28,
       adaptiveIcon: {
         foregroundImage: './assets/images/logo-bg.png',
         backgroundColor: '#ffffff',
