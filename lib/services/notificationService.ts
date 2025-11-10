@@ -1,26 +1,47 @@
 // External Imports
 import * as BackgroundFetch from 'expo-background-fetch';
 import Constants from 'expo-constants';
-import type * as NotificationsTypes from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
 import { doc, getDoc } from 'firebase/firestore';
 
 // Internal Imports
-import i18n from '@/i18n/i18n';
 import { auth, db } from '@/lib/firebase/firebase';
 import { NotificationEvents } from './notificationEventEmitter';
 import { ProgressService } from './progressService';
 import { TaskGenerationService } from './taskGenerationService';
 
-// Check if we're in Expo Go
-const isExpoGo = Constants.appOwnership === 'expo';
+console.log('📦 [NOTIF_SERVICE] Module loading...');
+
+// Check if running in Expo Go (not a production build)
+const isExpoGo =
+  Constants.appOwnership === 'expo' ||
+  Constants.executionEnvironment === 'storeClient';
+
+console.log('🔍 [NOTIF_SERVICE] isExpoGo:', isExpoGo);
 
 // Conditionally import notifications only if not in Expo Go
-let Notifications: typeof NotificationsTypes | null = null;
-if (!isExpoGo) {
+// DO NOT use 'import type' - it can still cause issues!
+let Notifications: any = null;
+let notificationsInitialized = false;
+
+const initializeNotifications = () => {
+  if (notificationsInitialized || isExpoGo) {
+    console.log(
+      '⏭️ [NOTIF_SERVICE] Skipping notifications init. Already initialized or Expo Go.',
+    );
+    return;
+  }
+
   try {
+    console.log('🔔 [NOTIF_SERVICE] Loading expo-notifications module...');
+
+    // Dynamic require - only loads when called, not at module load time
     Notifications = require('expo-notifications');
-    if (Notifications) {
+
+    console.log('✅ [NOTIF_SERVICE] expo-notifications loaded');
+
+    if (Notifications && Notifications.setNotificationHandler) {
+      console.log('🔧 [NOTIF_SERVICE] Setting notification handler...');
       Notifications.setNotificationHandler({
         handleNotification: async () => ({
           shouldShowAlert: true,
@@ -30,11 +51,16 @@ if (!isExpoGo) {
           shouldShowList: true,
         }),
       });
+      notificationsInitialized = true;
+      console.log('✅ [NOTIF_SERVICE] Notifications initialized successfully');
     }
   } catch (error) {
-    console.warn('⚠️ Notifications not available:', error);
+    console.error('❌ [NOTIF_SERVICE] Notifications not available:', error);
+    console.error('   Error details:', (error as any)?.message);
   }
-}
+};
+
+console.log('✅ [NOTIF_SERVICE] Module loaded (notifications NOT loaded yet)');
 
 export class NotificationService {
   private static BACKGROUND_TASK_NAME = 'background-task-generation';
@@ -43,12 +69,22 @@ export class NotificationService {
    * Request notification permissions
    */
   static async requestPermissions(): Promise<boolean> {
-    if (isExpoGo || !Notifications) {
-      console.warn(`⚠️ ${i18n.t('notifications.not_available_expo_go')}`);
+    if (isExpoGo) {
+      if (__DEV__) {
+        console.warn('⚠️ Notifications not available in Expo Go');
+      }
       return false;
     }
+
+    initializeNotifications();
+
+    if (!Notifications) {
+      console.warn('⚠️ Notifications module not available');
+      return false;
+    }
+
     try {
-      const { status } = await Notifications!.requestPermissionsAsync();
+      const { status } = await Notifications.requestPermissionsAsync();
       return status === 'granted';
     } catch (error) {
       console.error('Error requesting notification permissions:', error);
@@ -60,26 +96,36 @@ export class NotificationService {
    * Schedule daily task generation notification
    */
   static async scheduleDailyNotification(): Promise<void> {
-    if (isExpoGo || !Notifications) {
-      console.warn(`⚠️ ${i18n.t('notifications.not_available_expo_go')}`);
+    if (isExpoGo) {
+      if (__DEV__) {
+        console.warn('⚠️ Notifications not available in Expo Go');
+      }
       return;
     }
+
+    initializeNotifications();
+
+    if (!Notifications) {
+      console.warn('⚠️ Notifications module not available');
+      return;
+    }
+
     try {
       const hasPermission = await this.requestPermissions();
       if (!hasPermission) {
         return;
       }
 
-      await Notifications!.cancelAllScheduledNotificationsAsync();
+      await Notifications.cancelAllScheduledNotificationsAsync();
 
-      await Notifications!.scheduleNotificationAsync({
+      await Notifications.scheduleNotificationAsync({
         content: {
-          title: i18n.t('notifications.good_morning'),
-          body: i18n.t('notifications.daily_tasks_ready'),
+          title: '🌅 Good Morning!',
+          body: 'Your personalized daily tasks are ready!',
           data: { type: 'daily_tasks' },
         },
         trigger: {
-          type: Notifications!.SchedulableTriggerInputTypes.DAILY,
+          type: Notifications.SchedulableTriggerInputTypes.DAILY,
           hour: 9,
           minute: 0,
         },
@@ -95,20 +141,28 @@ export class NotificationService {
   static async sendTaskGenerationNotification(
     taskCount: number,
   ): Promise<void> {
-    if (isExpoGo || !Notifications) {
-      console.warn(`⚠️ ${i18n.t('notifications.not_available_expo_go')}`);
+    if (isExpoGo) {
+      if (__DEV__) {
+        console.warn('⚠️ Notifications not available in Expo Go');
+      }
       return;
     }
+
+    initializeNotifications();
+
+    if (!Notifications) {
+      console.warn('⚠️ Notifications module not available');
+      return;
+    }
+
     try {
       const hasPermission = await this.requestPermissions();
       if (!hasPermission) return;
 
-      await Notifications!.scheduleNotificationAsync({
+      await Notifications.scheduleNotificationAsync({
         content: {
-          title: i18n.t('notifications.new_tasks_generated'),
-          body: i18n.t('notifications.new_activities_count', {
-            count: taskCount,
-          }),
+          title: '🎯 New Tasks Generated!',
+          body: `You have ${taskCount} new personalized activities for today!`,
           data: { type: 'tasks_generated', taskCount },
         },
         trigger: null, // Send immediately
@@ -122,8 +176,17 @@ export class NotificationService {
    * Initialize background task for automatic task generation
    */
   static async initializeBackgroundTask(): Promise<void> {
-    if (isExpoGo || !Notifications) {
-      console.warn(`⚠️ ${i18n.t('notifications.not_available_expo_go')}`);
+    if (isExpoGo) {
+      if (__DEV__) {
+        console.warn('⚠️ Background tasks not available in Expo Go');
+      }
+      return;
+    }
+
+    initializeNotifications();
+
+    if (!Notifications) {
+      console.warn('⚠️ Notifications module not available');
       return;
     }
     try {
@@ -190,9 +253,7 @@ export class NotificationService {
   /**
    * Handle notification response (when user taps a notification)
    */
-  static async handleNotificationResponse(
-    response: NotificationsTypes.NotificationResponse,
-  ): Promise<void> {
+  static async handleNotificationResponse(response: any): Promise<void> {
     try {
       const { type, taskCount, taskTitle } = response.notification.request
         .content.data as any;
@@ -237,24 +298,35 @@ export class NotificationService {
    * Call this when the app starts
    */
   static setupNotificationListeners(): (() => void) | null {
-    if (isExpoGo || !Notifications) {
-      console.warn(`⚠️ ${i18n.t('notifications.not_available_expo_go')}`);
+    if (isExpoGo) {
+      if (__DEV__) {
+        console.warn('⚠️ Notifications not available in Expo Go');
+      }
+      return null;
+    }
+
+    initializeNotifications();
+
+    if (!Notifications) {
+      console.warn('⚠️ Notifications module not available');
       return null;
     }
 
     try {
       // Listen for notifications received while app is foregrounded
       const foregroundSubscription =
-        Notifications!.addNotificationReceivedListener((notification) => {
+        Notifications.addNotificationReceivedListener((notification: any) => {
           console.log('📬 Notification received in foreground:', notification);
         });
 
       // Listen for user interactions with notifications
       const responseSubscription =
-        Notifications!.addNotificationResponseReceivedListener((response) => {
-          console.log('📱 User interacted with notification');
-          this.handleNotificationResponse(response);
-        });
+        Notifications.addNotificationResponseReceivedListener(
+          (response: any) => {
+            console.log('📱 User interacted with notification');
+            this.handleNotificationResponse(response);
+          },
+        );
 
       // Return cleanup function
       return () => {
@@ -271,12 +343,22 @@ export class NotificationService {
    * Get notification token for push notifications
    */
   static async getNotificationToken(): Promise<string | null> {
-    if (isExpoGo || !Notifications) {
-      console.warn(`⚠️ ${i18n.t('notifications.not_available_expo_go')}`);
+    if (isExpoGo) {
+      if (__DEV__) {
+        console.warn('⚠️ Notifications not available in Expo Go');
+      }
       return null;
     }
+
+    initializeNotifications();
+
+    if (!Notifications) {
+      console.warn('⚠️ Notifications module not available');
+      return null;
+    }
+
     try {
-      const token = await Notifications!.getExpoPushTokenAsync();
+      const token = await Notifications.getExpoPushTokenAsync();
       return token.data;
     } catch (error) {
       console.error('❌ Error getting notification token:', error);

@@ -96,7 +96,26 @@ interface ErrorFallbackProps {
 }
 
 const ErrorFallback: React.FC<ErrorFallbackProps> = ({ onRetry, onReport }) => {
-  const { t } = useTranslation();
+  // Safe translation with fallbacks
+  let t: any;
+  try {
+    const translation = useTranslation();
+    t = translation.t;
+  } catch (error) {
+    // If i18n fails, use fallback strings
+    t = (key: string) => {
+      const fallbacks: Record<string, string> = {
+        'error.something_went_wrong': 'Oops! Something went wrong',
+        'error.boundary_message':
+          "We encountered an unexpected error. Don't worry, your data is safe.",
+        'error.try_again': 'Try Again',
+        'error.report_issue': 'Report Issue',
+        'error.support_text':
+          'If this problem persists, please contact our support team.',
+      };
+      return fallbacks[key] || key;
+    };
+  }
 
   return (
     <View style={tw`flex-1 justify-center items-center p-6 bg-gray-50`}>

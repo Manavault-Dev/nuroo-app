@@ -125,12 +125,12 @@ const ProfileScreen = () => {
         onPress: async () => {
           try {
             await logout();
-
-            setTimeout(() => {
-              router.replace('/welcome');
-            }, 100);
+            router.replace('/welcome');
           } catch (error) {
-            console.error(' Error during logout:', error);
+            if (__DEV__) {
+              console.error('❌ Error during logout:', error);
+            }
+            router.replace('/welcome');
           }
         },
       },

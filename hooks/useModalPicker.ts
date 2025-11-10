@@ -16,6 +16,16 @@ export function useModalPicker(onSelect: (value: string) => void) {
 
   const close = () => setVisible(false);
 
+  const isfinished = () => {
+    setVisible(false);
+  };
+
+  const compare = (a: Option, b: Option) => {
+    if (a.label < b.label) {
+      return -1;
+    }
+  };
+
   const select = (value: string) => {
     onSelect(value);
     close();

@@ -6,13 +6,36 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 // Internal Imports
 import { auth } from '@/lib/firebase/firebase';
+import {
+  clearCorruptedCache,
+  safeGetItem,
+  safeJSONParse,
+  safeRemoveItem,
+  safeSetItem,
+} from '@/lib/utils/storage';
 
-// Cache keys
 const CACHE_KEY_USER = '@nuroo_cached_user';
 const CACHE_KEY_TOKEN = 'authToken';
 
-// Environment detection
-const isExpoGo = Constants.appOwnership === 'expo';
+const isExpoGo = (() => {
+  try {
+    if (
+      Constants.ExecutionEnvironment &&
+      Constants.executionEnvironment ===
+        Constants.ExecutionEnvironment.StoreClient
+    ) {
+      return true;
+    }
+  } catch {}
+
+  try {
+    if (Constants.appOwnership === 'expo') {
+      return true;
+    }
+  } catch {}
+
+  return false;
+})();
 
 const AuthContext = createContext<{
   user: User | null;
@@ -31,7 +54,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
 
-  // Helper to cache user data for fallback
   const cacheUserData = async (
     firebaseUser: User | null,
     userToken: string | null,
@@ -44,41 +66,50 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           displayName: firebaseUser.displayName,
           photoURL: firebaseUser.photoURL,
         };
-        await AsyncStorage.setItem(CACHE_KEY_USER, JSON.stringify(userData));
-        await AsyncStorage.setItem(CACHE_KEY_TOKEN, userToken);
-        console.log('💾 Cached user data to AsyncStorage');
+        await safeSetItem(CACHE_KEY_USER, JSON.stringify(userData));
+        await safeSetItem(CACHE_KEY_TOKEN, userToken);
+        if (__DEV__) console.log('💾 Cached user data to AsyncStorage');
       } else {
-        await AsyncStorage.removeItem(CACHE_KEY_USER);
-        await AsyncStorage.removeItem(CACHE_KEY_TOKEN);
-        console.log('🗑️ Cleared user cache from AsyncStorage');
+        await safeRemoveItem(CACHE_KEY_USER);
+        await safeRemoveItem(CACHE_KEY_TOKEN);
+        if (__DEV__) console.log('🗑️ Cleared user cache from AsyncStorage');
       }
     } catch (error) {
-      console.error('❌ Error caching user data:', error);
+      if (__DEV__) console.error('❌ Error caching user data:', error);
     }
   };
 
-  // Helper to load cached user as fallback
   const loadCachedUser = async () => {
     try {
-      const [cachedUserData, cachedToken] = await Promise.all([
-        AsyncStorage.getItem(CACHE_KEY_USER),
-        AsyncStorage.getItem(CACHE_KEY_TOKEN),
+      const [cachedUserDataRaw, cachedToken] = await Promise.all([
+        safeGetItem(CACHE_KEY_USER),
+        safeGetItem(CACHE_KEY_TOKEN),
       ]);
 
-      if (cachedUserData && cachedToken) {
-        const userData = JSON.parse(cachedUserData);
-        console.log('🧠 Cached user loaded:', userData.email);
-        console.log('⚠️ Using fallback AsyncStorage cache');
+      if (cachedUserDataRaw && cachedToken) {
+        const userData = safeJSONParse<{
+          email?: string;
+          uid?: string;
+          displayName?: string;
+          photoURL?: string;
+        }>(cachedUserDataRaw);
 
-        // Set temporary state (will be replaced by Firebase if available)
+        if (!userData) {
+          await clearCorruptedCache([CACHE_KEY_USER, CACHE_KEY_TOKEN]);
+          return null;
+        }
+
+        if (__DEV__) {
+          console.log('🧠 Cached user loaded:', userData.email);
+          console.log('⚠️ Using fallback AsyncStorage cache');
+        }
+
         setToken(cachedToken);
-
-        // Note: We can't recreate a User object, but we can set token
-        // Firebase onAuthStateChanged will handle the actual user restoration
         return { userData, token: cachedToken };
       }
     } catch (error) {
-      console.error('❌ Error loading cached user:', error);
+      if (__DEV__) console.error('❌ Error loading cached user:', error);
+      await clearCorruptedCache([CACHE_KEY_USER, CACHE_KEY_TOKEN]);
     }
     return null;
   };
@@ -87,51 +118,59 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     let isMounted = true;
 
     const initializeAuth = async () => {
-      console.log('🔑 Initializing auth state...');
+      if (__DEV__) console.log('🔑 Initializing auth state...');
 
-      // Load cached user as fallback (for Expo Go / when Firebase persistence fails)
       const cached = await loadCachedUser();
 
       const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
         if (!isMounted) return;
 
-        console.log(
-          '🔄 Firebase user state changed:',
-          firebaseUser ? `User: ${firebaseUser.email}` : 'No user',
-        );
+        if (__DEV__) {
+          console.log(
+            '🔄 Firebase user state changed:',
+            firebaseUser ? `User: ${firebaseUser.email}` : 'No user',
+          );
+        }
 
         try {
           if (firebaseUser) {
-            // Firebase persistence worked - user restored
             const freshToken = await firebaseUser.getIdToken();
+            if (!isMounted) return;
+
             setUser(firebaseUser);
             setToken(freshToken);
-
-            // Cache for fallback
             await cacheUserData(firebaseUser, freshToken);
-            console.log('🔑 Firebase state restored:', firebaseUser.email);
+
+            if (__DEV__) {
+              console.log('🔑 Firebase state restored:', firebaseUser.email);
+            }
           } else {
-            // No user from Firebase
-            // Check if we have cached user (fallback for Expo Go)
             if (cached && isExpoGo) {
-              console.log(
-                '⚠️ No Firebase user, but cached user exists - keeping token',
-              );
-              // Keep token from cache
-              setToken(cached.token);
+              if (__DEV__) {
+                console.log(
+                  '⚠️ No Firebase user, but cached user exists - keeping token',
+                );
+              }
+              if (isMounted) {
+                setToken(cached.token);
+              }
             } else {
-              // Clear everything
-              setUser(null);
-              setToken(null);
+              if (isMounted) {
+                setUser(null);
+                setToken(null);
+              }
               await cacheUserData(null, null);
             }
           }
         } catch (error) {
-          console.error('❌ Error handling auth state change:', error);
+          if (__DEV__) {
+            console.error('❌ Error handling auth state change:', error);
+          }
 
-          // On error, try to use cached user if available
           if (cached && isMounted) {
-            console.log('⚠️ Auth error - using cached user as fallback');
+            if (__DEV__) {
+              console.log('⚠️ Auth error - using cached user as fallback');
+            }
             setToken(cached.token);
           }
         } finally {
@@ -155,29 +194,54 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
-      console.log('🔄 Logging out user...');
+      if (__DEV__) console.log('🔄 Logging out user...');
+
+      setUser(null);
+      setToken(null);
+
       await signOut(auth);
-      console.log('✅ Firebase signOut completed');
+      if (__DEV__) console.log('✅ Firebase signOut completed');
 
-      // Clear state
-      setUser(null);
-      setToken(null);
+      const allKeys = await AsyncStorage.getAllKeys();
+      const keysToRemove = allKeys.filter(
+        (key: string) =>
+          key.includes('firebase') ||
+          key.includes('@nuroo') ||
+          key.includes('authToken') ||
+          key.includes('auth') ||
+          key.startsWith('firebase:'),
+      );
 
-      // Clear all cached data
-      await Promise.all([
-        AsyncStorage.removeItem(CACHE_KEY_USER),
-        AsyncStorage.removeItem(CACHE_KEY_TOKEN),
-      ]);
-      console.log('🗑️ User state and cache cleared');
+      await Promise.all(keysToRemove.map((key: string) => safeRemoveItem(key)));
+
+      if (__DEV__) {
+        console.log('🗑️ User state and cache cleared');
+        console.log('🧹 Removed keys:', keysToRemove);
+      }
     } catch (error) {
-      console.error('❌ Error signing out:', error);
-      // Still clear local state even if Firebase signOut fails
+      if (__DEV__) console.error('❌ Error signing out:', error);
+
       setUser(null);
       setToken(null);
-      await Promise.all([
-        AsyncStorage.removeItem(CACHE_KEY_USER),
-        AsyncStorage.removeItem(CACHE_KEY_TOKEN),
-      ]);
+
+      try {
+        const allKeys = await AsyncStorage.getAllKeys();
+        const keysToRemove = allKeys.filter(
+          (key: string) =>
+            key.includes('firebase') ||
+            key.includes('@nuroo') ||
+            key.includes('authToken') ||
+            key.includes('auth') ||
+            key.startsWith('firebase:'),
+        );
+        await Promise.all(
+          keysToRemove.map((key: string) => safeRemoveItem(key)),
+        );
+      } catch (clearError) {
+        if (__DEV__) {
+          console.error('❌ Error clearing cache:', clearError);
+        }
+      }
     }
   };
 
@@ -195,14 +259,16 @@ export const revalidateAuth = async () => {
   try {
     if (auth.currentUser) {
       await reload(auth.currentUser);
-      await auth.currentUser.getIdToken(true); // Force token refresh
-      console.log('🔁 Revalidated Firebase user:', auth.currentUser.email);
+      await auth.currentUser.getIdToken(true);
+      if (__DEV__) {
+        console.log('🔁 Revalidated Firebase user:', auth.currentUser.email);
+      }
       return true;
     }
-    console.log('⚠️ No user to revalidate');
+    if (__DEV__) console.log('⚠️ No user to revalidate');
     return false;
   } catch (error) {
-    console.error('❌ Error revalidating auth:', error);
+    if (__DEV__) console.error('❌ Error revalidating auth:', error);
     return false;
   }
 };

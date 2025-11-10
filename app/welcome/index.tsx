@@ -2,7 +2,7 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Globe } from 'lucide-react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 
@@ -10,7 +10,10 @@ import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 import LayoutWrapper from '@/components/LayoutWrappe/LayoutWrapper';
 import { Button } from '@/components/ui/Button';
 import InfoCard from '@/components/ui/InfoCard';
+import { useAuth } from '@/features/auth/AuthContext';
 import tw from '@/lib/design/tw';
+import { db } from '@/lib/firebase/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const LANGUAGES = [
   { code: 'en', label: 'English', flag: '🇺🇸' },
@@ -19,8 +22,50 @@ const LANGUAGES = [
 
 export default function WelcomeScreen() {
   const { t, i18n } = useTranslation();
+  const { user, loading } = useAuth();
   const [selectedLang, setSelectedLang] = useState(i18n.language);
   const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (loading) return;
+
+      if (user) {
+        if (__DEV__) {
+          console.log('✅ User already authenticated - checking onboarding...');
+        }
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            if (
+              userData.onboardingCompleted &&
+              userData.name &&
+              userData.age &&
+              userData.diagnosis &&
+              userData.developmentAreas
+            ) {
+              if (__DEV__) {
+                console.log('✅ Onboarding complete - redirecting to home');
+              }
+              router.replace('/(tabs)/home');
+              return;
+            }
+          }
+          if (__DEV__) {
+            console.log('⚠️ Onboarding incomplete - redirecting to onboarding');
+          }
+          router.replace('/onboarding');
+        } catch (error) {
+          if (__DEV__) {
+            console.error('❌ Error checking user data:', error);
+          }
+        }
+      }
+    };
+
+    checkAuth();
+  }, [user, loading]);
 
   const handleLanguageChange = (lang: string) => {
     i18n.changeLanguage(lang);

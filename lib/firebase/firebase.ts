@@ -5,12 +5,36 @@ import { getAuth, initializeAuth, type Persistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { Platform } from 'react-native';
 
-// Environment detection
-const isExpoGo = Constants.appOwnership === 'expo';
-const isDevelopment = __DEV__;
+console.log('🔥 [FIREBASE] Module loading started...');
 
-// Access environment variables directly - they are embedded at build time by Expo
-// EXPO_PUBLIC_ prefixed variables are available via process.env in both dev and production
+const isExpoGo = (() => {
+  console.log('🔍 [FIREBASE] Checking if Expo Go...');
+  let result = false;
+  try {
+    if (
+      Constants.ExecutionEnvironment &&
+      Constants.executionEnvironment ===
+        Constants.ExecutionEnvironment.StoreClient
+    ) {
+      console.log('✅ [FIREBASE] Detected Expo Go (StoreClient)');
+      return true;
+    }
+  } catch (e) {
+    console.log('⚠️ [FIREBASE] ExecutionEnvironment check failed');
+  }
+
+  try {
+    if (Constants.appOwnership === 'expo') {
+      console.log('✅ [FIREBASE] Detected Expo Go (appOwnership)');
+      return true;
+    }
+  } catch (e) {
+    console.log('⚠️ [FIREBASE] appOwnership check failed');
+  }
+
+  console.log('✅ [FIREBASE] Not Expo Go - production mode');
+  return false;
+})();
 const EXPO_PUBLIC_FIREBASE_API_KEY = process.env.EXPO_PUBLIC_FIREBASE_API_KEY;
 const EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN =
   process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN;
@@ -24,8 +48,9 @@ const EXPO_PUBLIC_FIREBASE_APP_ID = process.env.EXPO_PUBLIC_FIREBASE_APP_ID;
 const EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID =
   process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID;
 
-// Validate Firebase configuration
 const validateFirebaseConfig = () => {
+  console.log('🔍 [FIREBASE] Validating Firebase config...');
+
   const requiredFields = {
     apiKey: EXPO_PUBLIC_FIREBASE_API_KEY,
     projectId: EXPO_PUBLIC_FIREBASE_PROJECT_ID,
@@ -36,28 +61,35 @@ const validateFirebaseConfig = () => {
     .filter(([_, value]) => !value)
     .map(([key]) => key);
 
+  console.log('🔍 [FIREBASE] Config check:', {
+    apiKey: EXPO_PUBLIC_FIREBASE_API_KEY
+      ? `${EXPO_PUBLIC_FIREBASE_API_KEY.substring(0, 10)}...`
+      : 'MISSING',
+    authDomain: EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || 'MISSING',
+    projectId: EXPO_PUBLIC_FIREBASE_PROJECT_ID || 'MISSING',
+    storageBucket: EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || 'MISSING',
+    messagingSenderId: EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || 'MISSING',
+    appId: EXPO_PUBLIC_FIREBASE_APP_ID
+      ? `${EXPO_PUBLIC_FIREBASE_APP_ID.substring(0, 15)}...`
+      : 'MISSING',
+    measurementId: EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || 'MISSING',
+  });
+
   if (missingFields.length > 0) {
     const errorMessage = `❌ Firebase configuration error: Missing required fields: ${missingFields.join(', ')}. Please check your environment variables in EAS secrets or eas.json.`;
-    console.error(errorMessage);
-    console.error('All env vars:', {
-      apiKey: EXPO_PUBLIC_FIREBASE_API_KEY
-        ? `${EXPO_PUBLIC_FIREBASE_API_KEY.substring(0, 10)}...`
-        : 'MISSING',
-      authDomain: EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || 'MISSING',
-      projectId: EXPO_PUBLIC_FIREBASE_PROJECT_ID || 'MISSING',
-      storageBucket: EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || 'MISSING',
-      messagingSenderId: EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || 'MISSING',
-      appId: EXPO_PUBLIC_FIREBASE_APP_ID
-        ? `${EXPO_PUBLIC_FIREBASE_APP_ID.substring(0, 15)}...`
-        : 'MISSING',
-      measurementId: EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || 'MISSING',
-    });
+    console.error('❌ [FIREBASE]', errorMessage);
     throw new Error(errorMessage);
   }
+
+  console.log('✅ [FIREBASE] Config validation passed');
 };
 
-// Validate before initializing
-validateFirebaseConfig();
+try {
+  validateFirebaseConfig();
+} catch (error) {
+  console.error('❌ [FIREBASE] CRITICAL: Config validation failed!', error);
+  throw error;
+}
 
 const firebaseConfig = {
   apiKey: EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -69,7 +101,7 @@ const firebaseConfig = {
   measurementId: EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-console.log('🔥 Initializing Firebase...');
+console.log('🔥 [FIREBASE] Initializing Firebase app...');
 console.log('  Project ID:', EXPO_PUBLIC_FIREBASE_PROJECT_ID);
 console.log(
   '  API Key:',
@@ -84,7 +116,20 @@ console.log(
     : 'MISSING',
 );
 
-export const app = initializeApp(firebaseConfig);
+export const app = (() => {
+  try {
+    console.log('📦 [FIREBASE] Calling initializeApp...');
+    const appInstance = initializeApp(firebaseConfig);
+    console.log('✅ [FIREBASE] Firebase app initialized successfully');
+    return appInstance;
+  } catch (error) {
+    console.error(
+      '❌ [FIREBASE] CRITICAL: Failed to initialize Firebase!',
+      error,
+    );
+    throw error;
+  }
+})();
 
 declare global {
   // eslint-disable-next-line no-var
@@ -92,25 +137,28 @@ declare global {
   var __firebaseAuthInitialized: boolean | undefined;
 }
 
-// Try to get React Native persistence helper or create our own
 let getReactNativePersistenceFn:
   | ((storage: typeof AsyncStorage) => Persistence)
   | null = null;
 
 try {
-  // Try dynamic import to check if getReactNativePersistence is available
   const authModule = require('firebase/auth');
   if (typeof authModule.getReactNativePersistence === 'function') {
     getReactNativePersistenceFn = authModule.getReactNativePersistence;
-    console.log('✅ Found getReactNativePersistence in firebase/auth');
+    if (__DEV__) {
+      console.log('✅ Found getReactNativePersistence in firebase/auth');
+    }
   }
 } catch (e) {
-  console.log('⚠️ Could not access firebase/auth module:', e);
+  if (__DEV__) {
+    console.log('⚠️ Could not access firebase/auth module:', e);
+  }
 }
 
-// Fallback: Create React Native persistence that matches Firebase's expected interface
 if (!getReactNativePersistenceFn) {
-  console.log('🔧 Using fallback persistence implementation');
+  if (__DEV__) {
+    console.log('🔧 Using fallback persistence implementation');
+  }
   getReactNativePersistenceFn = (storage: typeof AsyncStorage): Persistence => {
     return {
       type: 'LOCAL' as const,
@@ -124,79 +172,123 @@ if (!getReactNativePersistenceFn) {
         }
       },
       async _set(key: string, value: unknown) {
-        await storage.setItem(key, JSON.stringify(value));
+        try {
+          await storage.setItem(key, JSON.stringify(value));
+        } catch (error) {
+          if (__DEV__) {
+            console.error('❌ Error in persistence._set:', error);
+          }
+        }
       },
       async _get<T>(key: string) {
-        const json = await storage.getItem(key);
-        return json ? (JSON.parse(json) as T) : null;
+        try {
+          const json = await storage.getItem(key);
+          if (!json) return null;
+          return JSON.parse(json) as T;
+        } catch (error) {
+          if (__DEV__) {
+            console.error('❌ Error in persistence._get:', error);
+          }
+          return null;
+        }
       },
       async _remove(key: string) {
-        await storage.removeItem(key);
+        try {
+          await storage.removeItem(key);
+        } catch (error) {
+          if (__DEV__) {
+            console.error('❌ Error in persistence._remove:', error);
+          }
+        }
       },
-      _addListener() {
-        // Not supported in React Native
-      },
-      _removeListener() {
-        // Not supported in React Native
-      },
+      _addListener() {},
+      _removeListener() {},
     } as Persistence;
   };
 }
 
-// Single initialization function - prevents duplicate instances
 const initializeReactNativeAuth = () => {
-  // Prevent multiple initializations
   if (globalThis.__firebaseAuthInitialized && globalThis.__firebaseAuth) {
-    console.log('♻️ Reusing existing Firebase Auth instance');
+    if (__DEV__) {
+      console.log('♻️ Reusing existing Firebase Auth instance');
+    }
     return globalThis.__firebaseAuth;
   }
 
   try {
-    // Always use initializeAuth with persistence for React Native
     const persistence = getReactNativePersistenceFn!(AsyncStorage);
     globalThis.__firebaseAuth = initializeAuth(app, {
       persistence,
     });
     globalThis.__firebaseAuthInitialized = true;
-    console.log('🔐 Firebase persistence active');
-    console.log(`📍 Environment: ${isExpoGo ? 'Expo Go' : 'EAS Build'}`);
+    if (__DEV__) {
+      console.log('🔐 Firebase persistence active');
+      console.log(`📍 Environment: ${isExpoGo ? 'Expo Go' : 'EAS Build'}`);
+    }
     return globalThis.__firebaseAuth;
   } catch (error: any) {
-    // If already initialized, try to get the existing instance
     if (
       error.code === 'auth/already-initialized' ||
       error.message?.includes('already-initialized') ||
       error.message?.includes('INTERNAL ASSERTION')
     ) {
-      console.log(
-        '⚠️ Auth already initialized, attempting to get existing instance',
-      );
+      if (__DEV__) {
+        console.log(
+          '⚠️ Auth already initialized, attempting to get existing instance',
+        );
+      }
 
-      // Try to get existing auth instance
       try {
-        // Check if auth.currentUser exists (means instance was created)
         const existingAuth = getAuth(app);
         globalThis.__firebaseAuth = existingAuth as ReturnType<
           typeof initializeAuth
         >;
         globalThis.__firebaseAuthInitialized = true;
-        console.log(
-          '⚠️ Using fallback: getAuth (may have limited persistence)',
-        );
+        if (__DEV__) {
+          console.log(
+            '⚠️ Using fallback: getAuth (may have limited persistence)',
+          );
+        }
         return globalThis.__firebaseAuth;
       } catch (getError: any) {
-        console.error('❌ Could not get existing auth instance:', getError);
+        if (__DEV__) {
+          console.error('❌ Could not get existing auth instance:', getError);
+        }
         throw error;
       }
     } else {
-      console.error('❌ Error initializing Firebase Auth:', error);
+      if (__DEV__) {
+        console.error('❌ Error initializing Firebase Auth:', error);
+      }
       throw error;
     }
   }
 };
+console.log('🔐 [FIREBASE] Initializing auth...');
+console.log('   Platform:', Platform.OS);
 
-// Export single auth instance - prevents duplicates
-export const auth =
-  Platform.OS === 'web' ? getAuth(app) : initializeReactNativeAuth();
+export const auth: ReturnType<typeof initializeAuth> = (() => {
+  try {
+    const authInstance =
+      Platform.OS === 'web' ? getAuth(app) : initializeReactNativeAuth();
+    console.log('✅ [FIREBASE] Auth initialized and exported');
+    return authInstance as ReturnType<typeof initializeAuth>;
+  } catch (error) {
+    console.error('❌ [FIREBASE] CRITICAL: Auth init failed!', error);
+    throw error;
+  }
+})();
 
-export const db = getFirestore(app);
+console.log('📊 [FIREBASE] Initializing Firestore...');
+export const db = (() => {
+  try {
+    const dbInstance = getFirestore(app);
+    console.log('✅ [FIREBASE] Firestore initialized');
+    return dbInstance;
+  } catch (error) {
+    console.error('❌ [FIREBASE] Firestore init failed!', error);
+    throw error;
+  }
+})();
+
+console.log('✅✅✅ [FIREBASE] MODULE FULLY LOADED ✅✅✅');
